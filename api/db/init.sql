@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS chats(
 );
 
 CREATE TABLE IF NOT EXISTS follow_records(
-    id BLOB PRIMARY KEY,
     follower_id BLOB REFERENCES users(id),
     user_id BLOB REFERENCES users(id)
 );
