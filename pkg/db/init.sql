@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS comments(
     parent_id BLOB REFERENCES posts(id),
     timestamp DATE NOT NULL,
     content TEXT NOT NULL,
-    img_path BLOB,
+    img_path BLOB
 );
 
 CREATE TABLE IF NOT EXISTS chats(
