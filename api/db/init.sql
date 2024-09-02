@@ -6,30 +6,30 @@ CREATE TABLE IF NOT EXISTS users (
     password BLOB NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    date_of_birth DATE NOT NULL,
+    date_of_birth DATETIME NOT NULL,
     image_path TEXT,
     about_me TEXT,
-    timestamp DATE NOT NULL,
     private BOOLEAN NOT NULL
+    timestamp DATETIME NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS posts (
     id BLOB PRIMARY KEY,
     user_id BLOB REFERENCES users(id),
-    group_id BLOB REFERENCES groups(id),
+    group_id BLOB DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES groups(id),
     category BLOB NOT NULL,
-    timestamp DATE not NULL,
     content TEXT NOT NULL,
     image_path TEXT
+    timestamp DATETIME not NULL,
 );
 
 CREATE TABLE IF NOT EXISTS comments(
     id BLOB PRIMARY KEY,
     user_id BLOB REFERENCES users(id),
     parent_id BLOB REFERENCES posts(id),
-    timestamp DATE NOT NULL,
     content TEXT NOT NULL,
     img_path BLOB
+    timestamp DATETIME NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS chats(
@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS chats(
     sender_id BLOB REFERENCES users(id),
     recipient_id BLOB REFERENCES users(id),
     content TEXT NOT NULL,
-    date_of_birth DATE NOT NULL
+    date_of_birth DATETIME NOT NULL,
+    timestamp DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS follow_records(
