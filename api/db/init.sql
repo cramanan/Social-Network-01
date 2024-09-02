@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     date_of_birth DATETIME NOT NULL,
     image_path TEXT,
     about_me TEXT,
-    private BOOLEAN NOT NULL
-    timestamp DATETIME NOT NULL,
+    private BOOLEAN NOT NULL,
+    timestamp DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS posts (
@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS posts (
     group_id BLOB DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES groups(id),
     category BLOB NOT NULL,
     content TEXT NOT NULL,
-    image_path TEXT
-    timestamp DATETIME not NULL,
+    image_path TEXT,
+    timestamp DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS comments(
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS comments(
     user_id BLOB REFERENCES users(id),
     parent_id BLOB REFERENCES posts(id),
     content TEXT NOT NULL,
-    img_path BLOB
-    timestamp DATETIME NOT NULL,
+    img_path BLOB,
+    timestamp DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS chats(
