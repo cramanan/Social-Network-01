@@ -71,8 +71,9 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 		return err
 	}
 
-	// session := server.Sessions.NewSession(writer, request)
-	// session.User = user
+	session := server.Sessions.NewSession(writer, request)
+	session.User = user
+
 	return writeJSON(writer, http.StatusCreated, user)
 }
 
@@ -128,8 +129,8 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 			})
 	}
 
-	// session := server.Sessions.NewSession(writer, request)
-	// session.User = user
+	session := server.Sessions.NewSession(writer, request)
+	session.User = user
 
 	return writeJSON(writer, http.StatusOK, user)
 
