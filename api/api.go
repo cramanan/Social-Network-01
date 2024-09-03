@@ -46,11 +46,7 @@ func NewAPI(addr string) (*API, error) {
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.GetUserFromUserid))
 	router.HandleFunc("/api/accountdata", handleFunc(server.GetAccountFromUserid))
 	router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
-
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "dist/index.html")
-	})
-	router.Handle("/assets/", http.FileServer(http.Dir("dist")))
+	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
 
 	server.Server.Handler = router
 
