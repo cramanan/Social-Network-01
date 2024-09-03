@@ -1,10 +1,11 @@
 package database
 
 import (
-	"Social-Network-01/api/models"
 	"context"
 	"database/sql"
 	"time"
+
+	"Social-Network-01/api/models"
 
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -73,18 +74,6 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest) (user models.User, err error) {
 	row := store.QueryRowContext(ctx, "SELECT * FROM users WHERE email = ?;", req.Email)
 	comp := []byte{}
-
-	// Id          uuid.UUID
-	// Nickname    string
-	// Email       string
-	// password    []byte
-	// FirstName   string
-	// LastName    string
-	// DateOfBirth time.Time
-	// ImagePath   *string
-	// AboutMe     *string
-	// Private     bool
-	// Timestamp   time.Time
 
 	err = row.Scan(
 		&user.Id,
