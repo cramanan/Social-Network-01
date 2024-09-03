@@ -1,10 +1,13 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/mail"
 
+	"Social-Network-01/api/database"
 	"Social-Network-01/api/models"
 )
 
@@ -53,27 +56,24 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 			})
 	}
 
-	/* => functions missing
-		ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-			defer cancel()
-			user, err := server.Storage.RegisterUser(ctx, registerReq)
-			if errors.Is(err, database.ErrConflict) {
-				return writeJSON(writer, http.StatusConflict,
-					APIerror{
-						Status:  http.StatusConflict,
-						Error:   "Conflict",
-						Message: "Email address is already taken",
-					})
-			}
-			if err != nil {
-				return err
-			}
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+	user, err := server.Storage.RegisterUser(ctx, registerReq)
+	if errors.Is(err, database.ErrConflict) {
+		return writeJSON(writer, http.StatusConflict,
+			APIerror{
+				Status:  http.StatusConflict,
+				Error:   "Conflict",
+				Message: "Email address is already taken",
+			})
+	}
+	if err != nil {
+		return err
+	}
 
-			session := server.Sessions.NewSession(writer, request)
-			session.User = user
+	// session := server.Sessions.NewSession(writer, request)
+	// session.User = user
 	return writeJSON(writer, http.StatusCreated, user)
-	*/
-	return nil
 }
 
 func (server *API) Login(writer http.ResponseWriter, request *http.Request) error {
