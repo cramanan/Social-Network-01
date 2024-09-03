@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"sync"
 	"time"
-
-	"Social-Network-01/api/models"
 )
 
 const (
@@ -22,6 +20,7 @@ type SessionStore struct {
 	timer    *time.Ticker
 }
 
+// generateB64 generate a random base 64 id of n length
 func generateB64(n int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+-")
 	id := make([]rune, n)
@@ -31,6 +30,7 @@ func generateB64(n int) string {
 	return string(id)
 }
 
+// NewSQLite3Store opens a connection with api/database.sqlite and returns a pointer to a SQLite3Store
 func NewSessionStore() *SessionStore {
 	store := new(SessionStore)
 	store.sessions = make(map[string]*Session)
@@ -38,6 +38,8 @@ func NewSessionStore() *SessionStore {
 	return store
 }
 
+// The timeoutCycle function initialize the expiration ticker and
+// asynchronously handle ticks to delete the Sessions
 func (store *SessionStore) timeoutCycle() {
 	store.timer = time.NewTicker(session_timeout)
 	go func() {
@@ -54,12 +56,16 @@ func (store *SessionStore) timeoutCycle() {
 	}()
 }
 
+// The Session type holds the User informations and it's expiration time
 type Session struct {
-	ID      string
-	User    models.User
+	ID string
+
+	// User    models.User
+
 	Expires time.Time
 }
 
+// The NewSession method initialize a Session and set the writer's cookie value to the Sessions ID and map[key]
 func (store *SessionStore) NewSession(w http.ResponseWriter, r *http.Request) *Session {
 	session := new(Session)
 	session.ID = generateB64(5)
@@ -79,6 +85,7 @@ func (store *SessionStore) NewSession(w http.ResponseWriter, r *http.Request) *S
 	return session
 }
 
+// The GetSession method retrieve the session of a request.
 func (store *SessionStore) GetSession(r *http.Request) (s *Session, err error) {
 	cookie, err := r.Cookie(cookie_name)
 	if err != nil {
@@ -92,6 +99,7 @@ func (store *SessionStore) GetSession(r *http.Request) (s *Session, err error) {
 	return s, nil
 }
 
+// The EndSession method removes the request's Session from the Session map
 func (store *SessionStore) EndSession(w http.ResponseWriter, r *http.Request) error {
 	session, err := store.GetSession(r)
 	if err != nil {
