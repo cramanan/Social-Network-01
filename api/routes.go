@@ -15,9 +15,9 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
-				Status:  http.StatusMethodNotAllowed,
-				Error:   "Method Not Allowed",
-				Message: "Method not allowed: Only POST is supported",
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not allowed: Only POST is supported",
 			})
 	}
 
@@ -26,9 +26,9 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 	if err != nil {
 		return writeJSON(writer, http.StatusUnprocessableEntity,
 			APIerror{
-				Status:  http.StatusUnprocessableEntity,
-				Error:   "Unprocessable Entity",
-				Message: "Could not process register request",
+				http.StatusUnprocessableEntity,
+				"Unprocessable Entity",
+				"Could not process register request",
 			})
 	}
 
@@ -41,18 +41,18 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 
 		return writeJSON(writer, http.StatusUnauthorized,
 			APIerror{
-				Status:  http.StatusUnauthorized,
-				Error:   "Unauthorized",
-				Message: "All fields are required",
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"All fields are required",
 			})
 	}
 
 	if _, err = mail.ParseAddress(registerReq.Email); err != nil {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
-				Status:  http.StatusBadRequest,
-				Error:   "Bad Request",
-				Message: "Invalid Email address",
+				http.StatusBadRequest,
+				"Bad Request",
+				"Invalid Email address",
 			})
 	}
 
@@ -62,9 +62,9 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 	if errors.Is(err, database.ErrConflict) {
 		return writeJSON(writer, http.StatusConflict,
 			APIerror{
-				Status:  http.StatusConflict,
-				Error:   "Conflict",
-				Message: "Email address is already taken",
+				http.StatusConflict,
+				"Conflict",
+				"Email address is already taken",
 			})
 	}
 	if err != nil {
@@ -81,9 +81,9 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
-				Status:  http.StatusMethodNotAllowed,
-				Error:   "Method Not Allowed",
-				Message: "Method not allowed: Only POST is supported",
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not allowed: Only POST is supported",
 			})
 	}
 
@@ -92,9 +92,9 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 	if err != nil {
 		return writeJSON(writer, http.StatusUnprocessableEntity,
 			APIerror{
-				Status:  http.StatusUnprocessableEntity,
-				Error:   "Unprocessable Entity",
-				Message: "Could not process login request",
+				http.StatusUnprocessableEntity,
+				"Unprocessable Entity",
+				"Could not process login request",
 			})
 	}
 
@@ -102,18 +102,18 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 		loginReq.Password == "" {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
-				Status:  http.StatusUnauthorized,
-				Error:   "Unauthorized",
-				Message: "Email and password are required",
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"Email and password are required",
 			})
 	}
 
 	if _, err = mail.ParseAddress(loginReq.Email); err != nil {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
-				Status:  http.StatusBadRequest,
-				Error:   "Bad Request",
-				Message: "Invalid Email address",
+				http.StatusBadRequest,
+				"Bad Request",
+				"Invalid Email address",
 			})
 	}
 
@@ -123,9 +123,9 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 	if err != nil {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
-				Status:  http.StatusBadRequest,
-				Error:   "Bad Request",
-				Message: "Invalid Email or Password",
+				http.StatusBadRequest,
+				"Bad Request",
+				"Invalid Email or Password",
 			})
 	}
 
