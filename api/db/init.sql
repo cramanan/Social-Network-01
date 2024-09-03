@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS users (
-    id BLOB PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     nickname TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password BLOB NOT NULL,
@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS posts (
-    id BLOB PRIMARY KEY,
-    user_id BLOB REFERENCES users(id),
-    group_id BLOB DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES groups(id),
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES users(id),
+    group_id TEXT DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES groups(id),
     category BLOB NOT NULL,
     content TEXT NOT NULL,
     image_path TEXT,
@@ -24,35 +24,35 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE TABLE IF NOT EXISTS comments(
-    id BLOB PRIMARY KEY,
-    user_id BLOB REFERENCES users(id),
-    parent_id BLOB REFERENCES posts(id),
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES users(id),
+    parent_id TEXT REFERENCES posts(id),
     content TEXT NOT NULL,
     img_path BLOB,
     timestamp DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS chats(
-    id BLOB PRIMARY KEY,
-    sender_id BLOB REFERENCES users(id),
-    recipient_id BLOB REFERENCES users(id),
+    id TEXT PRIMARY KEY,
+    sender_id TEXT REFERENCES users(id),
+    recipient_id TEXT REFERENCES users(id),
     content TEXT NOT NULL,
     date_of_birth DATETIME NOT NULL,
     timestamp DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS follow_records(
-    follower_id BLOB REFERENCES users(id),
-    user_id BLOB REFERENCES users(id)
+    follower_id TEXT REFERENCES users(id),
+    user_id TEXT REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS likes_records(
-    user_id BLOB REFERENCES users(id),
-    post_id BLOB REFERENCES posts(id)
+    user_id TEXT REFERENCES users(id),
+    post_id TEXT REFERENCES posts(id)
 );
 
 CREATE TABLE IF NOT EXISTS groups(
-    id BLOB PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     users BLOB NOT NULL
 );

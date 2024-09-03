@@ -1,15 +1,11 @@
 package models
 
-import (
-	"time"
-
-	"github.com/gofrs/uuid"
-)
+import "time"
 
 type Post struct {
-	Id         uuid.UUID
-	UserId     uuid.UUID
-	GroupId    uuid.UUID
+	Id         string
+	UserId     string
+	GroupId    string
 	Categories []byte // JSON
 	Content    string
 	ImagePath  []byte // JSON

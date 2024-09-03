@@ -43,7 +43,7 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 		return
 	}
 
-	user.Id = id
+	user.Id = id.String()
 	user.Nickname = req.Nickname
 	user.Email = req.Email
 	user.FirstName = req.FirstName
@@ -95,54 +95,49 @@ func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest
 	return user, bcrypt.CompareHashAndPassword(comp, []byte(req.Password))
 }
 
-func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId uuid.UUID) (posts []models.Post, err error) {
+func (store *SQLite3Store) Account(ctx context.Context, userId string) (user *models.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Commit()
 
-	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE id = ?;", userId)
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM users WHERE id = ?;", userId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+	user = new(models.User)
 
-	// Scan rows into posts
-	for rows.Next() {
-		var post models.Post
+	err = store.QueryRowContext(ctx, `SELECT 
+		id,
+		nickname,
+		email,
+		first_name,
+		last_name,
+		date_of_birth,
+		image_path,
+		about_me,
+		private,
+		timestamp
 
-		err = rows.Scan(&post)
-		if err != nil {
-			return nil, err
-		}
-		posts = append(posts, post)
-	}
-	return posts, nil
-}
+		FROM users WHERE id = ?;`, userId).Scan(
 
-func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId uuid.UUID) (posts []models.Post, err error) {
-	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+		&user.Id,
+		&user.Nickname,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.DateOfBirth,
+		&user.ImagePath,
+		&user.AboutMe,
+		&user.Private,
+		&user.Timestamp,
+	)
+
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Commit()
 
-	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE group_id = ?;", groupId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	// Scan rows into posts
-	for rows.Next() {
-		var post models.Post
-
-		err = rows.Scan(&post)
-		if err != nil {
-			return nil, err
-		}
-		posts = append(posts, post)
-	}
-	return posts, nil
+	return user, nil
 }

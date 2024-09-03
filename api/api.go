@@ -26,9 +26,13 @@ type API struct {
 }
 
 type APIerror struct {
-	Status  int    `json:"status"`
-	Error   string `json:"error"`
-	Message string `json:"message"`
+	Status   int    `json:"status"`
+	ErrorMsg string `json:"error"`
+	Message  string `json:"message"`
+}
+
+func (err APIerror) Error() string {
+	return err.ErrorMsg
 }
 
 func NewAPI(addr string, dbFilePath string) (*API, error) {
@@ -40,13 +44,15 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.HandleFunc("/api/register", handleFunc(server.Register))
 	router.HandleFunc("/api/login", handleFunc(server.Login))
 
+	router.HandleFunc("/api/user/{userid}", handleFunc(server.Account))
+
 	router.HandleFunc("/api/posts/user/{userid}", handleFunc(server.GetAllPostsFromOneUser))
 	router.HandleFunc("/api/posts/group/{groupid}", handleFunc(server.GetAllPostsFromOneGroup))
 	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
 	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
 	router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
-	router.HandleFunc("/api/user/{userid}", handleFunc(server.GetUserFromUserid))
-	router.HandleFunc("/api/accountdata", handleFunc(server.GetAccountFromUserid))
+	// router.HandleFunc("/api/user/{userid}", handleFunc(server.GetUserFromUserid))
+	router.HandleFunc("/api/account", handleFunc(server.Account))
 	router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
 	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
@@ -102,9 +108,9 @@ func handleFunc(fn handlerFunc) http.HandlerFunc {
 			log.Println(err)
 			writeJSON(w, http.StatusInternalServerError,
 				APIerror{
-					Status:  http.StatusInternalServerError,
-					Error:   "Internal Server Error",
-					Message: err.Error(),
+					http.StatusInternalServerError,
+					"Internal Server Error",
+					err.Error(),
 				})
 		}
 	}
@@ -120,9 +126,9 @@ func (server *API) Protected(fn handlerFunc) http.HandlerFunc {
 			log.Println(err)
 			writeJSON(w, http.StatusUnauthorized,
 				APIerror{
-					Status:  http.StatusUnauthorized,
-					Error:   "Unauthorized",
-					Message: "You are not authorized to access this ressource",
+					http.StatusUnauthorized,
+					"Unauthorized",
+					"You are not authorized to access this ressource",
 				})
 			return
 		}
@@ -130,9 +136,9 @@ func (server *API) Protected(fn handlerFunc) http.HandlerFunc {
 			log.Println(err)
 			writeJSON(w, http.StatusInternalServerError,
 				APIerror{
-					Status:  http.StatusInternalServerError,
-					Error:   "Internal Server Error",
-					Message: err.Error(),
+					http.StatusInternalServerError,
+					"Internal Server Error",
+					err.Error(),
 				})
 		}
 	})

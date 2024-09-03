@@ -1,15 +1,11 @@
 package models
 
-import (
-	"time"
-
-	"github.com/gofrs/uuid"
-)
+import "time"
 
 type Chat struct {
-	ID          uuid.UUID
-	SenderId    uuid.UUID
-	RecipientId uuid.UUID
+	ID          string
+	SenderId    string
+	RecipientId string
 	Content     string
 	Timestamp   time.Time
 }

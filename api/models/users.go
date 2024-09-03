@@ -1,23 +1,18 @@
 package models
 
-import (
-	"time"
-
-	"github.com/gofrs/uuid"
-)
+import "time"
 
 type User struct {
-	Id          uuid.UUID
-	Nickname    string
-	Email       string
-	password    []byte
-	FirstName   string
-	LastName    string
-	DateOfBirth time.Time
-	ImagePath   *string
-	AboutMe     *string
-	Private     bool
-	Timestamp   time.Time
+	Id          string
+	Nickname    string    `json:"nickname"`
+	Email       string    `json:"email"`
+	FirstName   string    `json:"firstname"`
+	LastName    string    `json:"lastname"`
+	DateOfBirth time.Time `json:"dateofbirth"`
+	ImagePath   *string   `json:"imagePath"`
+	AboutMe     *string   `json:"aboutMe"`
+	Private     bool      `json:"private"`
+	Timestamp   time.Time `json:"timestamp"`
 }
 
 type RegisterRequest struct {

@@ -1,13 +1,9 @@
 package models
 
-import (
-	"time"
-
-	"github.com/gofrs/uuid"
-)
+import "time"
 
 type Group struct {
-	Id          uuid.UUID
+	Id          string
 	Name        string
 	UsersIds    []byte
 	Content     string
