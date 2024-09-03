@@ -37,7 +37,9 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router := http.NewServeMux()
 
-	// data routes
+	router.HandleFunc("/api/register", handleFunc(server.Register))
+	router.HandleFunc("/api/login", handleFunc(server.Login))
+
 	router.HandleFunc("/api/posts/user/{userid}", handleFunc(server.GetAllPostsFromOneUser))
 	router.HandleFunc("/api/posts/group/{groupid}", handleFunc(server.GetAllPostsFromOneGroup))
 	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
@@ -46,10 +48,6 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.GetUserFromUserid))
 	router.HandleFunc("/api/accountdata", handleFunc(server.GetAccountFromUserid))
 	router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
-
-	// other routes
-	router.HandleFunc("/api/register", handleFunc(server.Register))
-	router.HandleFunc("/api/login", handleFunc(server.Login))
 
 	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
 

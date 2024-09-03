@@ -116,7 +116,6 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 			})
 	}
 
-	/* => fonctions missing
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 	user, err := server.Storage.LogUser(ctx, loginReq)
@@ -129,12 +128,11 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 			})
 	}
 
-	session := server.Sessions.NewSession(writer, request)
-	session.User = user
+	// session := server.Sessions.NewSession(writer, request)
+	// session.User = user
 
 	return writeJSON(writer, http.StatusOK, user)
-	*/
-	return nil
+
 }
 
 func (server *API) GetAllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {

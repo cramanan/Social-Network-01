@@ -70,6 +70,42 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 	return user, tx.Commit()
 }
 
+func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest) (user models.User, err error) {
+	row := store.QueryRowContext(ctx, "SELECT * FROM users WHERE email = ?;", req.Email)
+	comp := []byte{}
+
+	// Id          uuid.UUID
+	// Nickname    string
+	// Email       string
+	// password    []byte
+	// FirstName   string
+	// LastName    string
+	// DateOfBirth time.Time
+	// ImagePath   *string
+	// AboutMe     *string
+	// Private     bool
+	// Timestamp   time.Time
+
+	err = row.Scan(
+		&user.Id,
+		&user.Nickname,
+		&user.Email,
+		&comp,
+		&user.FirstName,
+		&user.LastName,
+		&user.DateOfBirth,
+		&user.ImagePath,
+		&user.AboutMe,
+		&user.Private,
+		&user.Timestamp,
+	)
+	if err != nil {
+		return
+	}
+
+	return user, bcrypt.CompareHashAndPassword(comp, []byte(req.Password))
+}
+
 func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId uuid.UUID) (posts []models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
