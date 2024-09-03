@@ -95,20 +95,20 @@ func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest
 	return user, bcrypt.CompareHashAndPassword(comp, []byte(req.Password))
 }
 
-func (store *SQLite3Store) Account(ctx context.Context, userId string) (user *models.User, err error) {
+func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *models.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Commit()
+	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, "SELECT * FROM users WHERE id = ?;", userId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	user = new(models.User)
 
+	user = new(models.User)
 	err = store.QueryRowContext(ctx, `SELECT 
 		id,
 		nickname,

@@ -78,7 +78,7 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 	return writeJSON(writer, http.StatusCreated, user)
 }
 
-func (server *API) Login(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err error) {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -89,8 +89,8 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 	}
 
 	loginReq := new(models.LoginRequest)
-	err := json.NewDecoder(request.Body).Decode(loginReq)
-	if err != nil {
+
+	if err := json.NewDecoder(request.Body).Decode(loginReq); err != nil {
 		return writeJSON(writer, http.StatusUnprocessableEntity,
 			APIerror{
 				http.StatusUnprocessableEntity,
@@ -99,8 +99,7 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 			})
 	}
 
-	if loginReq.Email == "" ||
-		loginReq.Password == "" {
+	if loginReq.Email == "" || loginReq.Password == "" {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
 				http.StatusUnauthorized,
@@ -136,10 +135,10 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) erro
 	return writeJSON(writer, http.StatusOK, user)
 }
 
-func (server *API) Account(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) User(writer http.ResponseWriter, request *http.Request) error {
 	switch request.Method {
 	case http.MethodGet:
-		user, err := server.Storage.Account(request.Context(), request.PathValue("userid"))
+		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid"))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -162,14 +161,16 @@ func (server *API) Account(writer http.ResponseWriter, request *http.Request) er
 		}
 
 		return writeJSON(writer, http.StatusOK, user)
+
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
 	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
 }
 
 func (server *API) GetAllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {

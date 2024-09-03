@@ -6,9 +6,9 @@ type User struct {
 	Id          string
 	Nickname    string    `json:"nickname"`
 	Email       string    `json:"email"`
-	FirstName   string    `json:"firstname"`
-	LastName    string    `json:"lastname"`
-	DateOfBirth time.Time `json:"dateofbirth"`
+	FirstName   string    `json:"firstName"`
+	LastName    string    `json:"lastName"`
+	DateOfBirth time.Time `json:"dateOfBirth"`
 	ImagePath   *string   `json:"imagePath"`
 	AboutMe     *string   `json:"aboutMe"`
 	Private     bool      `json:"private"`
@@ -19,8 +19,8 @@ type RegisterRequest struct {
 	Nickname    string `json:"nickname"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	FirstName   string `json:"firstname"`
-	LastName    string `json:"lastname"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
 	DateOfBirth string `json:"dateofbirth"`
 }
 

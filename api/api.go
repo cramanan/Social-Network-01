@@ -44,15 +44,13 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.HandleFunc("/api/register", handleFunc(server.Register))
 	router.HandleFunc("/api/login", handleFunc(server.Login))
 
-	router.HandleFunc("/api/user/{userid}", handleFunc(server.Account))
+	router.HandleFunc("/api/user/{userid}", handleFunc(server.User))
+	router.HandleFunc("/api/user/{userid}/posts", handleFunc(server.GetAllPostsFromOneUser))
+	router.HandleFunc("/api/group/{groupid}/posts", handleFunc(server.GetAllPostsFromOneGroup))
 
-	router.HandleFunc("/api/posts/user/{userid}", handleFunc(server.GetAllPostsFromOneUser))
-	router.HandleFunc("/api/posts/group/{groupid}", handleFunc(server.GetAllPostsFromOneGroup))
 	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
 	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
 	router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
-	// router.HandleFunc("/api/user/{userid}", handleFunc(server.GetUserFromUserid))
-	router.HandleFunc("/api/account", handleFunc(server.Account))
 	router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
 	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
