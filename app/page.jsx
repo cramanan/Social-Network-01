@@ -20,6 +20,12 @@ export default function Home() {
                 <input type="date" name="dateofbirth" />
                 <button type="submit">Register</button>
             </form>
+            <br />
+            <form>
+                <input type="text" name="email" placeholder="email" />
+                <input type="password" name="password" placeholder="password" />
+                <button type="submit">Login</button>
+            </form>
         </>
     );
 }
