@@ -37,7 +37,16 @@ func NewAPI(addr string) (*API, error) {
 
 	router := http.NewServeMux()
 
-	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
+	// data routes
+	router.HandleFunc("/api/posts/user/{userid}", handleFunc(server.GetAllPostsFromOneUser))
+	router.HandleFunc("/api/posts/group/{groupid}", handleFunc(server.GetAllPostsFromOneGroup))
+	router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
+	router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
+	router.HandleFunc("/api/comments/post/{postid}", handleFunc(server.GetAllCommentsFromOnePost))
+	router.HandleFunc("/api/userdata/user/{userid}", handleFunc(server.GetUserFromUserid))
+	router.HandleFunc("/api/accountdata", handleFunc(server.GetAccountFromUserid))
+	router.HandleFunc("/api/chat/users/{userid}", handleFunc(server.GetChatFrom2Userid))
+
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "dist/index.html")
 	})
