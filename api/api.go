@@ -31,7 +31,7 @@ type APIerror struct {
 	Message string `json:"message"`
 }
 
-func NewAPI(addr string) (*API, error) {
+func NewAPI(addr string, dbFilePath string) (*API, error) {
 	server := new(API)
 	server.Server.Addr = addr
 
@@ -55,7 +55,7 @@ func NewAPI(addr string) (*API, error) {
 
 	server.Server.Handler = router
 
-	storage, err := database.NewSQLite3Store()
+	storage, err := database.NewSQLite3Store(dbFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +87,7 @@ func parseRequestLimitAndOffset(request *http.Request) (limit, offset *int) {
 // and sends it with the provided status code as application/json.
 func writeJSON(writer http.ResponseWriter, statusCode int, v any) error {
 	writer.Header().Add("Content-Type", "application/json")
+	writer.Header().Add("Access-Control-Allow-Origin", "*")
 	writer.WriteHeader(statusCode)
 	return json.NewEncoder(writer).Encode(v)
 }

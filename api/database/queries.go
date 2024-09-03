@@ -50,18 +50,6 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 	user.DateOfBirth, err = time.Parse("2006-05-01", req.DateOfBirth)
 	user.Timestamp = time.Now().UTC()
 
-	// Id          uuid.UUID
-	// Nickname    string
-	// Email       string
-	// password    []byte
-	// FirstName   string
-	// LastName    string
-	// DateOfBirth time.Time
-	// ImagePath   *string
-	// AboutMe     *string
-	// Private     bool
-	// Timestamp   time.Time
-
 	_, err = tx.ExecContext(ctx, "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
 		user.Id,
 		user.Nickname,
@@ -70,6 +58,9 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 		user.FirstName,
 		user.LastName,
 		user.DateOfBirth,
+		nil,
+		nil,
+		false,
 		user.Timestamp,
 	)
 	if err != nil {

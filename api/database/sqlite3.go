@@ -16,8 +16,8 @@ var ErrConflict = errors.New("Conflict")
 // The SQLite3 Store is a sqlite3 DB connection with additionals transaction methods
 type SQLite3Store struct{ *sql.DB }
 
-func NewSQLite3Store() (*SQLite3Store, error) {
-	db, err := sql.Open("sqlite3", "db/db.sqlite3")
+func NewSQLite3Store(dbFilePath string) (*SQLite3Store, error) {
+	db, err := sql.Open("sqlite3", dbFilePath)
 	if err != nil {
 		return nil, err
 	}

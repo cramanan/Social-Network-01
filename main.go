@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	api, err := api.NewAPI(":3000")
+	api, err := api.NewAPI(":3001", "api/db/db.sqlite3")
 	if err != nil {
 		log.Fatalln(err)
 	}
