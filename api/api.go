@@ -40,8 +40,8 @@ func NewAPI(addr string) (*API, error) {
 	// data routes
 	router.HandleFunc("/api/posts/user/{userid}", handleFunc(server.GetAllPostsFromOneUser))
 	router.HandleFunc("/api/posts/group/{groupid}", handleFunc(server.GetAllPostsFromOneGroup))
-	router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
-	router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
+	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
+	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
 	router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.GetUserFromUserid))
 	router.HandleFunc("/api/accountdata", handleFunc(server.GetAccountFromUserid))
