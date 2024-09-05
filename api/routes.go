@@ -189,7 +189,8 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 			}
 			return err
 		}
-		posts, err := server.Storage.GetAllPostsFromOneUser(request.Context(), user.Id)
+		limit, offset := parseRequestLimitAndOffset(request)
+		posts, err := server.Storage.GetAllPostsFromOneUser(request.Context(), user.Id, limit, offset)
 		if err != nil{
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
