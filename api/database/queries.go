@@ -206,5 +206,15 @@ func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId st
 		return err
 	}
 
-	return nil
+	return tx.Commit()
+}
+
+func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId string) (follows bool, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	return follows, tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM likes_records WHERE user_id = ? and follower_id = ?)").Scan(follows)
 }
