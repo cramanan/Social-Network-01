@@ -210,7 +210,51 @@ func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, re
 }
 
 func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, request *http.Request) error {
-	return nil
+	if request.Method == http.MethodGet {
+
+		userError := func(err error) error {
+			if err == sql.ErrNoRows {
+				return writeJSON(writer, http.StatusNotFound,
+					APIerror{
+						http.StatusNotFound,
+						"Not found",
+						"User not found",
+					},
+				)
+			}
+			return err
+		}
+
+		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid"))
+		if err != nil {
+			return userError(err)
+		}
+
+		sessionUser, err := server.Sessions.GetSession(request)
+
+		if user.Private && (err != nil || sessionUser.User.Id != user.Id) {
+			return writeJSON(writer, http.StatusUnauthorized, APIerror{
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"This account is private",
+			})
+		}
+
+		limit, offset := parseRequestLimitAndOffset(request)
+		posts, err := server.Storage.GetPostsLike(request.Context(), request.PathValue("userid"), limit, offset)
+		if err != nil {
+			return userError(err)
+		}
+
+		return writeJSON(writer, http.StatusOK, posts)
+	}
+
+	return writeJSON(writer, http.StatusMethodNotAllowed,
+		APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Method not Allowed",
+		})
 }
 
 func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request *http.Request) error {
@@ -240,10 +284,6 @@ func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request
 			"Method Not Allowed",
 			"Method not Allowed",
 		})
-}
-
-func (server *API) GetUserFromUserid(writer http.ResponseWriter, request *http.Request) error {
-	return nil
 }
 
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
