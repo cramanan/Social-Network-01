@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"Social-Network-01/api/models"
@@ -134,10 +135,41 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 		&user.Private,
 		&user.Timestamp,
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []models.Post, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE group_id = ?;", groupId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		post := models.Post{}
+		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Categories, &post.Content, &post.ImagePath, &post.Timestamp)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		posts = append(posts, post)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
 }

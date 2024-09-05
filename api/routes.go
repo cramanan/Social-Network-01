@@ -170,7 +170,6 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 				"Method not Allowed",
 			})
 	}
-
 }
 
 func (server *API) GetAllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
@@ -178,7 +177,31 @@ func (server *API) GetAllPostsFromOneUser(writer http.ResponseWriter, request *h
 }
 
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
-	return nil
+	switch request.Method {
+	case http.MethodPost:
+		limit, offset := parseRequestLimitAndOffset(request)
+		posts, err := server.Storage.GetGroupPosts(request.Context(), request.PathValue("groupid"), limit, offset)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return writeJSON(writer, http.StatusNotFound,
+					APIerror{
+						http.StatusNotFound,
+						"Not found",
+						"Group not found",
+					},
+				)
+			}
+			return err
+		}
+		return writeJSON(writer, http.StatusOK, posts)
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
 }
 
 func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
