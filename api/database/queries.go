@@ -142,6 +142,33 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 	return user, nil
 }
 
+func (store *SQLite3Store) GetAllPostsFromOneUser(ctx context.Context, userId string, limit, offset int) (posts []*models.Post, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE user_id = ? LIMIT ? OFFSET ?;", userId, limit, offset)
+	for rows.Next() {
+		post := new(models.Post)
+		err = rows.Scan(
+			&post.Id,
+			&post.UserId,
+			&post.GroupId,
+			&post.Categories,
+			&post.ImagePath,
+			&post.Timestamp)
+		posts = append(posts, post)
+
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
 func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
