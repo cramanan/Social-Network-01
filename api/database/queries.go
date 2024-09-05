@@ -149,7 +149,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	}
 	defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE group_id = ?;", groupId)
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE group_id = ? LIMIT ? OFFSET ?;", groupId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -172,4 +172,36 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	}
 
 	return posts, nil
+}
+
+func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit, offset int) (comments []models.Comments, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM comments WHERE parent_id = ? LIMIT ? OFFSET ?;", postId, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		comment := models.Comments{}
+		err := rows.Scan(&comment.Id, &comment.UserId, &comment.ParentId, &comment.Content, &comment.ImgPath, &comment.TimeStamp)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		comments = append(comments, comment)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return comments, nil
 }

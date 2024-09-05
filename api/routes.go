@@ -177,8 +177,8 @@ func (server *API) GetAllPostsFromOneUser(writer http.ResponseWriter, request *h
 }
 
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
-	switch request.Method {
-	case http.MethodPost:
+	if request.Method == http.MethodGet {
+
 		limit, offset := parseRequestLimitAndOffset(request)
 		posts, err := server.Storage.GetGroupPosts(request.Context(), request.PathValue("groupid"), limit, offset)
 		if err != nil {
@@ -193,15 +193,16 @@ func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *
 			}
 			return err
 		}
+
 		return writeJSON(writer, http.StatusOK, posts)
-	default:
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
 	}
+
+	return writeJSON(writer, http.StatusMethodNotAllowed,
+		APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Method not Allowed",
+		})
 }
 
 func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
@@ -213,7 +214,32 @@ func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, requ
 }
 
 func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request *http.Request) error {
-	return nil
+	if request.Method == http.MethodGet {
+
+		limit, offset := parseRequestLimitAndOffset(request)
+		comments, err := server.Storage.GetComments(request.Context(), request.PathValue("postid"), limit, offset)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return writeJSON(writer, http.StatusNotFound,
+					APIerror{
+						http.StatusNotFound,
+						"Not found",
+						"Post not found",
+					},
+				)
+			}
+			return err
+		}
+
+		return writeJSON(writer, http.StatusOK, comments)
+	}
+
+	return writeJSON(writer, http.StatusMethodNotAllowed,
+		APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Method not Allowed",
+		})
 }
 
 func (server *API) GetUserFromUserid(writer http.ResponseWriter, request *http.Request) error {
