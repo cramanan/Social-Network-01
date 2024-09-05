@@ -138,7 +138,7 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 func (server *API) User(writer http.ResponseWriter, request *http.Request) error {
 	switch request.Method {
 	case http.MethodGet:
-		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid"))
+		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid")) // add timeout
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -171,6 +171,55 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 			})
 	}
 
+}
+
+func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request) error {
+	if request.Method != http.MethodPost {
+		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Only POST is allowed",
+		})
+	}
+
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	err = server.Storage.FollowUser(request.Context(), request.PathValue("userid"), sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusCreated, "Created")
+}
+
+func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
+	if err != nil {
+		return err
+	}
+
+	if user.Private {
+		return writeJSON(writer, http.StatusUnauthorized, APIerror{
+			http.StatusUnauthorized,
+			"Unauthorized",
+			"This account is private",
+		})
+	}
+
+	users, err := server.Storage.GetFollowersOfUser(ctx, request.PathValue("userid"), limit, offset)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, users)
 }
 
 func (server *API) GetAllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {

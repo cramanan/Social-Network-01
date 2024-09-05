@@ -141,3 +141,70 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 
 	return user, nil
 }
+
+func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string, limit, offset int) (users []models.User, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := store.QueryContext(ctx,
+		`SELECT 
+			u.id,
+			u.nickname,
+			u.email,
+			u.first_name,
+			u.last_name,
+			u.date_of_birth,
+			u.image_path,
+			u.about_me,
+			u.private,
+			u.timestamp
+		FROM follow_records f 
+		JOIN users u 
+		ON f.user_id = u.id
+		WHERE user_id = ?
+		LIMIT ? OFFSET ?;`, userId, limit, offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		user := models.User{}
+		err = rows.Scan(
+			&user.Id,
+			&user.Nickname,
+			&user.Email,
+			&user.FirstName,
+			&user.LastName,
+			&user.DateOfBirth,
+			&user.ImagePath,
+			&user.AboutMe,
+			&user.Private,
+			&user.Timestamp,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = store.ExecContext(ctx, `INSERT INTO follow_records VALUES(?, ?);`, userId, followerId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

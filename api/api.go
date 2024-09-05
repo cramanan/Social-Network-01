@@ -47,11 +47,13 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.User))
 	router.HandleFunc("/api/user/{userid}/posts", handleFunc(server.GetAllPostsFromOneUser))
 	router.HandleFunc("/api/group/{groupid}/posts", handleFunc(server.GetAllPostsFromOneGroup))
+	router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
+	router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
 
 	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
 	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
-	router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
-	router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
+	// router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
+	// router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
 	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
 
@@ -67,21 +69,15 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	return server, nil
 }
 
-// parseRequestLimitAndOffset is used to extract the query parameters with the name: "limit" & "offset".
-func parseRequestLimitAndOffset(request *http.Request) (limit, offset *int) {
-	params := request.URL.Query()
-	if params.Has("limit") {
-		val, err := strconv.Atoi(params.Get("limit"))
-		if err == nil {
-			limit = &val
-		}
+// parseRequestLimitAndOffset is used to extract the query parameters
+// with the name: "limit" & "offset".
+func parseRequestLimitAndOffset(request *http.Request) (limit, offset int) {
+	params := request.URL.Query() // parse the Query
+	limit, _ = strconv.Atoi(params.Get("limit"))
+	if limit == 0 {
+		limit = -1 // set to -1 for SQL Query
 	}
-	if params.Has("limit") {
-		val, err := strconv.Atoi(params.Get("limit"))
-		if err == nil {
-			offset = &val
-		}
-	}
+	offset, _ = strconv.Atoi(params.Get("offset"))
 	return limit, offset
 }
 
