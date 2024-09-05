@@ -69,8 +69,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	return server, nil
 }
 
-// parseRequestLimitAndOffset is used to extract the query parameters
-// with the name: "limit" & "offset".
+// parseRequestLimitAndOffset is used to extract the query parameters // with the name: "limit" & "offset".
 func parseRequestLimitAndOffset(request *http.Request) (limit, offset int) {
 	params := request.URL.Query() // parse the Query
 	limit, _ = strconv.Atoi(params.Get("limit"))
