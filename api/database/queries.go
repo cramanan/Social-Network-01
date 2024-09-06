@@ -350,3 +350,36 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 
 	return follows, tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM likes_records WHERE user_id = ? and follower_id = ?)").Scan(follows)
 }
+
+func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string, limit, offset int) (chats []models.Chat, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	// ⚠ end the SQL request ⚠
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM chats WHERE [...] LIMIT ? OFFSET ? ORDER BY timestamp DESC;", user1Id, user2Id, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		chat := models.Chat{}
+		err := rows.Scan(&chat.ID, &chat.SenderId, &chat.RecipientId, &chat.Content, &chat.ImgPath, &chat.Timestamp)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		chats = append(chats, chat)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return chats, nil
+}

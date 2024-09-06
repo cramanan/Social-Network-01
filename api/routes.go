@@ -221,7 +221,7 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 	return writeJSON(writer, http.StatusOK, users)
 }
 
-func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error{
+func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
 	switch request.Method {
 	case http.MethodGet:
 		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid"))
@@ -239,7 +239,7 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 		}
 		limit, offset := parseRequestLimitAndOffset(request)
 		posts, err := server.Storage.GetAllPostsFromOneUser(request.Context(), user.Id, limit, offset)
-		if err != nil{
+		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
 					APIerror{
@@ -261,7 +261,6 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 				"Method not Allowed",
 			})
 	}
-
 }
 
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
@@ -375,5 +374,31 @@ func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request
 }
 
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
-	return nil
+	if request.Method == http.MethodGet {
+
+		limit, offset := parseRequestLimitAndOffset(request)
+		sessionUser, err := server.Sessions.GetSession(request)
+		chats, err := server.Storage.GetChats(request.Context(), request.PathValue("userid"), sessionUser.User.Id, limit, offset)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return writeJSON(writer, http.StatusNotFound,
+					APIerror{
+						http.StatusNotFound,
+						"Not found",
+						"Chat not found",
+					},
+				)
+			}
+			return err
+		}
+
+		return writeJSON(writer, http.StatusOK, chats)
+	}
+
+	return writeJSON(writer, http.StatusMethodNotAllowed,
+		APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Method not Allowed",
+		})
 }

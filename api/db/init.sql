@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS chats(
     sender_id TEXT REFERENCES users(id),
     recipient_id TEXT REFERENCES users(id),
     content TEXT NOT NULL,
-    date_of_birth DATETIME NOT NULL,
+    img_path TEXT,
     timestamp DATETIME NOT NULL
 );
 

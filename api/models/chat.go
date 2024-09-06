@@ -7,5 +7,6 @@ type Chat struct {
 	SenderId    string
 	RecipientId string
 	Content     string
+	ImgPath     string
 	Timestamp   time.Time
 }
