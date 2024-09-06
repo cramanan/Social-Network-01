@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS chats(
 );
 
 CREATE TABLE IF NOT EXISTS follow_records(
-    user_id TEXT REFERENCES users(id)
-    follower_id TEXT REFERENCES users(id),
+    user_id TEXT REFERENCES users(id),
+    follower_id TEXT REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS likes_records(
