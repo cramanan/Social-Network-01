@@ -358,7 +358,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	}
 	defer tx.Rollback()
 
-	// ⚠ end the SQL request ⚠
+	// ⚠ todo: the SQL request ⚠
 	rows, err := tx.QueryContext(ctx, "SELECT * FROM chats WHERE [...] LIMIT ? OFFSET ? ORDER BY timestamp DESC;", user1Id, user2Id, limit, offset)
 	if err != nil {
 		return nil, err
@@ -382,4 +382,37 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	}
 
 	return chats, nil
+}
+
+func (store *SQLite3Store) GetFollowsPosts(ctx context.Context, userId string, limit, offset int) (posts []models.Post, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	// ⚠ todo: the SQL request ⚠
+	rows, err := tx.QueryContext(ctx, "SELECT * [...] LIMIT ? OFFSET ? ORDER BY timestamp DESC;", userId, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		post := models.Post{}
+		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Categories, &post.Content, &post.ImagePath, &post.Timestamp)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		posts = append(posts, post)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
 }

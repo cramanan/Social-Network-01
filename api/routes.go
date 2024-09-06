@@ -293,7 +293,32 @@ func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *
 }
 
 func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
-	return nil
+	if request.Method == http.MethodGet {
+
+		limit, offset := parseRequestLimitAndOffset(request)
+		posts, err := server.Storage.GetFollowsPosts(request.Context(), request.PathValue("userid"), limit, offset)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return writeJSON(writer, http.StatusNotFound,
+					APIerror{
+						http.StatusNotFound,
+						"Not found",
+						"User not found",
+					},
+				)
+			}
+			return err
+		}
+
+		return writeJSON(writer, http.StatusOK, posts)
+	}
+
+	return writeJSON(writer, http.StatusMethodNotAllowed,
+		APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Method not Allowed",
+		})
 }
 
 func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, request *http.Request) error {
@@ -378,6 +403,16 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 
 		limit, offset := parseRequestLimitAndOffset(request)
 		sessionUser, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return writeJSON(writer, http.StatusNotFound,
+				APIerror{
+					http.StatusNotFound,
+					"Not found",
+					"User does not exist",
+				},
+			)
+		}
+
 		chats, err := server.Storage.GetChats(request.Context(), request.PathValue("userid"), sessionUser.User.Id, limit, offset)
 		if err != nil {
 			if err == sql.ErrNoRows {
