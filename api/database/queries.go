@@ -142,6 +142,13 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 	return user, nil
 }
 
+// Recover all posts from one user from the database using its ID.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// ̀̀`ctx` is the context of the request. `userId` is the userId in the database and is usualy find in the request pathvalue.
+// `limit` and `offset` can be recover with the parseRequestLimitAndOffset function using the request.
+//
+// This function return an array of post (see ./api/models/posts.go) or an SQL error.
 func (store *SQLite3Store) GetAllPostsFromOneUser(ctx context.Context, userId string, limit, offset int) (posts []*models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
