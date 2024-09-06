@@ -96,6 +96,13 @@ func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest
 	return user, bcrypt.CompareHashAndPassword(comp, []byte(req.Password))
 }
 
+// Recover all user datas from one user from the database using its userId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue or
+// in the sessions field of the API structure.
+//
+// This function return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *models.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
