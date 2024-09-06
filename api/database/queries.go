@@ -386,6 +386,14 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 	return follows, tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM likes_records WHERE user_id = ? and follower_id = ?)").Scan(follows)
 }
 
+// Recover all chats beetween 2 users from the database using their userIds.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `user1Id` and `user2Id` are the corresponding users in the database and are usualy find in the
+// request pathvalue and the sessions field of the API structure. `limit` and `offset` can be recover with the parseRequestLimitAndOffset
+// function using the request.
+//
+// This function return an array of chat (see ./api/models/chat.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string, limit, offset int) (chats []models.Chat, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
