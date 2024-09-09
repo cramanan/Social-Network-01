@@ -385,6 +385,25 @@ func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId st
 	return tx.Commit()
 }
 
+func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = store.ExecContext(ctx,
+		`DELETE FROM follow_records
+		WHERE user_id = ? AND follower_id =  ?;`,
+
+		userId, followerId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId string) (follows bool, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -392,7 +411,7 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 	}
 	defer tx.Rollback()
 
-	return follows, tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM likes_records WHERE user_id = ? and follower_id = ?)").Scan(follows)
+	return follows, tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM likes_records WHERE user_id = ? and follower_id = ?)").Scan(&follows)
 }
 
 // Recover all chats beetween 2 users from the database using their userIds.
