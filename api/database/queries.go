@@ -96,6 +96,13 @@ func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest
 	return user, bcrypt.CompareHashAndPassword(comp, []byte(req.Password))
 }
 
+// Recover all user datas from one user from the database using its userId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue or
+// in the sessions field of the API structure.
+//
+// This function return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *models.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -142,6 +149,13 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 	return user, nil
 }
 
+// Recover all posts from one user from the database using its userId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
+// `limit` and `offset` can be recover with the parseRequestLimitAndOffset function using the request.
+//
+// This function return an array of post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetAllPostsFromOneUser(ctx context.Context, userId string, limit, offset int) (posts []*models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -169,6 +183,13 @@ func (store *SQLite3Store) GetAllPostsFromOneUser(ctx context.Context, userId st
 	return posts, nil
 }
 
+// Recover all posts from one group from the database using its groupId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `groupId` is the corresponding group in the database and is usualy find in the request pathvalue.
+// `limit` and `offset` can be recover with the parseRequestLimitAndOffset function using the request.
+//
+// This function return an array of post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -201,6 +222,13 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	return posts, nil
 }
 
+// Recover all comments from one post from the database using its postId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `postId` is the corresponding post in the database and is usualy find in the request pathvalue.
+// `limit` and `offset` can be recover with the parseRequestLimitAndOffset function using the request.
+//
+// This function return an array of comment (see ./api/models/comments.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit, offset int) (comments []models.Comments, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -233,6 +261,13 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 	return comments, nil
 }
 
+// Recover all posts from ones likes from the database using his userId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
+// `limit` and `offset` can be recover with the parseRequestLimitAndOffset function using the request.
+//
+// This function return an array of post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetPostsLike(ctx context.Context, userId string, limit, offset int) (posts []models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -275,6 +310,13 @@ func (store *SQLite3Store) GetPostsLike(ctx context.Context, userId string, limi
 	return posts, nil
 }
 
+// Recover all follower from a user from the database using his userId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
+// `limit` and `offset` can be recover with the parseRequestLimitAndOffset function using the request.
+//
+// This function return an array of user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string, limit, offset int) (users []models.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -370,6 +412,14 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 	return follows, tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM likes_records WHERE user_id = ? and follower_id = ?)").Scan(&follows)
 }
 
+// Recover all chats beetween 2 users from the database using their userIds.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `user1Id` and `user2Id` are the corresponding users in the database and are usualy find in the
+// request pathvalue and in the sessions field of the API structure. `limit` and `offset` can be recover with the parseRequestLimitAndOffset
+// function using the request.
+//
+// This function return an array of chat (see ./api/models/chat.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string, limit, offset int) (chats []models.Chat, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -403,6 +453,13 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	return chats, nil
 }
 
+// Recover all posts from a user's follows from the database using his userId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
+// `limit` and `offset` can be recover with the parseRequestLimitAndOffset function using the request.
+//
+// This function return an array of posts (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetFollowsPosts(ctx context.Context, userId string, limit, offset int) (posts []models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
