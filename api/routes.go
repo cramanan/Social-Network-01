@@ -13,6 +13,8 @@ import (
 )
 
 func (server *API) Register(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -57,7 +59,7 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 			})
 	}
 
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	ctx, cancel := context.WithTimeout(ctx, database.TransactionTimeout)
 	defer cancel()
 	user, err := server.Storage.RegisterUser(ctx, registerReq)
 	if errors.Is(err, database.ErrConflict) {
@@ -136,9 +138,11 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 }
 
 func (server *API) User(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	switch request.Method {
 	case http.MethodGet:
-		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid")) // add timeout
+		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -173,6 +177,8 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 }
 
 func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
 			http.StatusMethodNotAllowed,
@@ -186,7 +192,7 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 		return err
 	}
 
-	err = server.Storage.FollowUser(request.Context(), request.PathValue("userid"), sess.User.Id)
+	err = server.Storage.FollowUser(ctx, request.PathValue("userid"), sess.User.Id)
 	if err != nil {
 		return err
 	}
@@ -222,10 +228,12 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 }
 
 func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method == http.MethodGet {
 
 		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetAllPostsFromOneUser(request.Context(), request.PathValue("userid"), limit, offset)
+		posts, err := server.Storage.GetAllPostsFromOneUser(ctx, request.PathValue("userid"), limit, offset)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -250,10 +258,12 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 }
 
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method == http.MethodGet {
 
 		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetGroupPosts(request.Context(), request.PathValue("groupid"), limit, offset)
+		posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupid"), limit, offset)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -279,10 +289,12 @@ func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *
 }
 
 func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method == http.MethodGet {
 
 		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetFollowsPosts(request.Context(), request.PathValue("userid"), limit, offset)
+		posts, err := server.Storage.GetFollowsPosts(ctx, request.PathValue("userid"), limit, offset)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -308,6 +320,8 @@ func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, re
 }
 
 func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method == http.MethodGet {
 
 		userError := func(err error) error {
@@ -322,8 +336,8 @@ func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, requ
 			}
 			return err
 		}
-
-		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid"))
+		
+		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
 		if err != nil {
 			return userError(err)
 		}
@@ -339,7 +353,7 @@ func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, requ
 		}
 
 		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetPostsLike(request.Context(), request.PathValue("userid"), limit, offset)
+		posts, err := server.Storage.GetPostsLike(ctx, request.PathValue("userid"), limit, offset)
 		if err != nil {
 			return userError(err)
 		}
@@ -356,10 +370,12 @@ func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, requ
 }
 
 func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method == http.MethodGet {
 
 		limit, offset := parseRequestLimitAndOffset(request)
-		comments, err := server.Storage.GetComments(request.Context(), request.PathValue("postid"), limit, offset)
+		comments, err := server.Storage.GetComments(ctx, request.PathValue("postid"), limit, offset)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -385,6 +401,8 @@ func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request
 }
 
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
 	if request.Method == http.MethodGet {
 
 		limit, offset := parseRequestLimitAndOffset(request)
@@ -399,7 +417,7 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 			)
 		}
 
-		chats, err := server.Storage.GetChats(request.Context(), request.PathValue("userid"), sessionUser.User.Id, limit, offset)
+		chats, err := server.Storage.GetChats(ctx, request.PathValue("userid"), sessionUser.User.Id, limit, offset)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
