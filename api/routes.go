@@ -232,21 +232,45 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 }
 
 func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
-	limit, offset := parseRequestLimitAndOffset(request)
-	posts, err := server.Storage.GetAllPostsFromOneUser(request.Context(), request.PathValue("userid"), limit, offset)
-	if err == sql.ErrNoRows {
-		return writeJSON(writer, http.StatusNotFound,
+	switch request.Method {
+	case http.MethodGet:
+		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid"))
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return writeJSON(writer, http.StatusNotFound,
+					APIerror{
+						http.StatusNotFound,
+						"Not found",
+						"User not found",
+					},
+				)
+			}
+			return err
+		}
+		limit, offset := parseRequestLimitAndOffset(request)
+		posts, err := server.Storage.GetAllPostsFromOneUser(request.Context(), user.Id, limit, offset)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return writeJSON(writer, http.StatusNotFound,
+					APIerror{
+						http.StatusNotFound,
+						"Not found",
+						"Posts not found",
+					},
+				)
+			}
+			return err
+		}
+		return writeJSON(writer, http.StatusOK, posts)
+
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
-				http.StatusNotFound,
-				"Not found",
-				"Posts not found",
-			},
-		)
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
 	}
-	if err != nil {
-		return err
-	}
-	return writeJSON(writer, http.StatusOK, posts)
 }
 
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
