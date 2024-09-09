@@ -59,8 +59,6 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 			})
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, database.TransactionTimeout)
-	defer cancel()
 	user, err := server.Storage.RegisterUser(ctx, registerReq)
 	if errors.Is(err, database.ErrConflict) {
 		return writeJSON(writer, http.StatusConflict,
