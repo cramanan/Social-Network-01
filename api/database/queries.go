@@ -197,7 +197,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	}
 	defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE group_id = ? LIMIT ? OFFSET ? ORDER BY timestamp DESC;", groupId, limit, offset)
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM posts WHERE group_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ? ORDER BY timestamp DESC;", groupId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 	}
 	defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, "SELECT * FROM comments WHERE parent_id = ? LIMIT ? OFFSET ? ORDER BY timestamp DESC;", postId, limit, offset)
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM comments WHERE parent_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ? ;", postId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -408,8 +408,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	}
 	defer tx.Rollback()
 
-	// ⚠ todo: the SQL request ⚠
-	rows, err := tx.QueryContext(ctx, "SELECT * FROM chats WHERE [...] LIMIT ? OFFSET ? ORDER BY timestamp DESC;", user1Id, user2Id, limit, offset)
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM chats WHERE (sender_id = ? AND recipient_id = ?) OR (recipient_id = ? AND sender_id = ?) ORDER BY timestamp DESC LIMIT ? OFFSET ? ;", user1Id, user2Id, user1Id, user2Id, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -448,8 +447,7 @@ func (store *SQLite3Store) GetFollowsPosts(ctx context.Context, userId string, l
 	}
 	defer tx.Rollback()
 
-	// ⚠ todo: the SQL request ⚠
-	rows, err := tx.QueryContext(ctx, "SELECT * [...] LIMIT ? OFFSET ? ORDER BY timestamp DESC;", userId, limit, offset)
+	rows, err := tx.QueryContext(ctx, "SELECT * FROM [...] ORDER BY timestamp DESC LIMIT ? OFFSET ? ORDER BY timestamp DESC;", userId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
