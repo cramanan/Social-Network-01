@@ -5,8 +5,7 @@ import "time"
 type Group struct {
 	Id          string
 	Name        string
+	Description string
 	UsersIds    []byte
-	Content     string
-	ImagesPaths []byte
 	Timestamp   time.Time
 }

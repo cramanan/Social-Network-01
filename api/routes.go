@@ -439,3 +439,82 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 			"Method not Allowed",
 		})
 }
+
+func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	groupid := request.PathValue("groupid")
+
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+
+		}
+
+		sessionUser, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return writeJSON(writer, http.StatusNotFound,
+				APIerror{
+					http.StatusNotFound,
+					"Not found",
+					"User does not exist",
+				},
+			)
+		}
+		limit, offset := parseRequestLimitAndOffset(request)
+
+		chats, err := server.Storage.GetChats(ctx, groupid, sessionUser.User.Id, limit, offset)
+		if err == sql.ErrNoRows {
+			return writeJSON(writer, http.StatusNotFound,
+				APIerror{
+					http.StatusNotFound,
+					"Not found",
+					"Chat not found",
+				},
+			)
+		}
+		if err != nil {
+			return err
+		}
+
+		return writeJSON(writer, http.StatusOK, chats)
+}
+
+func (server *API) Group(writer http.ResponseWriter, request *http.Request) error{
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	groupid := request.PathValue("groupid")
+
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+
+		}
+
+		limit, offset := parseRequestLimitAndOffset(request)
+		chats, err := server.Storage.GetGroup(ctx, groupid, limit, offset)
+		if err == sql.ErrNoRows {
+			return writeJSON(writer, http.StatusNotFound,
+				APIerror{
+					http.StatusNotFound,
+					"Not found",
+					"Chat not found",
+				},
+			)
+		}
+		if err != nil {
+			return err
+		}
+
+		return writeJSON(writer, http.StatusOK, chats)
+}

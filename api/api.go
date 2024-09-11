@@ -49,6 +49,10 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.HandleFunc("/api/group/{groupid}/posts", handleFunc(server.GetAllPostsFromOneGroup))
 	router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
 	router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
+	router.HandleFunc("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup))
+	router.HandleFunc("/api/group/{groupid}", handleFunc(server.Group))
+
+
 
 	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
 	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
