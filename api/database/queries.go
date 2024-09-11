@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	"Social-Network-01/api/models"
@@ -432,8 +433,8 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	rows, err := tx.QueryContext(ctx,
 		`SELECT * 
 		FROM chats 
-		WHERE (sender_id = ? AND recipient_id = ?) 
-		OR (recipient_id = ? AND sender_id = ?) 
+		WHERE (sender_id = ? AND recipient_id = ?)
+		OR (recipient_id = ? AND sender_id = ?)
 		ORDER BY timestamp DESC 
 		LIMIT ? OFFSET ? ;`, user1Id, user2Id, user1Id, user2Id, limit, offset)
 	if err != nil {
@@ -458,6 +459,51 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	}
 
 	return chats, nil
+}
+
+func (store *SQLite3Store) SortUsers(ctx context.Context, id string) (users []models.User, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true}) // Begin SQL Transaction (readonly)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer tx.Rollback()
+	rows, err := tx.QueryContext(ctx, `
+	WITH contacted AS (
+		SELECT DISTINCT m.recipientid, u.name
+		FROM messages m JOIN users u
+		ON m.recipientid = u.id
+		WHERE m.senderid = ?
+		GROUP BY u.name
+		ORDER BY m.created DESC, u.name
+	), not_contacted AS (
+		SELECT u.id, u.name
+		FROM users u
+		WHERE u.id NOT IN (SELECT recipientid FROM contacted)
+		AND u.id != ?
+		ORDER BY u.name ASC
+	)
+
+	SELECT * FROM contacted
+	UNION ALL
+	SELECT * FROM not_contacted;`, id, id)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for rows.Next() {
+		var user models.User
+		err = rows.Scan(&user.Id, &user.Nickname)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, tx.Commit()
 }
 
 // Recover all posts from a user's follows from the database using his userId.
