@@ -190,12 +190,30 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 		return err
 	}
 
-	err = server.Storage.FollowUser(ctx, request.PathValue("userid"), sess.User.Id)
-	if err != nil {
-		return err
+	switch request.Method {
+	case http.MethodPost:
+		err = server.Storage.FollowUser(request.Context(), request.PathValue("userid"), sess.User.Id)
+		if err != nil {
+			return err
+		}
+		return writeJSON(writer, http.StatusCreated, "Created")
+
+	case http.MethodDelete:
+		err = server.Storage.UnfollowUser(request.Context(), request.PathValue("userid"), sess.User.Id)
+		if err != nil {
+			return err
+		}
+		return writeJSON(writer, http.StatusNoContent, "")
+
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Only POST and DELETE methods are allowed",
+			})
 	}
 
-	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
 func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
@@ -245,14 +263,15 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 			return err
 		}
 		return writeJSON(writer, http.StatusOK, posts)
-	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
 }
 
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {

@@ -1,0 +1,45 @@
+:root {
+    --aside-width: 160px;
+}
+
+body {
+    background-color: #c9bcb5;
+}
+
+#container aside {
+    width: var(--aside-width);
+    position: fixed;
+    background-color: white;
+    height: 100%;
+}
+
+#container main {
+    margin-left: var(--aside-width);
+}
+
+#container main ul {
+    list-style-type: none;
+    width: 50%;
+}
+
+#container main ul li > * {
+    border: dashed 1px;
+}
+
+#container main ul li > * > * {
+    border: dashed 1px;
+}
+
+#container main ul li .route {
+    display: flex;
+}
+
+#container main ul li span {
+}
+
+#container main ul li .route code {
+    width: 100%;
+}
+
+#container main ul li .json {
+}
