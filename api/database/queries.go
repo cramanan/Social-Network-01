@@ -375,7 +375,7 @@ func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId st
 	}
 	defer tx.Rollback()
 
-	_, err = store.ExecContext(ctx, 
+	_, err = store.ExecContext(ctx,
 		`INSERT INTO follow_records 
 		VALUES(?, ?);`, userId, followerId)
 	if err != nil {
@@ -429,7 +429,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	}
 	defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, 
+	rows, err := tx.QueryContext(ctx,
 		`SELECT * 
 		FROM chats 
 		WHERE (sender_id = ? AND recipient_id = ?) 
@@ -474,7 +474,7 @@ func (store *SQLite3Store) GetFollowsPosts(ctx context.Context, userId string, l
 	}
 	defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, 
+	rows, err := tx.QueryContext(ctx,
 		`SELECT * 
 		FROM posts p 
 		JOIN follow_records f 
