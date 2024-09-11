@@ -192,14 +192,14 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 
 	switch request.Method {
 	case http.MethodPost:
-		err = server.Storage.FollowUser(request.Context(), request.PathValue("userid"), sess.User.Id)
+		err = server.Storage.FollowUser(ctx, request.PathValue("userid"), sess.User.Id)
 		if err != nil {
 			return err
 		}
 		return writeJSON(writer, http.StatusCreated, "Created")
 
 	case http.MethodDelete:
-		err = server.Storage.UnfollowUser(request.Context(), request.PathValue("userid"), sess.User.Id)
+		err = server.Storage.UnfollowUser(ctx, request.PathValue("userid"), sess.User.Id)
 		if err != nil {
 			return err
 		}
@@ -213,7 +213,6 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 				"Only POST and DELETE methods are allowed",
 			})
 	}
-
 }
 
 func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
@@ -263,15 +262,14 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 			return err
 		}
 		return writeJSON(writer, http.StatusOK, posts)
-
-	default:
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
 	}
+
+	return writeJSON(writer, http.StatusMethodNotAllowed,
+		APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Method not Allowed",
+		})
 }
 
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
@@ -353,7 +351,7 @@ func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, requ
 			}
 			return err
 		}
-		
+
 		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
 		if err != nil {
 			return userError(err)
@@ -472,39 +470,38 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 				"Method Not Allowed",
 				"Method not Allowed",
 			})
+	}
 
-		}
+	sessionUser, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return writeJSON(writer, http.StatusNotFound,
+			APIerror{
+				http.StatusNotFound,
+				"Not found",
+				"User does not exist",
+			},
+		)
+	}
+	limit, offset := parseRequestLimitAndOffset(request)
 
-		sessionUser, err := server.Sessions.GetSession(request)
-		if err != nil {
-			return writeJSON(writer, http.StatusNotFound,
-				APIerror{
-					http.StatusNotFound,
-					"Not found",
-					"User does not exist",
-				},
-			)
-		}
-		limit, offset := parseRequestLimitAndOffset(request)
+	chats, err := server.Storage.GetChats(ctx, groupid, sessionUser.User.Id, limit, offset)
+	if err == sql.ErrNoRows {
+		return writeJSON(writer, http.StatusNotFound,
+			APIerror{
+				http.StatusNotFound,
+				"Not found",
+				"Chat not found",
+			},
+		)
+	}
+	if err != nil {
+		return err
+	}
 
-		chats, err := server.Storage.GetChats(ctx, groupid, sessionUser.User.Id, limit, offset)
-		if err == sql.ErrNoRows {
-			return writeJSON(writer, http.StatusNotFound,
-				APIerror{
-					http.StatusNotFound,
-					"Not found",
-					"Chat not found",
-				},
-			)
-		}
-		if err != nil {
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, chats)
+	return writeJSON(writer, http.StatusOK, chats)
 }
 
-func (server *API) Group(writer http.ResponseWriter, request *http.Request) error{
+func (server *API) Group(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
@@ -517,23 +514,22 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 				"Method Not Allowed",
 				"Method not Allowed",
 			})
+	}
 
-		}
+	limit, offset := parseRequestLimitAndOffset(request)
+	chats, err := server.Storage.GetGroup(ctx, groupid, limit, offset)
+	if err == sql.ErrNoRows {
+		return writeJSON(writer, http.StatusNotFound,
+			APIerror{
+				http.StatusNotFound,
+				"Not found",
+				"Chat not found",
+			},
+		)
+	}
+	if err != nil {
+		return err
+	}
 
-		limit, offset := parseRequestLimitAndOffset(request)
-		chats, err := server.Storage.GetGroup(ctx, groupid, limit, offset)
-		if err == sql.ErrNoRows {
-			return writeJSON(writer, http.StatusNotFound,
-				APIerror{
-					http.StatusNotFound,
-					"Not found",
-					"Chat not found",
-				},
-			)
-		}
-		if err != nil {
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, chats)
+	return writeJSON(writer, http.StatusOK, chats)
 }
