@@ -6,6 +6,6 @@ type Group struct {
 	Id          string
 	Name        string
 	Description string
-	UsersIds    []byte
+	UsersIds    []string
 	Timestamp   time.Time
 }

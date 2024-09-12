@@ -7,6 +7,6 @@ type Comments struct {
 	UserId    string
 	ParentId  string
 	Content   string
-	ImgPath   []byte
+	ImgPath   []string
 	TimeStamp time.Time
 }

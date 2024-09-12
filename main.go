@@ -11,6 +11,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	log.Println("Server listening on port %s", api.Addr)
 	err = api.ListenAndServe()
 	if err != nil {
 		log.Fatalln(err)

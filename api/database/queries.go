@@ -166,14 +166,13 @@ func (store *SQLite3Store) GetAllPostsFromOneUser(ctx context.Context, userId st
 			&post.Id,
 			&post.UserId,
 			&post.GroupId,
-			&post.Categories,
 			&post.ImagePath,
 			&post.Timestamp)
-		posts = append(posts, post)
+		if err != nil {
+			return nil, err
+		}
 
-	}
-	if err != nil {
-		return nil, err
+		posts = append(posts, post)
 	}
 
 	return posts, nil
@@ -201,7 +200,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 
 	for rows.Next() {
 		post := models.Post{}
-		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Categories, &post.Content, &post.ImagePath, &post.Timestamp)
+		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Content, &post.ImagePath, &post.Timestamp)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -289,7 +288,7 @@ func (store *SQLite3Store) GetPostsLike(ctx context.Context, userId string, limi
 
 	for rows.Next() {
 		post := models.Post{}
-		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Categories, &post.Content, &post.ImagePath, &post.Timestamp)
+		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Content, &post.ImagePath, &post.Timestamp)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -530,7 +529,7 @@ func (store *SQLite3Store) GetFollowsPosts(ctx context.Context, userId string, l
 
 	for rows.Next() {
 		post := models.Post{}
-		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Categories, &post.Content, &post.ImagePath, &post.Timestamp)
+		err := rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Content, &post.ImagePath, &post.Timestamp)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -556,8 +555,8 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string, limit, 
 
 	row := store.QueryRowContext(ctx, `SELECT * FROM group WHERE id = ?`, groupId)
 	group = new(models.Group)
-	var users []byte 
-	err = row.Scan(&group.Id,&group.Name,&users)
+	var users []byte
+	err = row.Scan(&group.Id, &group.Name, &users)
 	if err != nil {
 		return nil, err
 	}
@@ -566,7 +565,7 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string, limit, 
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return group, err
 
 }
