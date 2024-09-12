@@ -267,6 +267,9 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 		})
 }
 
+// Retrieve all posts of one group from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method == http.MethodGet {
 
@@ -296,6 +299,9 @@ func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *
 		})
 }
 
+// Retrieve all posts of a user's follows from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method == http.MethodGet {
 
@@ -325,6 +331,9 @@ func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, re
 		})
 }
 
+// Retrieve all posts of ones likes from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method == http.MethodGet {
 
@@ -373,6 +382,9 @@ func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, requ
 		})
 }
 
+// Retrieve all comments of one post from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method == http.MethodGet {
 
@@ -402,6 +414,9 @@ func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request
 		})
 }
 
+// Retrieve all chats beetween 2 users from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method == http.MethodGet {
 
