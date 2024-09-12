@@ -206,7 +206,7 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
-// Retrieve all follower from a user from the database.
+// Retrieve all follower of a user from the database.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
@@ -236,6 +236,9 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 	return writeJSON(writer, http.StatusOK, users)
 }
 
+// Retrieve all posts of one user from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method == http.MethodGet {
 

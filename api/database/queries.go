@@ -108,7 +108,7 @@ func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest
 	return user, bcrypt.CompareHashAndPassword(comp, []byte(req.Password))
 }
 
-// Retrieve all user datas from one user from the database using its userId.
+// Retrieve all user datas of one user from the database using its userId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue or
@@ -161,7 +161,7 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 	return user, nil
 }
 
-// Retrieve all posts from one user from the database using its userId.
+// Retrieve all posts of one user from the database using its userId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
@@ -195,7 +195,7 @@ func (store *SQLite3Store) GetAllPostsFromOneUser(ctx context.Context, userId st
 	return posts, nil
 }
 
-// Retrieve all posts from one group from the database using its groupId.
+// Retrieve all posts of one group from the database using its groupId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `groupId` is the corresponding group in the database and is usualy find in the request pathvalue.
@@ -234,7 +234,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	return posts, nil
 }
 
-// Retrieve all comments from one post from the database using its postId.
+// Retrieve all comments of one post from the database using its postId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `postId` is the corresponding post in the database and is usualy find in the request pathvalue.
@@ -273,7 +273,7 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 	return comments, nil
 }
 
-// Retrieve all posts from ones likes from the database using his userId.
+// Retrieve all posts of ones likes from the database using his userId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
@@ -322,7 +322,7 @@ func (store *SQLite3Store) GetPostsLike(ctx context.Context, userId string, limi
 	return posts, nil
 }
 
-// Retrieve all follower from a user from the database using his userId.
+// Retrieve all follower of a user from the database using his userId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
@@ -460,7 +460,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	return chats, nil
 }
 
-// Retrieve all posts from a user's follows from the database using his userId.
+// Retrieve all posts of a user's follows from the database using his userId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
