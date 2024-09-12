@@ -181,6 +181,9 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 	}
 }
 
+// Perform the action of following one from another.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
@@ -203,6 +206,9 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
+// Retrieve all follower from a user from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
 	limit, offset := parseRequestLimitAndOffset(request)
 
