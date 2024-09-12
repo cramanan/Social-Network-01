@@ -12,6 +12,7 @@ import (
 	"Social-Network-01/api/models"
 )
 
+// Perform the action of registering one user in the database.
 func (server *API) Register(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
@@ -78,6 +79,7 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 	return writeJSON(writer, http.StatusCreated, user)
 }
 
+// Perform the action of logging one user.
 func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err error) {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
