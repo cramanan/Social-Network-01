@@ -72,6 +72,12 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 	return user, tx.Commit()
 }
 
+// Perform the action of logging one user in the database using his userid.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `req` is a LoginRequest (see ./api/models/users.go) and is create from the form data after posting.
+//
+// This method return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest) (user models.User, err error) {
 	row := store.QueryRowContext(ctx, "SELECT * FROM users WHERE email = ?;", req.Email)
 	comp := []byte{}
