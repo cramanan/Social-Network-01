@@ -12,6 +12,9 @@ import (
 	"Social-Network-01/api/models"
 )
 
+// Perform the action of registering one user in the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Register(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -78,6 +81,9 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 	return writeJSON(writer, http.StatusCreated, user)
 }
 
+// Perform the action of logging one user.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err error) {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
@@ -135,22 +141,25 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 	return writeJSON(writer, http.StatusOK, user)
 }
 
+// This method acts as a router for different HTTP methods.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) User(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 	switch request.Method {
 	case http.MethodGet:
 		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
+		if err == sql.ErrNoRows {
+			return writeJSON(writer, http.StatusNotFound,
+				APIerror{
+					http.StatusNotFound,
+					"Not found",
+					"User not found",
+				},
+			)
+		}
 		if err != nil {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"User not found",
-					},
-				)
-			}
 			return err
 		}
 
@@ -174,6 +183,9 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 	}
 }
 
+// Perform the action of following one from another.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -190,31 +202,17 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 		return err
 	}
 
-	switch request.Method {
-	case http.MethodPost:
-		err = server.Storage.FollowUser(ctx, request.PathValue("userid"), sess.User.Id)
-		if err != nil {
-			return err
-		}
-		return writeJSON(writer, http.StatusCreated, "Created")
-
-	case http.MethodDelete:
-		err = server.Storage.UnfollowUser(ctx, request.PathValue("userid"), sess.User.Id)
-		if err != nil {
-			return err
-		}
-		return writeJSON(writer, http.StatusNoContent, "")
-
-	default:
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Only POST and DELETE methods are allowed",
-			})
+	err = server.Storage.FollowUser(ctx, request.PathValue("userid"), sess.User.Id)
+	if err != nil {
+		return err
 	}
+
+	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
+// Retrieve all follower of a user from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
 	limit, offset := parseRequestLimitAndOffset(request)
 
@@ -242,6 +240,9 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 	return writeJSON(writer, http.StatusOK, users)
 }
 
+// Retrieve all posts of one user from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -272,6 +273,9 @@ func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http
 		})
 }
 
+// Retrieve all posts of one group from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -303,6 +307,9 @@ func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *
 		})
 }
 
+// Retrieve all posts of a user's follows from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -334,6 +341,9 @@ func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, re
 		})
 }
 
+// Retrieve all posts of ones likes from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -384,6 +394,9 @@ func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, requ
 		})
 }
 
+// Retrieve all comments of one post from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -415,6 +428,9 @@ func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request
 		})
 }
 
+// Retrieve all chats beetween 2 users from the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
