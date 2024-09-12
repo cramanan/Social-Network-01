@@ -368,6 +368,13 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 	return users, nil
 }
 
+// Perform the action of following one from another in the database using their userids.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding followed user in the database and is usualy find in the request pathvalue.
+// `followerId` is the corresponding following user in the database and is usualy find in the sessions field of the API structure.
+//
+// This method return an SQL error or nil if there are none.
 func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId string) error {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
