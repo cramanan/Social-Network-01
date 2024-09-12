@@ -13,6 +13,8 @@ import (
 )
 
 // Perform the action of registering one user in the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Register(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
@@ -80,6 +82,8 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 }
 
 // Perform the action of logging one user.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err error) {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
@@ -137,20 +141,23 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 	return writeJSON(writer, http.StatusOK, user)
 }
 
+// This method acts as a router for different HTTP methods.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) User(writer http.ResponseWriter, request *http.Request) error {
 	switch request.Method {
 	case http.MethodGet:
 		user, err := server.Storage.GetUser(request.Context(), request.PathValue("userid")) // add timeout
+		if err == sql.ErrNoRows {
+			return writeJSON(writer, http.StatusNotFound,
+				APIerror{
+					http.StatusNotFound,
+					"Not found",
+					"User not found",
+				},
+			)
+		}
 		if err != nil {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"User not found",
-					},
-				)
-			}
 			return err
 		}
 
