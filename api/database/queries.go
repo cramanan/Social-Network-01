@@ -12,6 +12,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Perform the action of registering one user in the database.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `req` is a RegisterRequest (see ./api/models/users.go) and is create from a form data after posting.
+//
+// This method return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.RegisterRequest) (user models.User, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
@@ -72,10 +78,10 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 	return user, tx.Commit()
 }
 
-// Perform the action of logging one user in the database using his userid.
+// Perform the action of logging one user.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `req` is a LoginRequest (see ./api/models/users.go) and is create from the form data after posting.
+// `ctx` is the context of the request. `req` is a LoginRequest (see ./api/models/users.go) and is create from a form data after posting.
 //
 // This method return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest) (user models.User, err error) {
