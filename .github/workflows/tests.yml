@@ -2,6 +2,7 @@ name: Unit Tests
 
 on:
     push:
+        paths-ignore: ["*.md", "app/", "*.json", "*.mjs", "*.js"]
         branches:
             - main
 
