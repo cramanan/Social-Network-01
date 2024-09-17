@@ -40,6 +40,4 @@
 
 # GROUPS
 
-1. POST/CREATE
-
 1. /api/groups?field=name | WHERE nickname LIKE '%rom%'
