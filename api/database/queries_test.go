@@ -21,11 +21,8 @@ func TestSQLite3Store(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Test database operations
-	t.Run("CreateTable", func(t *testing.T) {
-		_, err := storage.Exec("CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)")
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
+	_, err = storage.Exec("CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)")
+	if err != nil {
+		t.Fatal(err)
+	}
 }

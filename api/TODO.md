@@ -10,8 +10,6 @@
 
 1. Ajouter le champs visibilité
 
-1. POST/CREATE
-
 1. PATCH/UPDATE
 
 1. DELETE/DELETE
