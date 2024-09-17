@@ -516,7 +516,7 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 	return writeJSON(writer, http.StatusOK, chats)
 }
 
-func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request) error{
+func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
@@ -540,18 +540,17 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 	}
 
 	if newGroup.Name == "" ||
-	newGroup.Description == "" ||
-	newGroup.UsersIds == nil {
-	return writeJSON(writer, http.StatusUnauthorized,
-		APIerror{
-			http.StatusUnauthorized,
-			"Unauthorized",
-			"All fields are required",
-		})
-}
-	
+		newGroup.Description == "" ||
+		newGroup.UsersIds == nil {
+		return writeJSON(writer, http.StatusUnauthorized,
+			APIerror{
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"All fields are required",
+			})
+	}
 
-	group,err := server.Storage.NewGroup(ctx, newGroup)
+	group, err := server.Storage.NewGroup(ctx, newGroup)
 
 	if err != nil {
 		return err
@@ -574,7 +573,6 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 				"Method not Allowed",
 			})
 	}
-
 
 	group, err := server.Storage.GetGroup(ctx, groupname)
 	if err == sql.ErrNoRows {
@@ -613,7 +611,7 @@ func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err 
 		return writeJSON(writer, http.StatusCreated, post)
 
 	case http.MethodGet:
-		post, err := server.Storage.GetPost(ctx, request.PathValue("id"))
+		post, err := server.Storage.GetPost(ctx, request.PathValue("postid"))
 		if err != nil {
 			return err
 		}
