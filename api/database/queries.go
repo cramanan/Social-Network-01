@@ -571,25 +571,3 @@ func (store *SQLite3Store) GetFollowsPosts(ctx context.Context, userId string, l
 	return posts, nil
 }
 
-func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string, limit, offset int) (group *models.Group, err error) {
-	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
-	row := store.QueryRowContext(ctx, `SELECT * FROM group WHERE id = ?`, groupId)
-	group = new(models.Group)
-	var users []byte
-	err = row.Scan(&group.Id, &group.Name, &users)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(users, &group.UsersIds)
-	if err != nil {
-		return nil, err
-	}
-
-	return group, err
-}

@@ -477,7 +477,7 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
-	groupid := request.PathValue("groupid")
+	groupname := request.PathValue("groupname")
 
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
@@ -500,7 +500,7 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 	}
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	chats, err := server.Storage.GetChats(ctx, groupid, sessionUser.User.Id, limit, offset)
+	chats, err := server.Storage.GetChats(ctx, groupname, sessionUser.User.Id, limit, offset)
 	if err == sql.ErrNoRows {
 		return writeJSON(writer, http.StatusNotFound,
 			APIerror{
@@ -517,11 +517,55 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 	return writeJSON(writer, http.StatusOK, chats)
 }
 
+func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request) error{
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
+	newGroup := new(models.Group)
+	err := json.NewDecoder(request.Body).Decode(newGroup)
+	if err != nil {
+		return writeJSON(writer, http.StatusUnprocessableEntity,
+			APIerror{
+				http.StatusUnprocessableEntity,
+				"Unprocessable Entity",
+				"Could not process register request",
+			})
+	}
+
+	if newGroup.Name == "" ||
+	newGroup.Description == "" ||
+	newGroup.UsersIds == nil {
+	return writeJSON(writer, http.StatusUnauthorized,
+		APIerror{
+			http.StatusUnauthorized,
+			"Unauthorized",
+			"All fields are required",
+		})
+}
+	
+
+	group,err := server.Storage.NewGroup(ctx, newGroup)
+
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, group)
+}
+
 func (server *API) Group(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
-	groupid := request.PathValue("groupid")
+	groupname := request.PathValue("groupname")
 
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
@@ -532,8 +576,8 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 			})
 	}
 
-	limit, offset := parseRequestLimitAndOffset(request)
-	chats, err := server.Storage.GetGroup(ctx, groupid, limit, offset)
+
+	group, err := server.Storage.GetGroup(ctx, groupname)
 	if err == sql.ErrNoRows {
 		return writeJSON(writer, http.StatusNotFound,
 			APIerror{
@@ -547,5 +591,5 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 		return err
 	}
 
-	return writeJSON(writer, http.StatusOK, chats)
+	return writeJSON(writer, http.StatusOK, group)
 }

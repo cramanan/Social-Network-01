@@ -51,8 +51,7 @@ CREATE TABLE IF NOT EXISTS likes_records(
 );
 
 CREATE TABLE IF NOT EXISTS groups(
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL PRIMARY KEY,
     description TEXT NOT NULL,
     users BLOB NOT NULL,
     timestamp DATETIME NOT NULL
