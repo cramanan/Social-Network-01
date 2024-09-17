@@ -157,6 +157,21 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 	return user, nil
 }
 
+func (store *SQLite3Store) DeleteUser(ctx context.Context, userId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec("DELETE FROM users WHERE id = ?;", userId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 // Retrieve all posts of one user from the database using its userId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.

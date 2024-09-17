@@ -3,14 +3,13 @@ package database_test
 import (
 	. "Social-Network-01/api/database"
 
-	"testing"
-
 	"os"
+	"testing"
 )
 
 func TestSQLite3Store(t *testing.T) {
 	// Create a temporary database file
-	dbFile, err := os.CreateTemp("", "sqlite3_test_")
+	dbFile, err := os.CreateTemp("", "sqlite3_test.db")
 	if err != nil {
 		t.Fatal(err)
 	}
