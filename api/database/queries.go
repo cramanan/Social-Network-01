@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
 	"Social-Network-01/api/models"
@@ -335,4 +334,3 @@ func (store *SQLite3Store) GetFollowsPosts(ctx context.Context, userId string, l
 
 	return posts, nil
 }
-

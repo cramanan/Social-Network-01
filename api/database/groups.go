@@ -1,3 +1,13 @@
+package database
+
+import (
+	"Social-Network-01/api/models"
+	"context"
+	"database/sql"
+	"encoding/json"
+	"time"
+)
+
 func (store *SQLite3Store) GetGroup(ctx context.Context, groupName string) (group *models.Group, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -41,7 +51,6 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *models.Group) (n
 	newgroup.Description = group.Description
 	newgroup.UsersIds = group.UsersIds
 	newgroup.Timestamp = time.Now().UTC()
-
 
 	_, err = store.ExecContext(ctx,
 		`INSERT INTO groups VALUES (?,?,?,?)`,
