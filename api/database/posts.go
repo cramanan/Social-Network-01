@@ -10,7 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func (store *SQLite3Store) CreatePost(ctx context.Context, req models.PostRequest) (group *models.Post, err error) {
+func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostRequest) (group *models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -45,4 +45,34 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req models.PostReques
 	)
 
 	return group, tx.Commit()
+}
+
+func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *models.Post, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	post = new(models.Post)
+
+	var categories []byte
+
+	err = tx.QueryRowContext(ctx,
+		"SELECT * FROM posts WHERE id = ?;",
+	).Scan(
+		post.Id,
+		post.UserId,
+		post.GroupId,
+		post.Categories,
+		post.Content,
+		categories,
+		post.Timestamp,
+	)
+
+	err = json.Unmarshal(categories, &post.Categories)
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
 }

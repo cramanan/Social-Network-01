@@ -435,7 +435,6 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 	if request.Method == http.MethodGet {
-
 		limit, offset := parseRequestLimitAndOffset(request)
 		sessionUser, err := server.Sessions.GetSession(request)
 		if err != nil {
@@ -548,4 +547,41 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 	}
 
 	return writeJSON(writer, http.StatusOK, chats)
+}
+
+func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err error) {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	switch request.Method {
+	case http.MethodPost:
+		req := new(models.PostRequest)
+		err = json.NewDecoder(request.Body).Decode(req)
+		if err != nil {
+			return err
+		}
+
+		post, err := server.Storage.CreatePost(ctx, req)
+		if err != nil {
+			return err
+		}
+
+		return writeJSON(writer, http.StatusCreated, post)
+
+	case http.MethodGet:
+		post, err := server.Storage.GetPost(ctx, request.PathValue("id"))
+		if err != nil {
+			return err
+		}
+
+		return writeJSON(writer, http.StatusCreated, post)
+
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
 }

@@ -34,11 +34,6 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 		return user, ErrConflict
 	}
 
-	tx, err = store.BeginTx(ctx, nil)
-	if err != nil {
-		return
-	}
-
 	id, err := uuid.NewV4()
 	if err != nil {
 		return
@@ -211,4 +206,47 @@ func (store *SQLite3Store) SortUsers(ctx context.Context, id string) (users []mo
 	}
 
 	return users, tx.Commit()
+}
+
+// Perform the action of following one from another in the database using their userids.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding followed user in the database and is usualy find in the request pathvalue.
+// `followerId` is the corresponding following user in the database and is usualy find in the sessions field of the API structure.
+//
+// This method return an SQL error or nil if there are none.
+func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = store.ExecContext(ctx,
+		`INSERT INTO follow_records 
+		VALUES(?, ?);`, userId, followerId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = store.ExecContext(ctx,
+		`DELETE FROM follow_records
+		WHERE user_id = ? AND follower_id =  ?;`,
+
+		userId, followerId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
