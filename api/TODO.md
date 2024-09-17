@@ -32,10 +32,6 @@
 
 1. Verirfier que l'utilisateur fait parti du groupe
 
-# FOLLOW RECORDS
-
-N/A
-
 # LIKE RECORDS
 
 1. POST/CREATE
