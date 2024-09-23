@@ -214,10 +214,18 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
-	limit, offset := parseRequestLimitAndOffset(request)
-
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
+
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Only GET is allowed",
+		})
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
 
 	user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
 	if err != nil {

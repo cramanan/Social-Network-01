@@ -68,7 +68,7 @@ export default function Docs() {
             response: "No content",
         },
         {
-            method: "POST",
+            method: "GET",
             route: "/api/user/{id}/followers",
             response: [
                 {
@@ -82,6 +82,30 @@ export default function Docs() {
                     aboutMe: "string | null",
                     private: "bool",
                     timestamp: "string",
+                },
+            ],
+        },
+        {
+            method: "GET",
+            route: "/api/user/{id}/posts",
+            body: [
+                {
+                    limit: "string",
+                    offset: "string",
+                    userid: "string",
+                },
+            ],
+            response: [
+                {
+                    posts: [
+                        {
+                            id: "string",
+                            userid: "string",
+                            groupid: "string",
+                            imagepath: "string",
+                            timestamp: "string",
+                        },
+                    ],
                 },
             ],
         },
