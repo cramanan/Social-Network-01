@@ -1,11 +1,12 @@
 package database
 
 import (
-	"Social-Network-01/api/models"
 	"context"
 	"database/sql"
 	"log"
 	"time"
+
+	"Social-Network-01/api/models"
 
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -149,6 +150,13 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 	return user, nil
 }
 
+// Delete a user from the database using its userId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue or
+// in the sessions field of the API structure.
+//
+// This method return an SQL error or nil if there are none.
 func (store *SQLite3Store) DeleteUser(ctx context.Context, userId string) error {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
@@ -164,6 +172,12 @@ func (store *SQLite3Store) DeleteUser(ctx context.Context, userId string) error 
 	return tx.Commit()
 }
 
+// Sort users from the database on the order of chat log of another user.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `id` is the corresponding user in the database and is usualy find in the request pathvalue.
+//
+// This method return an array of users (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) SortUsers(ctx context.Context, id string) (users []models.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true}) // Begin SQL Transaction (readonly)
 	if err != nil {
@@ -232,6 +246,13 @@ func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId st
 	return tx.Commit()
 }
 
+// Perform the action of unfollowing one from another in the database using their userids.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `userId` is the corresponding followed user in the database and is usualy find in the request pathvalue.
+// `followerId` is the corresponding following user in the database and is usualy find in the sessions field of the API structure.
+//
+// This method return an SQL error or nil if there are none.
 func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId string) error {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
