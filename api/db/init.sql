@@ -58,6 +58,6 @@ CREATE TABLE IF NOT EXISTS groups(
 );
 
 INSERT INTO groups VALUES(
-    '00000000-0000-0000-0000-000000000000', 'Global',"Global group",x'',date('now')
+    'Global',"Global group",x'',date('now')
 );
 COMMIT;
