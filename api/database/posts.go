@@ -23,23 +23,16 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 	if err != nil {
 		return nil, err
 	}
-
-	marshalCategories, err := json.Marshal(req.Categories)
-	if err != nil {
-		return nil, err
-	}
-
 	marshalImages, err := json.Marshal(req.Images)
 	if err != nil {
 		return nil, err
 	}
 
 	tx.ExecContext(ctx,
-		`INSERT INTO posts VALUES(?, ?, ?, ?, ?, ?, ?);`,
+		`INSERT INTO posts VALUES(?, ?, ?, ?, ?, ?);`,
 		id.String(),
 		req.UserId,
 		req.GroupId,
-		marshalCategories,
 		req.Content,
 		marshalImages,
 		time.Now(),
@@ -57,24 +50,15 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 
 	post = new(models.Post)
 
-	var categories []byte
-
 	err = tx.QueryRowContext(ctx,
 		"SELECT * FROM posts WHERE id = ?;",
 	).Scan(
 		post.Id,
 		post.UserId,
 		post.GroupId,
-		post.Categories,
 		post.Content,
-		categories,
 		post.Timestamp,
 	)
-
-	err = json.Unmarshal(categories, &post.Categories)
-	if err != nil {
-		return nil, err
-	}
 	return post, nil
 }
 
