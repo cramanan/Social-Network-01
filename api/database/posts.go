@@ -11,13 +11,13 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostRequest) (group *models.Post, err error) {
+func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostRequest) (post *models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
-	group = new(models.Post)
+	post = new(models.Post)
 
 	id, err := uuid.NewV4()
 	if err != nil {
@@ -45,7 +45,7 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 		time.Now(),
 	)
 
-	return group, tx.Commit()
+	return post, tx.Commit()
 }
 
 func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *models.Post, err error) {
@@ -173,8 +173,8 @@ func (store *SQLite3Store) GetPostsLike(ctx context.Context, userId string, limi
     SELECT p.*
     FROM posts p
     LEFT JOIN liked_posts lp ON p.id = lp.postid
-    ORDER BY p.timestamp DESC;
-`, userId)
+    ORDER BY p.timestamp DESC;`,
+	userId)
 	if err != nil {
 		return nil, err
 	}
