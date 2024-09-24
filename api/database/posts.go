@@ -186,8 +186,8 @@ func (store *SQLite3Store) GetPostsLike(ctx context.Context, userId string, limi
     SELECT p.*
     FROM posts p
     LEFT JOIN liked_posts lp ON p.id = lp.postid
-    ORDER BY p.timestamp DESC;
-`, userId)
+    ORDER BY p.timestamp DESC;`,
+		userId)
 	if err != nil {
 		return nil, err
 	}
