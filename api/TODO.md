@@ -2,8 +2,6 @@
 
 1. PATCH/UPDATE
 
-1. DELETE/DELETE
-
 1. /api/users?field=nickname&search=rom | WHERE nickname LIKE '%rom%'
 
 # POSTS:
@@ -41,3 +39,9 @@
 # GROUPS
 
 1. /api/groups?field=name | WHERE nickname LIKE '%rom%'
+
+# EVENTS
+
+# ERREURS
+
+1. ASSIGNER LES BONNES ERREURS

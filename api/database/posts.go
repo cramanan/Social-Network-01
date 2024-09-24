@@ -65,16 +65,11 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 		post.Id,
 		post.UserId,
 		post.GroupId,
-		post.Categories,
 		post.Content,
 		categories,
 		post.Timestamp,
 	)
 
-	err = json.Unmarshal(categories, &post.Categories)
-	if err != nil {
-		return nil, err
-	}
 	return post, nil
 }
 
