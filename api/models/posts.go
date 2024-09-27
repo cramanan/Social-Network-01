@@ -2,10 +2,10 @@ package models
 
 import "time"
 
-type PostStatus int
+type Status int
 
 const (
-	ENUM_PUBLIC PostStatus = iota
+	ENUM_PUBLIC Status = iota
 	ENUM_PRIVATE
 	ENUM_ALMOST_PRIVATE
 )
@@ -13,7 +13,7 @@ const (
 type Post struct {
 	Id        string
 	UserId    string
-	Status    PostStatus
+	Status    Status
 	GroupId   string
 	Content   string
 	ImagePath []string

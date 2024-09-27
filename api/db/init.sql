@@ -22,6 +22,12 @@ CREATE TABLE IF NOT EXISTS posts (
     timestamp DATETIME NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS posts_status (
+    post_id TEXT REFERENCES posts(id),
+    status_enum INTEGER,
+    users_ids BLOB
+);
+
 CREATE TABLE IF NOT EXISTS comments(
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
