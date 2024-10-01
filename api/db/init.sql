@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS users (
     timestamp DATETIME NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE IF NOT     EXISTS posts (
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
-    group_name TEXT DEFAULT 'GLOBAL' REFERENCES groups(id),
+    group_name TEXT DEFAULT 'Global' REFERENCES groups(name),
     content TEXT NOT NULL,
     image_path TEXT,
     timestamp DATETIME NOT NULL
@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS groups(
     timestamp DATETIME NOT NULL
 );
 
-INSERT INTO groups VALUES('GLOBAL',"Global group",x'',date('now')
+INSERT INTO groups VALUES(
+    'Global',"Global group",x'',date('now')
 );
 COMMIT;

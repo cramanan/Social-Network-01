@@ -1,18 +1,25 @@
 package database
 
 import (
-	"Social-Network-01/api/models"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"time"
 
+	"Social-Network-01/api/models"
+
 	"github.com/gofrs/uuid"
 )
 
+// Create a new posts in the database.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/models/posts.go).
+//
+// This method return a Post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostRequest) (err error) {
-	tx, err := store.BeginTx(ctx, nil)
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err
 	}
@@ -66,7 +73,6 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 		req.Status,
 		marshalSelectedUsers,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -74,7 +80,13 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 	return tx.Commit()
 }
 
-func (store *SQLite3Store) GetPost(ctx context.Context, userId, postId string) (post *models.Post, err error) {
+// Retrieve a post from the database using its postId.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `postId` is the corresponding id in the database and is usualy find in the request pathvalue.
+//
+// This method return a post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *models.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err

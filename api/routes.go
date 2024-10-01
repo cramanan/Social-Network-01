@@ -183,7 +183,6 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 	case http.MethodDelete:
 
 		sess, err := server.Sessions.GetSession(request)
-
 		if err != nil {
 			return err
 		}
@@ -251,10 +250,18 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
-	limit, offset := parseRequestLimitAndOffset(request)
-
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
+
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Only GET is allowed",
+		})
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
 
 	user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
 	if err != nil {
@@ -313,14 +320,14 @@ func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err 
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
-	sess, err := server.Sessions.GetSession(request)
-	if err != nil {
-		return err
-	}
+	// sess, err := server.Sessions.GetSession(request)
+	// if err != nil {
+	// 	return err
+	// }
 
 	switch request.Method {
 	case http.MethodGet:
-		post, err := server.Storage.GetPost(ctx, sess.User.Id, request.PathValue("postid"))
+		post, err := server.Storage.GetPost(ctx, request.PathValue("postid"))
 		if err != nil {
 			return err
 		}
@@ -583,6 +590,9 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 		})
 }
 
+// Retrieve all chats beetween 2 users from the database using their userIds.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -634,6 +644,16 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 // 						▝▚▄▞▘▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌   ▗▄▄▞▘									//
 //////////////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// 						 ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▖ ▗▖▗▄▄▖  ▗▄▄▖									//
+// 						▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌										//
+// 						▐▌▝▜▌▐▛▀▚▖▐▌ ▐▌▐▌ ▐▌▐▛▀▘  ▝▀▚▖									//
+// 						▝▚▄▞▘▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌   ▗▄▄▞▘									//
+//////////////////////////////////////////////////////////////////////////////////////////
+
+// Create a new group in the database.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -669,7 +689,6 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 	}
 
 	group, err := server.Storage.NewGroup(ctx, newGroup)
-
 	if err != nil {
 		return err
 	}
@@ -677,6 +696,9 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 	return writeJSON(writer, http.StatusOK, group)
 }
 
+// Retrieve the group from the database using its name.
+//
+// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Group(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()

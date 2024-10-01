@@ -1,13 +1,20 @@
 package database
 
 import (
-	"Social-Network-01/api/models"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"time"
+
+	"Social-Network-01/api/models"
 )
 
+// Retrieve the group from the database using its name.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `groupName` is the corresponding name in the database and is usualy find in the request pathvalue.
+//
+// This method return a Group (see ./api/models/groups.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) GetGroup(ctx context.Context, groupName string) (group *models.Group, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
@@ -31,6 +38,12 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupName string) (grou
 	return group, err
 }
 
+// Create a new group in the database.
+//
+// `store` is find in the API structure and is the SQLite3 DB.
+// `ctx` is the context of the request. `group` is the corresponding group values (name...).
+//
+// This method return a Group (see ./api/models/groups.go) or usualy an SQL error (one is nil when the other isn't).
 func (store *SQLite3Store) NewGroup(ctx context.Context, group *models.Group) (newgroup models.Group, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
