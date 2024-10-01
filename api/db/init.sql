@@ -16,10 +16,16 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
-    group_id TEXT DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES groups(id),
+    group_name TEXT DEFAULT 'GLOBAL' REFERENCES groups(id),
     content TEXT NOT NULL,
     image_path TEXT,
     timestamp DATETIME NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS posts_status (
+    post_id TEXT REFERENCES posts(id),
+    status_enum INTEGER,
+    users_ids BLOB
 );
 
 CREATE TABLE IF NOT EXISTS comments(
@@ -57,7 +63,6 @@ CREATE TABLE IF NOT EXISTS groups(
     timestamp DATETIME NOT NULL
 );
 
-INSERT INTO groups VALUES(
-    '00000000-0000-0000-0000-000000000000', 'Global',"Global group",x'',date('now')
+INSERT INTO groups VALUES('GLOBAL',"Global group",x'',date('now')
 );
 COMMIT;

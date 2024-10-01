@@ -12,6 +12,13 @@ import (
 	"Social-Network-01/api/models"
 )
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// 						▗▖ ▗▖ ▗▄▄▖▗▄▄▄▖▗▄▄▖  ▗▄▄▖										//
+// 						▐▌ ▐▌▐▌   ▐▌   ▐▌ ▐▌▐▌											//
+// 						▐▌ ▐▌ ▝▀▚▖▐▛▀▀▘▐▛▀▚▖ ▝▀▚▖										//
+// 						▝▚▄▞▘▗▄▄▞▘▐▙▄▄▖▐▌ ▐▌▗▄▄▞▘										//
+//////////////////////////////////////////////////////////////////////////////////////////
+
 // Perform the action of registering one user in the database.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
@@ -173,6 +180,29 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 
 		return writeJSON(writer, http.StatusOK, user)
 
+	case http.MethodDelete:
+
+		sess, err := server.Sessions.GetSession(request)
+
+		if err != nil {
+			return err
+		}
+
+		if sess.User.Id != request.PathValue("userid") {
+			return writeJSON(writer, http.StatusUnauthorized,
+				APIerror{
+					http.StatusUnauthorized,
+					"Unauthorized",
+					"You are not authorized to perform this action.",
+				})
+		}
+
+		err = server.Storage.DeleteUser(ctx, sess.User.Id)
+		if err != nil {
+			return err
+		}
+
+		return writeJSON(writer, http.StatusNoContent, "")
 	default:
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -182,6 +212,13 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 			})
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//						▗▄▄▄▖ ▗▄▖ ▗▖   ▗▖    ▗▄▖ ▗▖ ▗▖ ▗▄▄▖								//
+//						▐▌   ▐▌ ▐▌▐▌   ▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌								//
+//						▐▛▀▀▘▐▌ ▐▌▐▌   ▐▌   ▐▌ ▐▌▐▌ ▐▌ ▝▀▚▖								//
+//						▐▌   ▝▚▄▞▘▐▙▄▄▖▐▙▄▄▖▝▚▄▞▘▐▙█▟▌▗▄▄▞▘								//
+//////////////////////////////////////////////////////////////////////////////////////////
 
 // Perform the action of following one from another.
 //
@@ -240,159 +277,226 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 	return writeJSON(writer, http.StatusOK, users)
 }
 
-// Retrieve all posts of one user from the database.
-//
-// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
+//////////////////////////////////////////////////////////////////////////////////////////
+// 						▗▄▄▖  ▗▄▖  ▗▄▄▖▗▄▄▄▖▗▄▄▖										//
+// 						▐▌ ▐▌▐▌ ▐▌▐▌     █ ▐▌   										//
+// 						▐▛▀▘ ▐▌ ▐▌ ▝▀▚▖  █  ▝▀▚▖										//
+// 						▐▌   ▝▚▄▞▘▗▄▄▞▘  █ ▗▄▄▞▘										//
+//////////////////////////////////////////////////////////////////////////////////////////
+
+func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request) (err error) {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
-	if request.Method == http.MethodGet {
 
-		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetAllPostsFromOneUser(ctx, request.PathValue("userid"), limit, offset)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"Posts not found",
-					},
-				)
-			}
-			return err
-		}
-		return writeJSON(writer, http.StatusOK, posts)
+	req := new(models.PostRequest)
+	err = json.NewDecoder(request.Body).Decode(req)
+	if err != nil {
+		return err
 	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
-}
-
-// Retrieve all posts of one group from the database.
-//
-// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-	if request.Method == http.MethodGet {
-
-		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupid"), limit, offset)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"Group not found",
-					},
-				)
-			}
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, posts)
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
 	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
-}
+	req.UserId = sess.User.Id
 
-// Retrieve all posts of a user's follows from the database.
-//
-// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-	if request.Method == http.MethodGet {
-
-		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetFollowsPosts(ctx, request.PathValue("userid"), limit, offset)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"User not found",
-					},
-				)
-			}
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, posts)
+	err = server.Storage.CreatePost(ctx, req)
+	if err != nil {
+		return err
 	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
+	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
-// Retrieve all posts of ones likes from the database.
-//
-// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err error) {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
-	if request.Method == http.MethodGet {
 
-		userError := func(err error) error {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"User not found",
-					},
-				)
-			}
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	switch request.Method {
+	case http.MethodGet:
+		post, err := server.Storage.GetPost(ctx, sess.User.Id, request.PathValue("postid"))
+		if err != nil {
 			return err
 		}
 
-		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
-		if err != nil {
-			return userError(err)
-		}
+		return writeJSON(writer, http.StatusOK, post)
 
-		sessionUser, err := server.Sessions.GetSession(request)
-
-		if user.Private && (err != nil || sessionUser.User.Id != user.Id) {
-			return writeJSON(writer, http.StatusUnauthorized, APIerror{
-				http.StatusUnauthorized,
-				"Unauthorized",
-				"This account is private",
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
 			})
-		}
-
-		limit, offset := parseRequestLimitAndOffset(request)
-		posts, err := server.Storage.GetPostsLike(ctx, request.PathValue("userid"), limit, offset)
-		if err != nil {
-			return userError(err)
-		}
-
-		return writeJSON(writer, http.StatusOK, posts)
 	}
-
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
 }
+
+// // Retrieve all posts of one user from the database.
+// //
+// // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
+// func (server *API) AllPostsFromOneUser(writer http.ResponseWriter, request *http.Request) error {
+// 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+// 	defer cancel()
+// 	if request.Method == http.MethodGet {
+
+// 		limit, offset := parseRequestLimitAndOffset(request)
+// 		posts, err := server.Storage.GetAllPostsFromOneUser(ctx, request.PathValue("userid"), limit, offset)
+// 		if err != nil {
+// 			if err == sql.ErrNoRows {
+// 				return writeJSON(writer, http.StatusNotFound,
+// 					APIerror{
+// 						http.StatusNotFound,
+// 						"Not found",
+// 						"Posts not found",
+// 					},
+// 				)
+// 			}
+// 			return err
+// 		}
+// 		return writeJSON(writer, http.StatusOK, posts)
+// 	}
+
+// 	return writeJSON(writer, http.StatusMethodNotAllowed,
+// 		APIerror{
+// 			http.StatusMethodNotAllowed,
+// 			"Method Not Allowed",
+// 			"Method not Allowed",
+// 		})
+// }
+
+// // Retrieve all posts of one group from the database.
+// //
+// // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
+// func (server *API) GetAllPostsFromOneGroup(writer http.ResponseWriter, request *http.Request) error {
+// 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+// 	defer cancel()
+// 	if request.Method == http.MethodGet {
+
+// 		limit, offset := parseRequestLimitAndOffset(request)
+// 		posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupid"), limit, offset)
+// 		if err != nil {
+// 			if err == sql.ErrNoRows {
+// 				return writeJSON(writer, http.StatusNotFound,
+// 					APIerror{
+// 						http.StatusNotFound,
+// 						"Not found",
+// 						"Group not found",
+// 					},
+// 				)
+// 			}
+// 			return err
+// 		}
+
+// 		return writeJSON(writer, http.StatusOK, posts)
+// 	}
+
+// 	return writeJSON(writer, http.StatusMethodNotAllowed,
+// 		APIerror{
+// 			http.StatusMethodNotAllowed,
+// 			"Method Not Allowed",
+// 			"Method not Allowed",
+// 		})
+// }
+
+// // Retrieve all posts of a user's follows from the database.
+// //
+// // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
+// func (server *API) GetAllPostsFromOneUsersFollows(writer http.ResponseWriter, request *http.Request) error {
+// 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+// 	defer cancel()
+// 	if request.Method == http.MethodGet {
+
+// 		limit, offset := parseRequestLimitAndOffset(request)
+// 		posts, err := server.Storage.GetFollowsPosts(ctx, request.PathValue("userid"), limit, offset)
+// 		if err != nil {
+// 			if err == sql.ErrNoRows {
+// 				return writeJSON(writer, http.StatusNotFound,
+// 					APIerror{
+// 						http.StatusNotFound,
+// 						"Not found",
+// 						"User not found",
+// 					},
+// 				)
+// 			}
+// 			return err
+// 		}
+
+// 		return writeJSON(writer, http.StatusOK, posts)
+// 	}
+
+// 	return writeJSON(writer, http.StatusMethodNotAllowed,
+// 		APIerror{
+// 			http.StatusMethodNotAllowed,
+// 			"Method Not Allowed",
+// 			"Method not Allowed",
+// 		})
+// }
+
+// // Retrieve all posts of ones likes from the database.
+// //
+// // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
+// func (server *API) GetAllPostsFromOneUsersLikes(writer http.ResponseWriter, request *http.Request) error {
+// 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+// 	defer cancel()
+// 	if request.Method == http.MethodGet {
+
+// 		userError := func(err error) error {
+// 			if err == sql.ErrNoRows {
+// 				return writeJSON(writer, http.StatusNotFound,
+// 					APIerror{
+// 						http.StatusNotFound,
+// 						"Not found",
+// 						"User not found",
+// 					},
+// 				)
+// 			}
+// 			return err
+// 		}
+
+// 		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
+// 		if err != nil {
+// 			return userError(err)
+// 		}
+
+// 		sessionUser, err := server.Sessions.GetSession(request)
+
+// 		if user.Private && (err != nil || sessionUser.User.Id != user.Id) {
+// 			return writeJSON(writer, http.StatusUnauthorized, APIerror{
+// 				http.StatusUnauthorized,
+// 				"Unauthorized",
+// 				"This account is private",
+// 			})
+// 		}
+
+// 		limit, offset := parseRequestLimitAndOffset(request)
+// 		posts, err := server.Storage.GetPostsLike(ctx, request.PathValue("userid"), limit, offset)
+// 		if err != nil {
+// 			return userError(err)
+// 		}
+
+// 		return writeJSON(writer, http.StatusOK, posts)
+// 	}
+
+// 	return writeJSON(writer, http.StatusMethodNotAllowed,
+// 		APIerror{
+// 			http.StatusMethodNotAllowed,
+// 			"Method Not Allowed",
+// 			"Method not Allowed",
+// 		})
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// 						 ▗▄▄▖ ▗▄▖ ▗▖  ▗▖▗▖  ▗▖▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▄▄▖						//
+// 						▐▌   ▐▌ ▐▌▐▛▚▞▜▌▐▛▚▞▜▌▐▌   ▐▛▚▖▐▌  █ ▐▌   						//
+// 						▐▌   ▐▌ ▐▌▐▌  ▐▌▐▌  ▐▌▐▛▀▀▘▐▌ ▝▜▌  █  ▝▀▚▖						//
+// 						▝▚▄▄▖▝▚▄▞▘▐▌  ▐▌▐▌  ▐▌▐▙▄▄▖▐▌  ▐▌  █ ▗▄▄▞▘						//
+//////////////////////////////////////////////////////////////////////////////////////////
 
 // Retrieve all comments of one post from the database.
 //
@@ -427,6 +531,13 @@ func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request
 			"Method not Allowed",
 		})
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// 						 ▗▄▄▖▗▖ ▗▖ ▗▄▖▗▄▄▄▖▗▄▄▖											//
+// 						▐▌   ▐▌ ▐▌▐▌ ▐▌ █ ▐▌   											//
+// 						▐▌   ▐▛▀▜▌▐▛▀▜▌ █  ▝▀▚▖											//
+// 						▝▚▄▄▖▐▌ ▐▌▐▌ ▐▌ █ ▗▄▄▞▘											//
+//////////////////////////////////////////////////////////////////////////////////////////
 
 // Retrieve all chats beetween 2 users from the database.
 //
@@ -516,6 +627,13 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 	return writeJSON(writer, http.StatusOK, chats)
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// 						 ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▖ ▗▖▗▄▄▖  ▗▄▄▖									//
+// 						▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌										//
+// 						▐▌▝▜▌▐▛▀▚▖▐▌ ▐▌▐▌ ▐▌▐▛▀▘  ▝▀▚▖									//
+// 						▝▚▄▞▘▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌   ▗▄▄▞▘									//
+//////////////////////////////////////////////////////////////////////////////////////////
+
 func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
@@ -589,41 +707,4 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 	}
 
 	return writeJSON(writer, http.StatusOK, group)
-}
-
-func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err error) {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
-	switch request.Method {
-	case http.MethodPost:
-		req := new(models.PostRequest)
-		err = json.NewDecoder(request.Body).Decode(req)
-		if err != nil {
-			return err
-		}
-
-		post, err := server.Storage.CreatePost(ctx, req)
-		if err != nil {
-			return err
-		}
-
-		return writeJSON(writer, http.StatusCreated, post)
-
-	case http.MethodGet:
-		post, err := server.Storage.GetPost(ctx, request.PathValue("postid"))
-		if err != nil {
-			return err
-		}
-
-		return writeJSON(writer, http.StatusCreated, post)
-
-	default:
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
-	}
 }
