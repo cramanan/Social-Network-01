@@ -2,12 +2,12 @@
 
 import { useForm } from "react-hook-form";
 
-interface LoginData {
+interface LoginFields {
     email: string;
     password: string;
 }
 
-interface RegisterData extends LoginData {
+interface RegisterFields extends LoginFields {
     nickname: string;
     firstName: string;
     lastName: string;
@@ -15,10 +15,13 @@ interface RegisterData extends LoginData {
 }
 
 export default function Auth() {
-    const { register, handleSubmit: handleRegister } = useForm<RegisterData>();
-    const { register: login, handleSubmit: handleLogin } = useForm<LoginData>();
+    const { register, handleSubmit: handleRegister } =
+        useForm<RegisterFields>();
 
-    const registerSubmit = (data: RegisterData) => {
+    const { register: login, handleSubmit: handleLogin } =
+        useForm<LoginFields>();
+
+    const registerSubmit = (data: RegisterFields) => {
         fetch("/api/register", {
             method: "POST",
             body: JSON.stringify(data),
@@ -28,7 +31,7 @@ export default function Auth() {
             .catch(console.error);
     };
 
-    const registerLogin = (data: LoginData) => {
+    const registerLogin = (data: LoginFields) => {
         fetch("/api/login", {
             method: "POST",
             body: JSON.stringify(data),
