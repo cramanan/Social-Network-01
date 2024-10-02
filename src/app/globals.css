@@ -2,10 +2,5 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    color: var(--foreground);
-    background: var(--background);
-}
-
 @layer utilities {
 }
