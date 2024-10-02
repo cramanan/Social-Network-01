@@ -2,20 +2,34 @@
 
 import { useForm } from "react-hook-form";
 
-type RegisterData = {
-    nickname: string;
+interface LoginData {
     email: string;
     password: string;
+}
+
+interface RegisterData extends LoginData {
+    nickname: string;
     firstName: string;
     lastName: string;
     dateOfBirth: string;
-};
+}
 
 export default function Auth() {
-    const { register, handleSubmit } = useForm<RegisterData>();
+    const { register, handleSubmit: handleRegister } = useForm<RegisterData>();
+    const { register: login, handleSubmit: handleLogin } = useForm<LoginData>();
 
-    const onSubmit = (data: RegisterData) => {
+    const registerSubmit = (data: RegisterData) => {
         fetch("/api/register", {
+            method: "POST",
+            body: JSON.stringify(data),
+        })
+            .then((resp) => resp.json())
+            .then(console.log)
+            .catch(console.error);
+    };
+
+    const registerLogin = (data: LoginData) => {
+        fetch("/api/login", {
             method: "POST",
             body: JSON.stringify(data),
         })
@@ -26,7 +40,20 @@ export default function Auth() {
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <h1>Login</h1>
+            <form onSubmit={handleLogin(registerLogin)}>
+                <input type="email" placeholder="email" {...login("email")} />
+                <input
+                    type="password"
+                    placeholder="password"
+                    {...login("password")}
+                />
+
+                <button type="submit">Send</button>
+            </form>
+
+            <h1>Register</h1>
+            <form onSubmit={handleRegister(registerSubmit)}>
                 <input
                     type="text"
                     placeholder="nickname"
