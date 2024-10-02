@@ -16,8 +16,7 @@ var store *SQLite3Store
 func TestMain(m *testing.M) {
 	file, err := os.CreateTemp(".", "sqlite3_test_*.db")
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 	defer os.Remove(file.Name())
 
@@ -29,23 +28,22 @@ func TestMain(m *testing.M) {
 
 	body, err := io.ReadAll(initFile)
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
 	store, err = NewSQLite3Store(file.Name())
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
+
 	}
 	defer store.Close()
 
 	_, err = store.Exec(string(body))
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
+	os.Remove(file.Name())
 	os.Exit(m.Run())
 }
 
@@ -110,10 +108,10 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			_, err := store.RegisterUser(context.Background(), tC.registerReq)
+		t.Run(tC.desc, func(tc *testing.T) {
+			_, err := store.RegisterUser(context.TODO(), tC.registerReq)
 			if (err != nil) != tC.ShouldErr {
-				t.Fatal(err)
+				tc.Fatal(err)
 			}
 		})
 	}
