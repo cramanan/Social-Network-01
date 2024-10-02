@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
-import UserContext from "./UserContext";
+import { userContext } from "./UserContext";
 
 export default function UserContextProvider({
     children,
 }: {
     children: ReactNode;
 }) {
-    return <UserContext.Provider value={null}>{children}</UserContext.Provider>;
+    return <userContext.Provider value={null}>{children}</userContext.Provider>;
 }

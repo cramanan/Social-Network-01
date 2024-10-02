@@ -1,11 +1,14 @@
 "use client";
 
-import UserContext from "@/providers/UserContext";
+import { useUser } from "@/providers/UserContext";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { useContext } from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-    const user = useContext(UserContext);
+    const user = useUser();
+    if (!user) return redirect("/auth");
+
     return (
         <>
             <header>
