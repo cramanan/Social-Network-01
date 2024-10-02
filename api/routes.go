@@ -212,6 +212,24 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 	}
 }
 
+func (server *API) GetUser(writer http.ResponseWriter, request *http.Request) error {
+	if request.Method == http.MethodGet {
+		s, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return err
+		}
+
+		return writeJSON(writer, http.StatusOK, s.User)
+	}
+
+	return writeJSON(writer, http.StatusMethodNotAllowed,
+		APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Method not Allowed",
+		})
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //						▗▄▄▄▖ ▗▄▖ ▗▖   ▗▖    ▗▄▖ ▗▖ ▗▖ ▗▄▄▖								//
 //						▐▌   ▐▌ ▐▌▐▌   ▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌								//
