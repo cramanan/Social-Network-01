@@ -1,17 +1,14 @@
 "use client";
 
-import UserContext from "@/providers/UserContext";
-import Link from "next/link";
-import { useContext } from "react";
+import React ,{ ReactNode } from "react";
+import  Header  from "@/components/Header";
+import Chat from "@/components/Chat";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-    const user = useContext(UserContext);
+export default function Layout({ children }: { children: ReactNode }) {
     return (
         <>
-            <header>
-                <Link href="/">SocialNetwork</Link>
-                <div>{JSON.stringify(user)}</div>
-            </header>
+        <Header></Header>
+        <Chat></Chat>
             {children}
             <footer></footer>
         </>
