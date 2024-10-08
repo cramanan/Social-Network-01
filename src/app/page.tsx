@@ -1,5 +1,11 @@
-import Layout from "@/components/Layout";
+import { Login } from "./_components/Login";
 
 export default function Home() {
-    return <Layout>Home</Layout>;
+  return (
+    <body>
+      <div>
+        <Login />
+      </div>
+    </body>
+  );
 }
