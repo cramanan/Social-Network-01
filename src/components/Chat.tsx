@@ -1,26 +1,26 @@
-import React from "react";
+'use client'
 
-export default function Chat() {
-    const imageStyle = "w-10 h-10 bg-white"
+import React from "react";
+import { ChatBubbles } from "./icons/ChatBubbles";
+import { Icon } from "./icons/Icon";
+import { Vector } from "./icons/Vector";
+
+const Chat = () => {
+    const handleVectorClick = () => {
+        const userList = document.getElementById("userList")
+        userList?.classList.toggle("hidden")
+    };
     return (
         <>
-            <div className="w-60 h-10 bg-white bg-opacity-40 m-5 border border-neutral-400 rounded-b-3xl">
-                <div className="flex justify-between items-center px-7">
-                    <image className={imageStyle} />
-                    <image className={imageStyle} />
-                    <image className={imageStyle} />
-                </div>
+            <div className="w-64 h-9 bg-white bg-opacity-40 m-3 border border-neutral-400 rounded-b-3xl flex justify-between items-center px-7">
+                <ChatBubbles />
+                <Icon />
+                <button onClick={handleVectorClick}>
+                    <Vector />
+                </button>
             </div>
         </>
     );
 }
 
-// width: 343px;
-// height: 50px;
-// top: 112.18px;
-// left: 1553px;
-// gap: 0px;
-// border-radius: 0px 0px 30px 30px;
-// border: 2px 0px 0px 0px;
-// opacity: 0px;
-// angle: 0.36 deg;
+export default Chat
