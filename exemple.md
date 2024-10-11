@@ -1,10 +1,3 @@
-    <body className="w-full h-full justify-center flex items-center">
-      <div className="w-[1062px] h-[748px] pl-[109px] pr-[569px] pt-[77px] pb-[95px] justify-start items-center inline-flex">
-        <div className="w-[550px] h-[750px] bg-white/95 rounded-tl-[20px] rounded-bl-[20px] shadow border border-white backdrop-blur-[53px] flex-col  inline-flex"></div>
-        <div className="w-[500px] self-stretch px-[30px] bg-gradient-to-bl from-[#1667e0] to-[#e492e5] rounded-tr-[20px] rounded-br-[20px] shadow border border-white backdrop-blur-[53px] flex-col justify-start items-start inline-flex"></div>
-      </div>
-    </body>
-
 import React from "react";
 
 const Section = ({ children, className = "" }) => (
