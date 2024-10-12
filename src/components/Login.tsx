@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 
+// Form Datas
 interface LoginFields {
     email: string;
     password: string;
@@ -9,8 +10,12 @@ export const Login = () => {
     const { register, handleSubmit } = useForm<LoginFields>();
 
     const onSubmit = (data: LoginFields) => {
-        console.log(data);
+        fetch("/api/login", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
     };
+
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col  w-full gap-20 md:gap-12 p-14">
@@ -33,7 +38,7 @@ export const Login = () => {
                         aria-label="Password"
                     />
                 </div>
-                <button type="submit">Signin</button>
+                <button type="submit">Sign in</button>
             </div>
         </form>
     );

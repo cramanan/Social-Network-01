@@ -25,7 +25,7 @@ export default function Auth() {
 
                 <div
                     className={`w-full md:w-1/2 h-1/2 md:h-full relative bg-gradient-to-bl from-[#1667e0] to-[#e492e5] shadow border border-white backdrop-blur-[53px] flex flex-col justify-start items-center transition-transform duration-500 ${
-                        isSignUp && "md:translate-x-[-100%]"
+                        isSignUp && "md:-translate-x-full"
                     }`}
                 >
                     {

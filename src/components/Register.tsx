@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 
+// Form Datas
 interface RegisterFields {
     email: string;
     password: string;
@@ -11,6 +12,7 @@ interface RegisterFields {
     dateOfBirth: string;
 }
 
+// Zod Schema for the resolver
 export const UserSchema: ZodType<RegisterFields> = z.object({
     email: z.string().email(),
     password: z
@@ -27,7 +29,13 @@ export const Register = () => {
     const { register, handleSubmit } = useForm<RegisterFields>({
         resolver: zodResolver(UserSchema),
     });
-    const onSubmit = (data: RegisterFields) => {};
+
+    const onSubmit = (data: RegisterFields) => {
+        fetch("/api/register", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -74,14 +82,14 @@ export const Register = () => {
                     />
 
                     <input
-                        type="text"
+                        type="date"
                         {...register("dateOfBirth")}
                         className="w-[350px] px-4 py-3.5 rounded-xl border border-white bg-transparent text-white text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-white"
                         placeholder="Date of birth"
                         aria-label="Date of birth"
                     />
                 </div>
-                <button type="submit">Signin</button>
+                <button type="submit">Sign up</button>
             </div>
         </form>
     );
