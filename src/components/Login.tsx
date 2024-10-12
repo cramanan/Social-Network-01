@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 // Form Datas
@@ -9,11 +10,15 @@ interface LoginFields {
 export const Login = () => {
     const { register, handleSubmit } = useForm<LoginFields>();
 
+    const router = useRouter();
+
     const onSubmit = (data: LoginFields) => {
-        fetch("/api/login", {
-            method: "POST",
-            body: JSON.stringify(data),
-        });
+        // fetch("/api/login", {
+        //     method: "POST",
+        //     body: JSON.stringify(data),
+        // }).then(()=>{
+        router.push("/");
+        //});
     };
 
     return (

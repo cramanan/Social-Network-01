@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 
@@ -31,11 +32,15 @@ export const Register = () => {
     });
 
     const onSubmit = (data: RegisterFields) => {
-        fetch("/api/register", {
-            method: "POST",
-            body: JSON.stringify(data),
-        });
+        // fetch("/api/register", {
+        //     method: "POST",
+        //     body: JSON.stringify(data),
+        // }).then(()=>{
+        router.push("/");
+        //});
     };
+
+    const router = useRouter();
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
