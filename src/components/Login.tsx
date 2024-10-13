@@ -12,7 +12,7 @@ export const Login = () => {
 
     const router = useRouter();
 
-    const onSubmit = (data: LoginFields) => {
+    const onSubmit = (/*data: LoginFields*/) => {
         // fetch("/api/login", {
         //     method: "POST",
         //     body: JSON.stringify(data),

@@ -31,7 +31,7 @@ export const Register = () => {
         resolver: zodResolver(UserSchema),
     });
 
-    const onSubmit = (data: RegisterFields) => {
+    const onSubmit = (/*data: RegisterFields*/) => {
         // fetch("/api/register", {
         //     method: "POST",
         //     body: JSON.stringify(data),
