@@ -12,13 +12,17 @@ export const Login = () => {
 
     const router = useRouter();
 
-    const onSubmit = (/*data: LoginFields*/) => {
-        // fetch("/api/login", {
-        //     method: "POST",
-        //     body: JSON.stringify(data),
-        // }).then(()=>{
-        router.push("/");
-        //});
+    const onSubmit = (data: LoginFields) => {
+        fetch("/api/login", {
+            method: "POST",
+            body: JSON.stringify(data),
+        })
+            .then((resp) => {
+                if (resp.ok) return resp.json();
+                throw "Error";
+            })
+            .then(() => router.push("/"))
+            .catch(console.error);
     };
 
     return (

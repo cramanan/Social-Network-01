@@ -31,13 +31,18 @@ export const Register = () => {
         resolver: zodResolver(UserSchema),
     });
 
-    const onSubmit = (/*data: RegisterFields*/) => {
-        // fetch("/api/register", {
-        //     method: "POST",
-        //     body: JSON.stringify(data),
-        // }).then(()=>{
-        router.push("/");
-        //});
+    const onSubmit = (data: RegisterFields) => {
+        fetch("/api/register", {
+            method: "POST",
+            body: JSON.stringify(data),
+        })
+            .then((resp) => {
+                if (resp.ok) return resp.json();
+                throw "Error";
+            })
+            .then(() => router.push("/"))
+
+            .catch(console.error);
     };
 
     const router = useRouter();
