@@ -35,6 +35,9 @@ export const Register = () => {
         fetch("/api/register", {
             method: "POST",
             body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json",
+            },
         })
             .then((resp) => {
                 if (resp.ok) return resp.json();

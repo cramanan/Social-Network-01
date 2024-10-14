@@ -1,12 +1,16 @@
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-    const response = await fetch(`${process.env.API_URL}/api/auth`, {
-        method: request.method,
-        headers: request.headers,
-    });
+    try {
+        const response = await fetch(`${process.env.API_URL}/api/auth`, {
+            headers: request.headers,
+        });
 
-    if (!response.ok) return Response.redirect(new URL("/auth", request.url));
+        if (!response.ok)
+            return Response.redirect(new URL("/auth", request.url));
+    } catch (error) {
+        return Response.redirect(new URL("/auth", request.url));
+    }
 }
 
 export const config = {
