@@ -11,7 +11,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         fetch("/api/auth")
             .then((resp) => (resp.ok ? resp.json() : null))
             .then(setUser)
-            .then(() => console.log("calling"))
             .catch(console.error);
     }, []);
 

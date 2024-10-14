@@ -7,7 +7,12 @@ const ProfilePost = () => {
     return (
         <div className="flex flex-row">
             <div className="w-[800px] h-[300px] bg-white rounded-l-[30px] flex flex-col justify-between">
-                <textarea className="resize-none w-full h-44 py-4 px-7 rounded-tl-[30px]" />
+                <textarea
+                    className="resize-none w-full h-44 py-4 px-7 rounded-tl-[30px]"
+                    defaultValue={
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lectus enim, dignissim id consectetur ut, congue sit amet libero. Nullam in lorem mollis, sollicitudin est et, ornare augue. Suspendisse risus est, porttitor vitae orci eget, sagittis interdum est. Nunc turpis nisl, vestibulum non condimentum eget, eleifend gravida justo."
+                    }
+                ></textarea>
                 <div className="flex flex-row justify-between p-7 pb-5">
                     <div className="text-black/50">
                         Friday 6 september 16:03
