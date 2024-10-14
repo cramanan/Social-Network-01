@@ -11,6 +11,7 @@ export default async function Page({ params }: { params: { id: string } }) {
             }
         );
     } catch (error) {
+        console.error(error);
         notFound();
     }
 
