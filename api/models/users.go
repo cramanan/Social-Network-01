@@ -9,7 +9,7 @@ type User struct {
 	FirstName   string    `json:"firstName"`
 	LastName    string    `json:"lastName"`
 	DateOfBirth time.Time `json:"dateOfBirth"`
-	ImagePath   *string   `json:"imagePath"`
+	ImagePath   *string   `json:"image"`
 	AboutMe     *string   `json:"aboutMe"`
 	Private     bool      `json:"private"`
 	Timestamp   time.Time `json:"timestamp"`

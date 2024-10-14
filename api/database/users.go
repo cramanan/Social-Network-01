@@ -61,7 +61,7 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 		user.FirstName,
 		user.LastName,
 		user.DateOfBirth,
-		nil,
+		"https://commons.wikimedia.org/wiki/File:Default_pfp.svg",
 		nil,
 		false,
 		user.Timestamp,

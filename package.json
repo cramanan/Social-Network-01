@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
-    "framer-motion": "^11.11.7",
     "next": "14.2.14",
     "react": "^18",
     "react-dom": "^18",

@@ -16,6 +16,9 @@ export const Login = () => {
         fetch("/api/login", {
             method: "POST",
             body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json",
+            },
         })
             .then((resp) => {
                 if (resp.ok) return resp.json();

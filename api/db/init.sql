@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     timestamp DATETIME NOT NULL
 );
 
-CREATE TABLE IF NOT     EXISTS posts (
+CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
     group_name TEXT DEFAULT 'Global' REFERENCES groups(name),

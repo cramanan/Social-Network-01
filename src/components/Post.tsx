@@ -6,7 +6,7 @@ import { Like } from './icons/Like'
 
 const Post = () => {
     return (
-        <div className='flex flex-col relative w-screen bg-white/95 rounded-[30px] md:w-full'>
+        <div className='flex flex-col relative w-full bg-white/95 rounded-[30px]'>
             <div className='flex flex-row justify-between items-center mr-5'>
                 <div className='flex flex-row items-center ml-2 mt-2 gap-5'>
                     <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
