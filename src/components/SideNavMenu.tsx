@@ -14,44 +14,56 @@ import { ExitIcon } from './icons/ExitIcon';
 
 const SideNavMenu = () => {
     const [isOpen, setIsOpen] = useState(false)
-    const handleShowClick = () => {
+
+    const toggleSideNav = () => {
         setIsOpen(!isOpen)
         document.getElementById("sideNav")?.classList.toggle("-translate-x-44")
-        const backIcon = document.getElementById("backIcon")
-        backIcon?.classList.toggle("ml-44")
+        document.getElementById("backIcon")?.classList.toggle("translate-x-44")
+        if (!isOpen) {
+            document.getElementById("friendInviteList")?.classList.add("hidden")
+        }
     };
+
+    const handleFriendInviteIcon = () => {
+        const friendInviteList = document.getElementById("friendInviteList")
+        friendInviteList?.classList.toggle("hidden")
+        friendInviteList?.classList.toggle("flex")
+        if (isOpen) {
+            toggleSideNav();
+        }
+    }
+
+    const menuItems = [
+        { label: "Request", icon: <RequestIcon />, onClick: handleFriendInviteIcon },
+        { label: "Home", icon: <HomeIcon />, href: "/" },
+        { label: "Groups", icon: <GroupsIcon /> },
+        { label: "Notifications", icon: <NotificationsIcon /> },
+        { label: "Bookmarks", icon: <BookmarkIcon /> },
+        { label: "Setting", icon: <SettingIcon /> },
+        { label: "Exit", icon: <ExitIcon /> },
+    ];
+
     return (
-        <div id='sideNav' className='w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] border-r-2 border-y-2 border-[#bfbfbf] flex flex-col justify-between px-5 py-7 -translate-x-44 duration-300 ease-in-out'>
-            <div id='backIcon' className='ml-44' onClick={handleShowClick}>{isOpen ? <BackSideBarLeft /> : <BackSideBarRight />}</div>
-            <div className='flex flex-row justify-between items-center'>
-                <span className="text-white text-2xl font-semibold font-['Inter']">Request</span>
-                <RequestIcon />
-            </div>
-            <div className='flex flex-row justify-between items-center'>
-                <span className="text-white text-2xl font-semibold font-['Inter']">Home</span>
-                <HomeIcon />
-            </div>
-            <div className='flex flex-row justify-between items-center'>
-                <span className="text-white text-2xl font-semibold font-['Inter']">Groups</span>
-                <GroupsIcon />
-            </div>
-            <div className='flex flex-row justify-between items-center'>
-                <span className="text-white text-2xl font-semibold font-['Inter']">Notifications</span>
-                <NotificationsIcon />
-            </div>
-            <div className='flex flex-row justify-between items-center'>
-                <span className="text-white text-2xl font-semibold font-['Inter']">Bookmarks</span>
-                <BookmarkIcon />
-            </div>
-            <div className='flex flex-row justify-between items-center'>
-                <span className="text-white text-2xl font-semibold font-['Inter']">Setting</span>
-                <SettingIcon />
-            </div>
-            <div className='flex flex-row justify-between items-center'>
-                <span className="text-white text-2xl font-semibold font-['Inter']">Exit</span>
-                <ExitIcon />
-            </div>
-        </div>
+        <nav id='sideNav' className='w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] border-r-2 border-y-2 border-[#bfbfbf] px-5 py-7 -translate-x-44 duration-300 ease-in-out select-none' aria-label="Side navigation" aria-expanded={isOpen}>
+            <ul className="h-full flex flex-col justify-between">
+
+                <li>
+                    <button id='backIcon' className='w-[51px] translate-x-44 duration-300 ease-in-out' aria-label={isOpen ? "Close menu" : "Open menu"} onClick={toggleSideNav}>{isOpen ? <BackSideBarLeft /> : <BackSideBarRight />}</button>
+                </li>
+
+                {menuItems.map((item, index) => (
+                    <li key={index} className="flex flex-row justify-between items-center">
+                        <span className="text-white text-2xl font-semibold font-['Inter']">{item.label}</span>
+                        {item.href ? (
+                            <a aria-label={item.label} href={item.href}>{item.icon}</a>
+                        ) : (
+                            <button aria-label={item.label} onClick={item.onClick}>{item.icon}</button>
+                        )}
+                    </li>
+                ))
+                }
+            </ul>
+        </nav >
     )
 }
 

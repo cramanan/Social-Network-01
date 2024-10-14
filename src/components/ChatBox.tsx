@@ -5,7 +5,7 @@ import { EmoteIcon } from './icons/EmoteIcon'
 
 const ChatBox = () => {
     return (
-        <div className='w-[343px] h-[642px] relative bg-[#fbfbfb] rounded-[25px] flex flex-col'>
+        <div id='chatBox' className='w-[343px] h-[642px] relative bg-[#fbfbfb] rounded-[25px] flex flex-col'>
             <div className='w-[343px] h-[50px] relative bg-[#445ab3]/20 rounded-tl-[25px] rounded-t-[25px] border-b border-black flex flex-row items-center p-2'>
                 <BackIcon />
             </div>

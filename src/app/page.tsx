@@ -6,6 +6,7 @@ import CreatePost from "@/components/CreatePost";
 import FriendInvite from "@/components/FriendInvite";
 import FriendInviteList from "@/components/FriendInviteList";
 import Header from "@/components/Header";
+import { ProfileCircle } from "@/components/icons/ProfileCircle";
 import Layout from "@/components/Layout";
 import Media from "@/components/Media";
 import Post from "@/components/Post";
@@ -20,12 +21,17 @@ import Users from "@/components/Users";
 export default function Home() {
     return <Layout>
         <Header />
-        {/* <div className="absolute left-0 top-[150px]"><SideNavMenu /></div>
-        <div className="absolute left-1/2 -translate-x-1/2"><Actualite /></div>
-        <div className="absolute right-0"><Chat />
-            <div className="absolute right-0 mr-3"><UserList /></div>
-        </div> */}
-        <div className="flex flex-col gap-5 justify-center items-center">
+        <main>
+            <div className="absolute left-0 top-[150px]">
+                <SideNavMenu />
+                <div className="absolute left-24 top-[80px]">
+                    <FriendInviteList />
+                </div>
+            </div>
+            <div className="absolute left-1/2 -translate-x-1/2"><Actualite /></div>
+            <div className="absolute right-0"><Chat /></div>
+        </main>
+        {/* <main className="flex flex-col gap-5 justify-center items-center">
             <Actualite />
             <Users />
             <Chat />
@@ -42,7 +48,6 @@ export default function Home() {
             <SideNavMenu />
             <FriendInvite />
             <FriendInviteList />
-        </div>
-
+        </main> */}
     </Layout>;
 }
