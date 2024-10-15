@@ -1,12 +1,12 @@
 "use client";
 
-import React, { FormEventHandler, useState } from "react";
+import React from "react";
 import { ProfileCircle } from "./icons/ProfileCircle";
 import { useForm } from "react-hook-form";
 
-interface PostRequest {
+type PostRequest = {
     content: string;
-}
+};
 
 const CreatePost = () => {
     const {
@@ -50,6 +50,7 @@ const CreatePost = () => {
                             placeholder="Create your post"
                             className="md:w-[250px] bg-white/0 outline-none resize-none overflow-scroll no-scrollbar place-content-center"
                             aria-required="true"
+                            required
                             // aria-invalid={error ? "true" : "false"}
                             // aria-describedby={error ? "post-error" : undefined}
                             {...register("content")}
@@ -62,8 +63,8 @@ const CreatePost = () => {
                     className="flex items-center justify-center mr-5 w-[85px] bg-gradient-to-tr from-[#4821f9] via-[#6f46c0] to-[#e0d3ea] rounded-[30px]"
                     aria-label="Submit post"
                 >
-                    <span className=" text-black text-base font-semibold font-['Inter']">
-                        post
+                    <span className=" text-white text-base font-semibold font-['Inter']">
+                        POST
                     </span>
                 </button>
             </form>

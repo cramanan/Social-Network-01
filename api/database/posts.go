@@ -157,5 +157,21 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupname string, 
 		posts = append(posts, post)
 	}
 
+	if posts == nil {
+		posts = []*models.Post{}
+	}
+
 	return posts, tx.Commit()
+}
+
+func (store *SQLite3Store) LikePost(ctx context.Context, userId, groupId string) (err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	// TODO
+
+	return tx.Commit()
 }

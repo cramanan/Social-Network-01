@@ -3,10 +3,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 // Form Datas
-interface LoginFields {
+type LoginFields = {
     email: string;
     password: string;
-}
+};
 
 export const Login = () => {
     const { register, handleSubmit } = useForm<LoginFields>();

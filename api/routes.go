@@ -213,21 +213,21 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 }
 
 func (server *API) GetUser(writer http.ResponseWriter, request *http.Request) error {
-	if request.Method == http.MethodGet {
-		s, err := server.Sessions.GetSession(request)
-		if err != nil {
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, s.User)
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
 	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
+	s, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return writeJSON(writer, http.StatusUnauthorized, "You are unauthorized to access this ressource.")
+	}
+
+	return writeJSON(writer, http.StatusOK, s.User)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -364,6 +364,32 @@ func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err 
 				"Method not Allowed",
 			})
 	}
+}
+
+func (server *API) LikePost(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodPost {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	err = server.Storage.LikePost(ctx, sess.User.Id, request.PathValue("postid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
 }
 
 // // Retrieve all posts of one user from the database.

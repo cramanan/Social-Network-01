@@ -5,14 +5,14 @@ import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 
 // Form Datas
-interface RegisterFields {
+type RegisterFields = {
     email: string;
     password: string;
     nickname: string;
     firstName: string;
     lastName: string;
     dateOfBirth: string;
-}
+};
 
 // Zod Schema for the resolver
 export const UserSchema: ZodType<RegisterFields> = z.object({
