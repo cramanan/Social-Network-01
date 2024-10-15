@@ -310,6 +310,10 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 //////////////////////////////////////////////////////////////////////////////////////////
 
 func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodPost {
+		return err
+	}
+
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
@@ -696,8 +700,7 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 	}
 
 	if newGroup.Name == "" ||
-		newGroup.Description == "" ||
-		newGroup.UsersIds == nil {
+		newGroup.Description == "" {
 		return writeJSON(writer, http.StatusUnauthorized,
 			APIerror{
 				http.StatusUnauthorized,
@@ -718,11 +721,6 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Group(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
-	groupname := request.PathValue("groupname")
-
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -731,6 +729,11 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 				"Method not Allowed",
 			})
 	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	groupname := request.PathValue("groupname")
 
 	group, err := server.Storage.GetGroup(ctx, groupname)
 	if err == sql.ErrNoRows {

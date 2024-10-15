@@ -47,9 +47,9 @@ export default function Header() {
                     <div className="w-36 relative justify-end bg-white rounded-3xl bg-opacity-40 mr-5">
                         <div className="flex flex-col items-center pl-5">
                             <div className="text-xs font-bold">
-                                {JSON.stringify(user)}
+                                {user?.firstName}
                             </div>
-                            <div className="text-xs">@nickname</div>
+                            <div className="text-xs">@{user?.firstName}</div>
                         </div>
                     </div>
                 </div>

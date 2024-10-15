@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"time"
 
 	"Social-Network-01/api/models"
@@ -22,15 +21,9 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupName string) (grou
 	}
 	defer tx.Rollback()
 
-	row := tx.QueryRowContext(ctx, `SELECT * FROM group WHERE name = ?`, groupName)
+	row := tx.QueryRowContext(ctx, `SELECT * FROM groups WHERE name = ?`, groupName)
 	group = new(models.Group)
-	var users []byte
-	err = row.Scan(&group.Name, &users)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(users, &group.UsersIds)
+	err = row.Scan(&group.Name, &group.Description, &group.Timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -62,14 +55,12 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *models.Group) (n
 
 	newgroup.Name = group.Name
 	newgroup.Description = group.Description
-	newgroup.UsersIds = group.UsersIds
 	newgroup.Timestamp = time.Now().UTC()
 
 	_, err = store.ExecContext(ctx,
 		`INSERT INTO groups VALUES (?,?,?,?)`,
 		newgroup.Name,
 		newgroup.Description,
-		newgroup.UsersIds,
 		newgroup.Timestamp)
 	if err != nil {
 		return

@@ -59,7 +59,7 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 	}
 
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO posts VALUES(?, ?, ?, ?, ?, ?);
+		INSERT INTO posts VALUES(?, ?, COALESCE(?, "Global"), ?, ?, ?);
 		INSERT INTO posts_status VALUES(?, ?, ?);`,
 
 		id.String(),

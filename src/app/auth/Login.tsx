@@ -1,3 +1,4 @@
+import { useAuth } from "@/providers/AuthContext";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -12,6 +13,8 @@ export const Login = () => {
 
     const router = useRouter();
 
+    const { setUser } = useAuth();
+
     const onSubmit = (data: LoginFields) => {
         fetch("/api/login", {
             method: "POST",
@@ -24,6 +27,7 @@ export const Login = () => {
                 if (resp.ok) return resp.json();
                 throw "Error";
             })
+            .then(setUser)
             .then(() => router.push("/"))
             .catch(console.error);
     };
