@@ -786,7 +786,21 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	groups, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupname"), limit, offset)
+	posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupname"), limit, offset)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, posts)
+}
+
+func (server *API) GetGroups(writer http.ResponseWriter, request *http.Request) (err error) {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	groups, err := server.Storage.GetGroups(ctx, limit, offset)
 	if err != nil {
 		return err
 	}

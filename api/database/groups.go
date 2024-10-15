@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"log"
 	"time"
 
 	"Social-Network-01/api/models"
@@ -67,4 +68,30 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *models.Group) (n
 	}
 
 	return newgroup, tx.Commit()
+}
+
+func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (groups []*models.Group, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	rows, err := store.QueryContext(ctx, `
+	SELECT * FROM groups
+	LIMIT ? OFFSET ?;`,
+		limit, offset)
+
+	for rows.Next() {
+		group := new(models.Group)
+		err = rows.Scan(&group.Name, &group.Description, &group.Timestamp)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		groups = append(groups, group)
+	}
+
+	return
 }
