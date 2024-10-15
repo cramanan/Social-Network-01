@@ -20,7 +20,7 @@ export default function Header() {
                         <Search />
                     </div>
                     <label htmlFor="search-input" className="sr-only">Search</label>
-                    <input id="search-input" type="search" className="w-80 h-8 border rounded-r-3xl border-l-0  border-white bg-white bg-opacity-40 focus:outline-none" placeholder="Search" aria-label="Search" />
+                    <input id="search-input" type="search" className="w-80 h-8 border rounded-r-3xl pr-2 border-l-0 border-white bg-white bg-opacity-40 focus:outline-none" placeholder="Search" aria-label="Search" />
                 </div>
 
                 <div className="items-center md:flex md:relative">

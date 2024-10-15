@@ -1,8 +1,10 @@
 import Actualite from "@/components/Actualite";
 import Chat from "@/components/Chat";
 import ChatBox from "@/components/ChatBox";
+import ChatList from "@/components/ChatList";
 import Comment from "@/components/Comment";
 import CreatePost from "@/components/CreatePost";
+import FindUser from "@/components/FindUser";
 import FriendInvite from "@/components/FriendInvite";
 import FriendInviteList from "@/components/FriendInviteList";
 import Header from "@/components/Header";
@@ -21,7 +23,7 @@ import Users from "@/components/Users";
 export default function Home() {
     return <Layout>
         <Header />
-        <main>
+        {/* <main>
             <div className="absolute left-0 top-[150px]">
                 <SideNavMenu />
                 <div className="absolute left-24 top-[80px]">
@@ -30,11 +32,13 @@ export default function Home() {
             </div>
             <div className="absolute left-1/2 -translate-x-1/2"><Actualite /></div>
             <div className="absolute right-0"><Chat /></div>
-        </main>
-        {/* <main className="flex flex-col gap-5 justify-center items-center">
+        </main> */}
+        <main className="flex flex-col gap-5 justify-center items-center">
             <Actualite />
             <Users />
             <Chat />
+            <ChatList />
+            <FindUser />
             <UserList />
             <ChatBox />
             <Comment />
@@ -48,6 +52,6 @@ export default function Home() {
             <SideNavMenu />
             <FriendInvite />
             <FriendInviteList />
-        </main> */}
+        </main>
     </Layout>;
 }
