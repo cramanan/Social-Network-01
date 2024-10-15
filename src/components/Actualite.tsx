@@ -27,7 +27,7 @@ const Actualite = () => {
             .then((resp) => (resp.ok ? resp.json() : []))
             .then(setPosts)
             .catch(console.error); // TODO: edit Global to a valid URL value
-    }, [params.offset]);
+    }, [params.limit, params.offset]);
 
     return (
         <>

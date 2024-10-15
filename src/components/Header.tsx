@@ -40,7 +40,10 @@ export default function Header() {
                     />
                 </div>
 
-                <div className="items-center md:flex md:relative">
+                <Link
+                    href="/profile"
+                    className="items-center md:flex md:relative"
+                >
                     <div className="flex relative z-10 -m-10 w-11 h-11 bg-white border rounded-full">
                         <ProfileCircle />
                     </div>
@@ -52,7 +55,7 @@ export default function Header() {
                             <div className="text-xs">@{user?.firstName}</div>
                         </div>
                     </div>
-                </div>
+                </Link>
             </header>
         </>
     );

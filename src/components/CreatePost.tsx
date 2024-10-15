@@ -12,7 +12,7 @@ const CreatePost = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        // formState: { errors },
         reset,
     } = useForm<PostRequest>();
 

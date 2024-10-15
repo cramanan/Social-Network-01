@@ -164,14 +164,36 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupname string, 
 	return posts, tx.Commit()
 }
 
-func (store *SQLite3Store) LikePost(ctx context.Context, userId, groupId string) (err error) {
+func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) (err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
 	}
 	defer tx.Rollback()
 
-	// TODO
+	var exists bool
+	err = store.QueryRowContext(ctx, `
+	SELECT EXISTS(
+		SELECT * 
+		FROM likes_records 
+		WHERE user_id = ? AND post_id = ?
+	);`, userId, postId).Scan(&exists)
+
+	if err != nil {
+		return err
+	}
+
+	var query string
+	if !exists {
+		query = "INSERT INTO likes_records VALUES(?, ?);"
+	} else {
+		query = "DELETE FROM likes_records WHERE user_id = ? AND post_id = ?;"
+	}
+
+	_, err = store.ExecContext(ctx, query, userId, postId)
+	if err != nil {
+		return err
+	}
 
 	return tx.Commit()
 }
