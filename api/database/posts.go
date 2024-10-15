@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"Social-Network-01/api/models"
@@ -124,4 +125,37 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 	}
 
 	return
+}
+
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupname string, limit, offset int) (posts []*models.Post, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	rows, err := store.QueryContext(ctx, `
+	SELECT * FROM posts 
+	WHERE group_name = ? 
+	LIMIT ? OFFSET ?`,
+		groupname, limit, offset)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		post := new(models.Post)
+
+		images := []byte{}
+
+		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &images, &post.Timestamp)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		posts = append(posts, post)
+	}
+
+	return posts, tx.Commit()
 }

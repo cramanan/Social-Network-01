@@ -666,13 +666,6 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 // 						▝▚▄▞▘▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌   ▗▄▄▞▘									//
 //////////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// 						 ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▖ ▗▖▗▄▄▖  ▗▄▄▖									//
-// 						▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌										//
-// 						▐▌▝▜▌▐▛▀▚▖▐▌ ▐▌▐▌ ▐▌▐▛▀▘  ▝▀▚▖									//
-// 						▝▚▄▞▘▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌   ▗▄▄▞▘									//
-//////////////////////////////////////////////////////////////////////////////////////////
-
 // Create a new group in the database.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
@@ -750,4 +743,27 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 	}
 
 	return writeJSON(writer, http.StatusOK, group)
+}
+
+func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	groups, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupname"), limit, offset)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, groups)
 }
