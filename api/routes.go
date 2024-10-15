@@ -213,21 +213,21 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 }
 
 func (server *API) GetUser(writer http.ResponseWriter, request *http.Request) error {
-	if request.Method == http.MethodGet {
-		s, err := server.Sessions.GetSession(request)
-		if err != nil {
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, s.User)
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
 	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
+	s, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return writeJSON(writer, http.StatusUnauthorized, "You are unauthorized to access this ressource.")
+	}
+
+	return writeJSON(writer, http.StatusOK, s.User)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -310,6 +310,10 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 //////////////////////////////////////////////////////////////////////////////////////////
 
 func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodPost {
+		return err
+	}
+
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
@@ -360,6 +364,32 @@ func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err 
 				"Method not Allowed",
 			})
 	}
+}
+
+func (server *API) LikePost(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodPost {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	err = server.Storage.LikePost(ctx, sess.User.Id, request.PathValue("postid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
 }
 
 // // Retrieve all posts of one user from the database.
@@ -662,13 +692,6 @@ func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Re
 // 						▝▚▄▞▘▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌   ▗▄▄▞▘									//
 //////////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// 						 ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▖ ▗▖▗▄▄▖  ▗▄▄▖									//
-// 						▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌										//
-// 						▐▌▝▜▌▐▛▀▚▖▐▌ ▐▌▐▌ ▐▌▐▛▀▘  ▝▀▚▖									//
-// 						▝▚▄▞▘▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌   ▗▄▄▞▘									//
-//////////////////////////////////////////////////////////////////////////////////////////
-
 // Create a new group in the database.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
@@ -696,8 +719,7 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 	}
 
 	if newGroup.Name == "" ||
-		newGroup.Description == "" ||
-		newGroup.UsersIds == nil {
+		newGroup.Description == "" {
 		return writeJSON(writer, http.StatusUnauthorized,
 			APIerror{
 				http.StatusUnauthorized,
@@ -718,11 +740,6 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Group(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
-	groupname := request.PathValue("groupname")
-
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -731,6 +748,11 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 				"Method not Allowed",
 			})
 	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	groupname := request.PathValue("groupname")
 
 	group, err := server.Storage.GetGroup(ctx, groupname)
 	if err == sql.ErrNoRows {
@@ -747,4 +769,41 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 	}
 
 	return writeJSON(writer, http.StatusOK, group)
+}
+
+func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupname"), limit, offset)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, posts)
+}
+
+func (server *API) GetGroups(writer http.ResponseWriter, request *http.Request) (err error) {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	groups, err := server.Storage.GetGroups(ctx, limit, offset)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, groups)
 }

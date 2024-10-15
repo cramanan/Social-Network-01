@@ -40,19 +40,22 @@ export default function Header() {
                     />
                 </div>
 
-                <div className="items-center md:flex md:relative">
+                <Link
+                    href="/profile"
+                    className="items-center md:flex md:relative"
+                >
                     <div className="flex relative z-10 -m-10 w-11 h-11 bg-white border rounded-full">
                         <ProfileCircle />
                     </div>
                     <div className="w-36 relative justify-end bg-white rounded-3xl bg-opacity-40 mr-5">
                         <div className="flex flex-col items-center pl-5">
                             <div className="text-xs font-bold">
-                                {JSON.stringify(user)}
+                                {user?.firstName}
                             </div>
-                            <div className="text-xs">@nickname</div>
+                            <div className="text-xs">@{user?.firstName}</div>
                         </div>
                     </div>
-                </div>
+                </Link>
             </header>
         </>
     );

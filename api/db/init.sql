@@ -59,11 +59,11 @@ CREATE TABLE IF NOT EXISTS likes_records(
 CREATE TABLE IF NOT EXISTS groups(
     name TEXT NOT NULL PRIMARY KEY,
     description TEXT NOT NULL,
-    users BLOB NOT NULL,
+    -- users BLOB NOT NULL,
     timestamp DATETIME NOT NULL
 );
 
 INSERT INTO groups VALUES(
-    'Global',"Global group",x'',date('now')
+    'Global',"Global group",date('now')
 );
 COMMIT;

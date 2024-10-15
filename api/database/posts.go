@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"Social-Network-01/api/models"
@@ -59,7 +60,7 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 	}
 
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO posts VALUES(?, ?, ?, ?, ?, ?);
+		INSERT INTO posts VALUES(?, ?, COALESCE(?, "Global"), ?, ?, ?);
 		INSERT INTO posts_status VALUES(?, ?, ?);`,
 
 		id.String(),
@@ -124,4 +125,75 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 	}
 
 	return
+}
+
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupname string, limit, offset int) (posts []*models.Post, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	rows, err := store.QueryContext(ctx, `
+	SELECT * FROM posts 
+	WHERE group_name = ? 
+	LIMIT ? OFFSET ?`,
+		groupname, limit, offset)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		post := new(models.Post)
+
+		images := []byte{}
+
+		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &images, &post.Timestamp)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		posts = append(posts, post)
+	}
+
+	if posts == nil {
+		posts = []*models.Post{}
+	}
+
+	return posts, tx.Commit()
+}
+
+func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) (err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	var exists bool
+	err = store.QueryRowContext(ctx, `
+	SELECT EXISTS(
+		SELECT * 
+		FROM likes_records 
+		WHERE user_id = ? AND post_id = ?
+	);`, userId, postId).Scan(&exists)
+
+	if err != nil {
+		return err
+	}
+
+	var query string
+	if !exists {
+		query = "INSERT INTO likes_records VALUES(?, ?);"
+	} else {
+		query = "DELETE FROM likes_records WHERE user_id = ? AND post_id = ?;"
+	}
+
+	_, err = store.ExecContext(ctx, query, userId, postId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

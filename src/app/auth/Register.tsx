@@ -1,17 +1,18 @@
+import { useAuth } from "@/providers/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 
 // Form Datas
-interface RegisterFields {
+type RegisterFields = {
     email: string;
     password: string;
     nickname: string;
     firstName: string;
     lastName: string;
     dateOfBirth: string;
-}
+};
 
 // Zod Schema for the resolver
 export const UserSchema: ZodType<RegisterFields> = z.object({
@@ -31,6 +32,10 @@ export const Register = () => {
         resolver: zodResolver(UserSchema),
     });
 
+    const { setUser } = useAuth();
+
+    const router = useRouter();
+
     const onSubmit = (data: RegisterFields) => {
         fetch("/api/register", {
             method: "POST",
@@ -43,12 +48,11 @@ export const Register = () => {
                 if (resp.ok) return resp.json();
                 throw "Error";
             })
+            .then(setUser)
             .then(() => router.push("/"))
 
             .catch(console.error);
     };
-
-    const router = useRouter();
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

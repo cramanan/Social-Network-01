@@ -1,8 +1,11 @@
+"use client";
+
 import Actualite from "@/components/Actualite";
 import Chat from "@/components/Chat";
 import FriendInviteList from "@/components/FriendInviteList";
 import Header from "@/components/Header";
 import SideNavMenu from "@/components/SideNavMenu";
+import { useAuth } from "@/providers/AuthContext";
 // import ChatBox from "@/components/ChatBox";
 // import Comment from "@/components/Comment";
 // import CreatePost from "@/components/CreatePost";
@@ -18,6 +21,10 @@ import SideNavMenu from "@/components/SideNavMenu";
 // import Users from "@/components/Users";
 
 export default function Home() {
+    const { user } = useAuth();
+
+    if (!user) return <>Loading...</>;
+
     return (
         <>
             <Header />

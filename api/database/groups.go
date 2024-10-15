@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
+	"log"
 	"time"
 
 	"Social-Network-01/api/models"
@@ -22,15 +22,9 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupName string) (grou
 	}
 	defer tx.Rollback()
 
-	row := tx.QueryRowContext(ctx, `SELECT * FROM group WHERE name = ?`, groupName)
+	row := tx.QueryRowContext(ctx, `SELECT * FROM groups WHERE name = ?`, groupName)
 	group = new(models.Group)
-	var users []byte
-	err = row.Scan(&group.Name, &users)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(users, &group.UsersIds)
+	err = row.Scan(&group.Name, &group.Description, &group.Timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -62,18 +56,42 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *models.Group) (n
 
 	newgroup.Name = group.Name
 	newgroup.Description = group.Description
-	newgroup.UsersIds = group.UsersIds
 	newgroup.Timestamp = time.Now().UTC()
 
 	_, err = store.ExecContext(ctx,
 		`INSERT INTO groups VALUES (?,?,?,?)`,
 		newgroup.Name,
 		newgroup.Description,
-		newgroup.UsersIds,
 		newgroup.Timestamp)
 	if err != nil {
 		return
 	}
 
 	return newgroup, tx.Commit()
+}
+
+func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (groups []*models.Group, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	rows, err := store.QueryContext(ctx, `
+	SELECT * FROM groups
+	LIMIT ? OFFSET ?;`,
+		limit, offset)
+
+	for rows.Next() {
+		group := new(models.Group)
+		err = rows.Scan(&group.Name, &group.Description, &group.Timestamp)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		groups = append(groups, group)
+	}
+
+	return
 }

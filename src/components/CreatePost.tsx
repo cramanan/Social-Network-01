@@ -1,28 +1,35 @@
 "use client";
 
-import React, { FormEventHandler, useState } from "react";
+import React from "react";
 import { ProfileCircle } from "./icons/ProfileCircle";
+import { useForm } from "react-hook-form";
+
+type PostRequest = {
+    content: string;
+};
 
 const CreatePost = () => {
-    const [postContent, setPostContent] = useState("");
-    const [error, setError] = useState("");
+    const {
+        register,
+        handleSubmit,
+        // formState: { errors },
+        reset,
+    } = useForm<PostRequest>();
 
-    const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-        e.preventDefault();
-        if (postContent.trim() === "") {
-            setError("Please write some content");
-        } else {
-            //send to db
-            console.log("Submitting ...");
-            setPostContent("");
-            setError("");
-        }
-    };
-
+    const onSubmit = (data: PostRequest) =>
+        fetch("/api/post", {
+            method: "POST",
+            body: JSON.stringify(data),
+        })
+            .then((resp) => {
+                if (resp.ok) return reset();
+                throw "Error";
+            })
+            .catch(console.error);
     return (
         <>
             <form
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-row items-center h-[70px] relative bg-white/95 rounded-[30px] w-[500px] justify-between"
                 aria-labelledby="create-post-title"
             >
@@ -40,14 +47,14 @@ const CreatePost = () => {
                         </label>
                         <input
                             id="post-input"
-                            value={postContent}
-                            onChange={(e) => setPostContent(e.target.value)}
                             placeholder="Create your post"
                             className="md:w-[250px] bg-white/0 outline-none resize-none overflow-scroll no-scrollbar place-content-center"
                             aria-required="true"
-                            aria-invalid={error ? "true" : "false"}
-                            aria-describedby={error ? "post-error" : undefined}
-                        ></input>
+                            required
+                            // aria-invalid={error ? "true" : "false"}
+                            // aria-describedby={error ? "post-error" : undefined}
+                            {...register("content")}
+                        />
                     </div>
                 </div>
 
@@ -56,12 +63,12 @@ const CreatePost = () => {
                     className="flex items-center justify-center mr-5 w-[85px] bg-gradient-to-tr from-[#4821f9] via-[#6f46c0] to-[#e0d3ea] rounded-[30px]"
                     aria-label="Submit post"
                 >
-                    <span className=" text-black text-base font-semibold font-['Inter']">
-                        post
+                    <span className=" text-white text-base font-semibold font-['Inter']">
+                        POST
                     </span>
                 </button>
             </form>
-            {error && (
+            {/* {error && (
                 <p
                     id="post-error"
                     className="text-red-500 text-center"
@@ -69,7 +76,7 @@ const CreatePost = () => {
                 >
                     {error}
                 </p>
-            )}
+            )} */}
         </>
     );
 };
