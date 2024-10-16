@@ -1,4 +1,3 @@
-BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     nickname TEXT NOT NULL,
@@ -66,4 +65,3 @@ CREATE TABLE IF NOT EXISTS groups(
 INSERT INTO groups VALUES(
     '00000000', 'Global', 'Global group', date('now')
 );
-COMMIT;

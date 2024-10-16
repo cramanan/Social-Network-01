@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS posts;
+
+DROP TABLE IF EXISTS posts_status;
+
+DROP TABLE IF EXISTS comments;
+
+DROP TABLE IF EXISTS chats;
+
+DROP TABLE IF EXISTS follow_records;
+
+DROP TABLE IF EXISTS likes_records;
+
+DROP TABLE IF EXISTS groups;
