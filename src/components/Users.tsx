@@ -1,6 +1,6 @@
 import React from 'react'
 import { UserProfil } from './icons/UserProfil'
-import { UserOnline } from "./icons/UserOnline"
+import { UserOnlineIcon } from "./icons/UserOnlineIcon"
 
 const Users = () => {
     return (
@@ -12,7 +12,7 @@ const Users = () => {
                     </div>
                     <span >user</span>
                 </div>
-                <div className="mr-3"><UserOnline /></div>
+                <div className="mr-3"><UserOnlineIcon /></div>
             </div>
         </>
     )

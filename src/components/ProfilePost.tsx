@@ -1,7 +1,7 @@
 import React from 'react'
-import { Like } from './icons/Like'
-import { NewComment } from './icons/NewComment'
 import Comment from './Comment'
+import { LikeIcon } from "./icons/LikeIcon"
+import { CommentIcon } from "./icons/CommentIcon"
 
 const ProfilePost = () => {
     return (
@@ -12,8 +12,8 @@ const ProfilePost = () => {
                     <div className='flex flex-row justify-between p-7 pb-5'>
                         <div className='text-black/50'>Friday 6 september 16:03</div>
                         <div className='flex flex-row gap-20'>
-                            <Like />
-                            <NewComment />
+                            <LikeIcon />
+                            <CommentIcon />
                         </div>
                     </div>
                 </div>

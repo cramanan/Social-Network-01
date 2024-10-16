@@ -1,8 +1,8 @@
 import React from 'react'
 import { ProfileCircle } from './icons/ProfileCircle'
-import { Like } from './icons/Like'
-import { NewComment } from './icons/NewComment'
 import Comment from './Comment'
+import { LikeIcon } from "./icons/LikeIcon"
+import { CommentIcon } from "./icons/CommentIcon"
 
 const Publication = () => {
     return (
@@ -20,8 +20,8 @@ const Publication = () => {
                     <div className='flex items-center justify-between ml-1 mt-3 mr-2'>
                         <div className="text-black/50 text-[11px] font-extralight font-['Inter']">Friday 6 september 16:03</div>
                         <div className='flex gap-7'>
-                            <div><Like /></div>
-                            <div><NewComment /></div>
+                            <div><LikeIcon /></div>
+                            <div><CommentIcon /></div>
                         </div>
                     </div>
                     <div className='mt-2 h-[162px] overflow-scroll no-scrollbar bg-black/5'>

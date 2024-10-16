@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Bookmark } from './icons/Bookmark'
-import { NewComment } from './icons/NewComment'
 import Comment from './Comment'
-import { Like } from "./icons/Like"
 import { RedLikeIcon } from "./icons/RedLikeIcon"
+import { BookmarkIcon } from "./icons/BookmarkIcon"
+import { LikeIcon } from "./icons/LikeIcon"
+import { CommentIcon } from "./icons/CommentIcon"
 
 const Post = () => {
     const [isLiked, setIsLiked] = useState(false)
@@ -25,12 +25,12 @@ const Post = () => {
                             <span className="h-[29px] text-black/50 text-base font-extralight font-['Inter']">Friday 6 september 16:03</span>
                         </div>
                     </div>
-                    <Bookmark />
+                    <BookmarkIcon />
                 </div>
                 <div className="h-[110px] line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-7 mb-10">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lectus  enim, dignissim id consectetur ut, congue sit amet libero. Nullam in  lorem mollis, sollicitudin est et, ornare augue.<br />Suspendisse risus est, porttitor vitae orci eget, sagittis interdum est.  Nunc turpis nisl, vestibulum non condimentum eget, eleifend gravida  justo.  Nunc turpis nisl, vestibulum non condimentum eget, eleifend gravida  justo.</div>
                 <div className='flex flex-row gap-5 ml-5'>
-                    <div onClick={handleLikeClick}>{isLiked ? <RedLikeIcon /> : <Like />}</div>
-                    <NewComment />
+                    <div onClick={handleLikeClick}>{isLiked ? <RedLikeIcon /> : <LikeIcon />}</div>
+                    <CommentIcon />
                 </div>
                 <div className='mb-5 mt-1 ml-5 mr-10'>
                     <Comment />

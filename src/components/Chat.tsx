@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChatBubbles } from "./icons/ChatBubbles";
-import { Icon } from "./icons/Icon";
 import { UserListIcon } from "./icons/UserListIcon";
 import UserList from "./UserList";
 import FindUser from "./FindUser";
 import ChatList from "./ChatList";
+import { ChatIcon } from "./icons/ChatIcon";
+import { FindUserIcon } from "./icons/FindUserIcon";
 
 const Chat = () => {
   const useToggle = (initialState = false) => {
@@ -39,13 +39,13 @@ const Chat = () => {
 
   const navItems = [
     {
-      icon: <ChatBubbles />,
+      icon: <ChatIcon />,
       OnClick: handleChatIconClick,
       label: "Chat list",
       expanded: isChatListOpen,
     },
     {
-      icon: <Icon />,
+      icon: <FindUserIcon />,
       OnClick: handleFindUserIconClick,
       label: "FindUser list",
       expanded: isFindUserOpen,
@@ -82,33 +82,8 @@ const Chat = () => {
       </nav>
 
       <div
-        id="finduser-list"
-        className={`
-        absolute right-3 transition-all duration-300 ease-in-out
-        ${isFindUserOpen
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 translate-y-5 pointer-events-none"
-          }
-      `}
-      >
-        <FindUser />
-      </div>
-
-      <div
-        id="user-list"
-        className={`
-        absolute right-3 transition-all duration-300 ease-in-out
-        ${isUserListOpen
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 translate-y-5 pointer-events-none"
-          }
-      `}
-      >
-        <UserList />
-      </div>
-
-      <div
         id="chat-list"
+        aria-hidden={!isChatListOpen}
         className={`
         absolute right-[3.4rem] transition-all duration-300 ease-in-out
         ${isChatListOpen
@@ -116,8 +91,39 @@ const Chat = () => {
             : "opacity-0 translate-y-5 pointer-events-none"
           }
       `}
+        aria-label="Chat list"
       >
         <ChatList />
+      </div>
+
+      <div
+        id="finduser-list"
+        aria-hidden={!isFindUserOpen}
+        className={`
+        absolute right-3 transition-all duration-300 ease-in-out
+        ${isFindUserOpen
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 translate-y-5 pointer-events-none"
+          }
+      `}
+        aria-label="Find user list"
+      >
+        <FindUser />
+      </div>
+
+      <div
+        id="user-list"
+        aria-hidden={!isUserListOpen}
+        className={`
+        absolute right-3 transition-all duration-300 ease-in-out
+        ${isUserListOpen
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 translate-y-5 pointer-events-none"
+          }
+      `}
+        aria-label="User list"
+      >
+        <UserList />
       </div>
     </>
   );

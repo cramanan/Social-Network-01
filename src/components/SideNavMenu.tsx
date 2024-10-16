@@ -1,33 +1,33 @@
 'use client'
 
 import React, { useState } from 'react'
-import { BackSideBarRight } from './icons/BackSideBarRight';
-import { BackSideBarLeft } from './icons/BackSideBarLeft';
 import { RequestIcon } from './icons/RequestIcon';
 import { HomeIcon } from './icons/HomeIcon';
 import { GroupsIcon } from './icons/GroupsIcon';
 import { NotificationsIcon } from './icons/NotificationsIcon';
-import { BookmarkIcon } from './icons/BookmarkIcon';
 import { SettingIcon } from './icons/SettingIcon';
 import { ExitIcon } from './icons/ExitIcon';
+import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
+import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
+import { BookmarkMenuIcon } from "./icons/BookmarkMenuIcon";
+import FriendInviteList from "./FriendInviteList";
 
 
 const SideNavMenu = () => {
     const [isOpen, setIsOpen] = useState(false)
+    const [isFriendInvListOpen, setFriendInvListOpen] = useState(false)
 
     const toggleSideNav = () => {
         setIsOpen(!isOpen)
         document.getElementById("sideNav")?.classList.toggle("-translate-x-44")
         document.getElementById("backIcon")?.classList.toggle("translate-x-44")
         if (!isOpen) {
-            document.getElementById("friendInviteList")?.classList.add("hidden")
+            setFriendInvListOpen(false)
         }
     };
 
     const handleFriendInviteIcon = () => {
-        const friendInviteList = document.getElementById("friendInviteList")
-        friendInviteList?.classList.toggle("hidden")
-        friendInviteList?.classList.toggle("flex")
+        setFriendInvListOpen(!isFriendInvListOpen)
         if (isOpen) {
             toggleSideNav();
         }
@@ -38,7 +38,7 @@ const SideNavMenu = () => {
         { label: "Home", icon: <HomeIcon />, href: "/" },
         { label: "Groups", icon: <GroupsIcon /> },
         { label: "Notifications", icon: <NotificationsIcon /> },
-        { label: "Bookmarks", icon: <BookmarkIcon /> },
+        { label: "Bookmarks", icon: <BookmarkMenuIcon /> },
         { label: "Setting", icon: <SettingIcon /> },
         { label: "Exit", icon: <ExitIcon /> },
     ];
@@ -49,7 +49,7 @@ const SideNavMenu = () => {
                 <ul className="h-full flex flex-col justify-between">
 
                     <li>
-                        <button id='backIcon' className='w-[51px] translate-x-44 duration-300 ease-in-out' aria-label={isOpen ? "Close menu" : "Open menu"} onClick={toggleSideNav}>{isOpen ? <BackSideBarLeft /> : <BackSideBarRight />}</button>
+                        <button id='backIcon' className='w-[51px] translate-x-44 duration-300 ease-in-out' aria-label={isOpen ? "Close menu" : "Open menu"} onClick={toggleSideNav}>{isOpen ? <CloseSideMenuIcon /> : <OpenSideMenuIcon />}</button>
                     </li>
 
                     {menuItems.map((item, index) => (
@@ -64,8 +64,20 @@ const SideNavMenu = () => {
                     ))}
                 </ul>
             </nav >
+
+            <div
+                id="friend-inv-list"
+                className={`absolute left-[100px] top-[80px] transition-all duration-300 ease-in-out
+                    ${isFriendInvListOpen
+                        ? "opacity-100 translate-x-0 pointer-events-auto"
+                        : "opacity-0 translate-x-5 pointer-events-none"
+                    }`}
+                aria-label="Friend invite list">
+                <FriendInviteList />
+            </div>
         </>
     )
 }
 
 export default SideNavMenu
+

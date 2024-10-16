@@ -1,7 +1,7 @@
 import React from 'react'
-import { Like } from './icons/Like'
-import { NewComment } from './icons/NewComment'
 import { ProfileCircle } from './icons/ProfileCircle'
+import { LikeIcon } from "./icons/LikeIcon"
+import { CommentIcon } from "./icons/CommentIcon"
 
 const Media = () => {
   return (
@@ -14,8 +14,8 @@ const Media = () => {
         <div className='w-[256px] h-[233px] relative bg-[#373333]'></div>
         <div className='w-[256px] flex justify-between gap-5 mt-1'>
           <div className="text-black/50 text-[11px] font-extralight font-['Inter']">Friday 6 september 16:03</div>
-          <Like />
-          <NewComment />
+          <LikeIcon />
+          <CommentIcon />
         </div>
       </div>
     </>
