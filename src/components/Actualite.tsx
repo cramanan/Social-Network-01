@@ -22,11 +22,11 @@ const Actualite = () => {
     };
     useEffect(() => {
         fetch(
-            `/api/group/Global/posts?limit=${params.limit}&offset=${params.offset}`
+            `/api/group/00000000/posts?limit=${params.limit}&offset=${params.offset}`
         )
             .then((resp) => (resp.ok ? resp.json() : []))
             .then(setPosts)
-            .catch(console.error); // TODO: edit Global to a valid URL value
+            .catch(console.error);
     }, [params.limit, params.offset]);
 
     return (

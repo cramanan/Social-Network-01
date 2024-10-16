@@ -46,14 +46,14 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.HandleFunc("/api/auth", handleFunc(server.GetUser))
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.User))
-	router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
-	router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
+	// router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
+	// router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
 	// router.HandleFunc("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))
-	router.HandleFunc("/api/group", handleFunc(server.GetGroups))
-	router.HandleFunc("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
-	router.HandleFunc("/api/group/{groupname}", handleFunc(server.Group))
-	router.HandleFunc("/api/group/{groupname}/posts", handleFunc(server.GetGroupPosts))
-	router.HandleFunc("/api/group/create", handleFunc(server.CreateGroup))
+
+	router.HandleFunc("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
+	// router.HandleFunc("/api/groups", handleFunc(server.GetGroups))
+	// router.HandleFunc("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
+	// router.HandleFunc("/api/group/{groupname}", handleFunc(server.Group))
 
 	router.HandleFunc("/api/post", handleFunc(server.CreatePost))
 	router.HandleFunc("/api/post/{postid}", handleFunc(server.Post))

@@ -60,7 +60,7 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 	}
 
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO posts VALUES(?, ?, COALESCE(?, "Global"), ?, ?, ?);
+		INSERT INTO posts VALUES(?, ?, COALESCE(?, "00000000"), ?, ?, ?);
 		INSERT INTO posts_status VALUES(?, ?, ?);`,
 
 		id.String(),
@@ -136,8 +136,8 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupname string, 
 
 	rows, err := store.QueryContext(ctx, `
 	SELECT * FROM posts 
-	WHERE group_name = ? 
-	LIMIT ? OFFSET ?`,
+	WHERE group_id = ?
+	LIMIT ? OFFSET ?;`,
 		groupname, limit, offset)
 	if err != nil {
 		return

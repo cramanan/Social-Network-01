@@ -154,6 +154,7 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 func (server *API) User(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
+
 	switch request.Method {
 	case http.MethodGet:
 		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
@@ -168,14 +169,6 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 		}
 		if err != nil {
 			return err
-		}
-
-		if user.Private {
-			return writeJSON(writer, http.StatusUnauthorized, APIerror{
-				http.StatusUnauthorized,
-				"Unauthorized",
-				"This account is private",
-			})
 		}
 
 		return writeJSON(writer, http.StatusOK, user)
@@ -699,7 +692,7 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
-	if request.Method != http.MethodGet {
+	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
 				http.StatusMethodNotAllowed,
@@ -707,6 +700,7 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 				"Method not Allowed",
 			})
 	}
+
 	newGroup := new(models.Group)
 	err := json.NewDecoder(request.Body).Decode(newGroup)
 	if err != nil {
@@ -720,10 +714,10 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 
 	if newGroup.Name == "" ||
 		newGroup.Description == "" {
-		return writeJSON(writer, http.StatusUnauthorized,
+		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
-				http.StatusUnauthorized,
-				"Unauthorized",
+				http.StatusBadRequest,
+				"Bad Request",
 				"All fields are required",
 			})
 	}
@@ -786,7 +780,7 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupname"), limit, offset)
+	posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupid"), limit, offset)
 	if err != nil {
 		return err
 	}

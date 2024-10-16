@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
-    group_name TEXT DEFAULT 'Global' REFERENCES groups(name),
+    group_id TEXT DEFAULT '00000000' REFERENCES groups(id),
     content TEXT NOT NULL,
     image_path TEXT,
     timestamp DATETIME NOT NULL
@@ -57,13 +57,13 @@ CREATE TABLE IF NOT EXISTS likes_records(
 );
 
 CREATE TABLE IF NOT EXISTS groups(
-    name TEXT NOT NULL PRIMARY KEY,
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT UNIQUE,
     description TEXT NOT NULL,
-    -- users BLOB NOT NULL,
     timestamp DATETIME NOT NULL
 );
 
 INSERT INTO groups VALUES(
-    'Global',"Global group",date('now')
+    '00000000', 'Global', 'Global group', date('now')
 );
 COMMIT;
