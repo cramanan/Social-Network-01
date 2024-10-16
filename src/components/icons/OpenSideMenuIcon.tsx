@@ -1,4 +1,4 @@
-export const BackSideBarRight = () => {
+export const OpenSideMenuIcon = () => {
     return (
         <svg
             width="51"

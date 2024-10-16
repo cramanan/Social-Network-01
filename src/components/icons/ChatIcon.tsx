@@ -1,4 +1,4 @@
-export const ChatBubbles = () => {
+export const ChatIcon = () => {
     return (
         <div className="cursor-pointer">
             <svg width="50" height="35" viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
