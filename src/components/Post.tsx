@@ -60,4 +60,4 @@ const Post = () => {
     );
 };
 
-export default PostComponent;
+export default Post;
