@@ -26,12 +26,12 @@ func NewSQLite3Store(dbFilePath string) (*SQLite3Store, error) {
 		return nil, err
 	}
 
-	instance, err := sqlite3.WithInstance(db, &sqlite3.Config{})
+	instance, err := sqlite3.WithInstance(db, new(sqlite3.Config))
 	if err != nil {
 		return nil, err
 	}
 
-	fSrc, err := (&file.File{}).Open("api/db/migrations")
+	fSrc, err := new(file.File).Open("api/db/migrations")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func NewSQLite3Store(dbFilePath string) (*SQLite3Store, error) {
 	}
 
 	// modify for Down
-	if err := m.Up(); err != nil {
+	if err := m.Up(); err != migrate.ErrNoChange {
 		log.Fatal(err)
 	}
 

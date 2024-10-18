@@ -4,7 +4,7 @@ export type User = {
     firstName: string;
     lastName: string;
     dateOfBirth: string;
-    image: string;
-    aboutMe: string;
+    image?: string;
+    aboutMe?: string;
     private: boolean;
 };

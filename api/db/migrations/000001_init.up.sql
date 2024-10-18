@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     date_of_birth DATETIME NOT NULL,
-    image_path TEXT,
+    image_path TEXT NOT NULL DEFAULT "https://commons.wikimedia.org/wiki/File:Default_pfp.svg",
     about_me TEXT,
     private BOOLEAN NOT NULL,
     timestamp DATETIME NOT NULL
