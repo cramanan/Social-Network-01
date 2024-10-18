@@ -85,7 +85,7 @@ const Chat = () => {
         id="chat-list"
         aria-hidden={!isChatListOpen}
         className={`
-        absolute right-[3.4rem] transition-all duration-300 ease-in-out
+        absolute top-16 right-[3.4rem] transition-all duration-300 ease-in-out
         ${isChatListOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-5 pointer-events-none"
@@ -100,7 +100,7 @@ const Chat = () => {
         id="finduser-list"
         aria-hidden={!isFindUserOpen}
         className={`
-        absolute right-3 transition-all duration-300 ease-in-out
+        absolute right-3 top-16 transition-all duration-300 ease-in-out
         ${isFindUserOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-5 pointer-events-none"
@@ -115,7 +115,7 @@ const Chat = () => {
         id="user-list"
         aria-hidden={!isUserListOpen}
         className={`
-        absolute right-3 transition-all duration-300 ease-in-out
+        absolute right-3 top-16 transition-all duration-300 ease-in-out
         ${isUserListOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-5 pointer-events-none"

@@ -15,14 +15,14 @@ const ProfileSetting = () => {
                     <h1 className="text-black text-xl font-semibold font-['Inter']">Profile</h1>
                 </div>
 
-                <div className="flex flex-row w-full items-center gap-20 px-5 mt-10">
+                <div className="flex flex-row w-full items-center gap-20 pl-10 pr-5 mt-10">
                     <div className="w-[150px] h-[150px] bg-white rounded-full"></div>
 
-                    <div className="">
+                    <div>
                         <table className="w-full border-collapse">
                             <tbody>
                                 {profileData.map((item, index) => (
-                                    <tr key={index} className="">
+                                    <tr key={index}>
                                         <td className="w-[200px] p-1 font-bold">{item.label}</td>
                                         <td className="w-[200px] p-1">{item.value}</td>
                                     </tr>

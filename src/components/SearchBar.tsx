@@ -3,7 +3,7 @@ import { SearchIcon } from "./icons/SearchIcon"
 
 const SearchBar = ({ id }) => {
     return (
-        <div className="hidden md:flex">
+        <div className="flex">
             <div className="flex justify-center items-center w-12 h-8 border border-white rounded-l-3xl bg-white bg-opacity-40 border-r-0" aria-hidden="true">
                 <SearchIcon />
             </div>

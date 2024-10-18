@@ -21,7 +21,7 @@ const CreatePost = () => {
 
     return (
         <>
-            <form onSubmit={handleSubmit} className='flex flex-row items-center h-[70px] relative bg-white/95 rounded-[30px] w-[500px] justify-between' aria-labelledby="create-post-title">
+            <form onSubmit={handleSubmit} className='flex flex-row items-center h-[70px] relative bg-white/95 rounded-[30px] justify-between' aria-labelledby="create-post-title">
                 <h2 id="create-post-title" className="sr-only">Create a new post</h2>
 
                 <div>
@@ -32,8 +32,8 @@ const CreatePost = () => {
                     </div>
                 </div>
 
-                <button type="submit" className='flex items-center justify-center mr-5 w-[85px] bg-gradient-to-tr from-[#4821f9] via-[#6f46c0] to-[#e0d3ea] rounded-[30px]' aria-label="Submit post">
-                    <span className=" text-black text-base font-semibold font-['Inter']">post</span>
+                <button type="submit" className='flex items-center justify-center mr-5 bg-gradient-to-tr from-[#4821f9] via-[#6f46c0] to-[#e0d3ea] rounded-[30px]' aria-label="Submit post">
+                    <span className=" text-black text-base font-semibold font-['Inter'] px-3">post</span>
                 </button>
             </form>
             {error && (

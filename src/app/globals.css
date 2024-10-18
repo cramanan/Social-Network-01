@@ -30,7 +30,7 @@ body {
 .border-gradient-test {
   background: linear-gradient(
     214.03deg,
-    rgba(22, 103, 224, 0.79) -10.5%,
-    rgba(228, 146, 230, 0.76) 75.68%
+    rgba(22, 103, 224, 0.59) -10.5%,
+    rgba(228, 146, 230, 0.56) 75.68%
   );
 }
