@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"net/mail"
 
@@ -586,6 +587,35 @@ func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request
 // 						▐▌   ▐▛▀▜▌▐▛▀▜▌ █  ▝▀▚▖											//
 // 						▝▚▄▄▖▐▌ ▐▌▐▌ ▐▌ █ ▗▄▄▞▘											//
 //////////////////////////////////////////////////////////////////////////////////////////
+
+func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
+	_, err := server.Sessions.GetSession(request)
+	if err != nil {
+		writeJSON(writer, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	conn, err := server.WSUpgrader.Upgrade(writer, request, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for {
+		value := new(any)
+		err = conn.ReadJSON(value)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		err = conn.WriteJSON(value)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
 
 // Retrieve all chats beetween 2 users from the database.
 //

@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"Social-Network-01/api/database"
+
+	"github.com/gorilla/websocket"
 )
 
 // The API struct inherits from Golang's native http.Server and has built-in:
@@ -23,6 +25,8 @@ type API struct {
 	//  sessions is the Session Store. It generates, retrieve and end Sessions
 	//  using HTTP request's Cookies.
 	Sessions *database.SessionStore
+
+	WSUpgrader websocket.Upgrader
 }
 
 type APIerror struct {
@@ -64,7 +68,15 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	// router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
 	// router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
+	router.HandleFunc("/api/socket", server.Socket)
+
 	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
+
+	server.WSUpgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true // TODO: Check origin
+		},
+	}
 
 	server.Server.Handler = router
 

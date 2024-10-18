@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from "react";
 import CreatePost from "./CreatePost";
 import { Post } from "@/types/post";
-import PostComponent from "./Post";
 import { QueryParams } from "@/types/query";
-import { BackSideBarLeft } from "./icons/BackSideBarLeft";
-import { BackSideBarRight } from "./icons/BackSideBarRight";
+import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
+import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 
 const Actualite = () => {
     const [currentFilter, setCurrentFilter] = useState("All");
@@ -14,6 +13,8 @@ const Actualite = () => {
         "text-black/50 text-xl font-extralight font-['Inter'] tracking-wide";
 
     const [posts, setPosts] = useState<Post[]>([]);
+    console.log(posts);
+
     const [params, setParams] = useState<QueryParams>({ limit: 10, offset: 0 });
 
     const changePage = (n: number) => () => {
@@ -58,17 +59,13 @@ const Actualite = () => {
                 <section
                     className="flex flex-col gap-3 mx-3 overflow-scroll no-scrollbar"
                     aria-label="Posts"
-                >
-                    {posts.map((post, idx) => (
-                        <PostComponent key={idx} post={post} />
-                    ))}
-                </section>
+                ></section>
                 <div>
                     <button onClick={changePage(-1)}>
-                        <BackSideBarLeft />
+                        <CloseSideMenuIcon />
                     </button>
                     <button onClick={changePage(+1)}>
-                        <BackSideBarRight />
+                        <OpenSideMenuIcon />
                     </button>
                 </div>
             </div>

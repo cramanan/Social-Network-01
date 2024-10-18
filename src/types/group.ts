@@ -1,1 +1,3 @@
-export type Group = {};
+export type Group = {
+    name: string;
+};
