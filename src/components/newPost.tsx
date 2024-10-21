@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { ProfileCircle } from "./ProfileCircle";
-import { SendPostIcon } from "./sendPostIcon";
-import { CloseIcon } from "./CloseIcon";
-import { ImageIcon } from "./ImageIcon";
+import { ProfileCircle } from "./icons/ProfileCircle";
+import { SendPostIcon } from "./icons/sendPostIcon";
+import { CloseIcon } from "./icons/CloseIcon";
+import { ImageIcon } from "./icons/ImageIcon";
 
 export const NewPost = () => {
   const [postText, setPostText] = useState("");
