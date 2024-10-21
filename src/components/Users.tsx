@@ -1,20 +1,20 @@
 import React from 'react'
-import { UserRect } from './icons/UserRect'
-import { UserOnline } from './icons/UserOnline'
 import { UserProfil } from './icons/UserProfil'
+import { UserOnlineIcon } from "./icons/UserOnlineIcon"
 
 const Users = () => {
     return (
-        <div className='flex'>
-            <UserRect />
-            <div className='flex justify-between items-center w-40 relative z-10 -ml-[170px] -mt-0.5'>
-                <div className='flex justify-center items-center w-9 h-9 bg-black rounded-full'>
-                    <UserProfil />
+        <>
+            <div className="w-full flex flex-row items-center bg-white rounded-3xl">
+                <div className='flex flex-row items-center w-full relative gap-4 p-1'>
+                    <div className='flex justify-center items-center w-9 h-9 bg-black rounded-full'>
+                        <UserProfil />
+                    </div>
+                    <span >user</span>
                 </div>
-                <span className='-ml-10'>user</span>
-                <UserOnline />
+                <div className="mr-3"><UserOnlineIcon /></div>
             </div>
-        </div>
+        </>
     )
 }
 

@@ -18,14 +18,14 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 // import Users from "@/components/Users";
 
 export default function Home() {
-  return (
-    <HomeProfileLayout>
-      <main>
-        <div className="flex justify-center w-full h-full">
-          <Actualite />
-        </div>
-      </main>
-      {/* <main className="flex flex-col gap-5 justify-center items-center">
+    return (
+        <HomeProfileLayout>
+            <main>
+                <div className="flex justify-center w-full h-full">
+                    <Actualite />
+                </div>
+            </main>
+            {/* <main className="flex flex-col gap-5 justify-center items-center">
             <Actualite />
             <Users />
             <Chat />
@@ -43,6 +43,6 @@ export default function Home() {
             <FriendInvite />
             <FriendInviteList />
         </main> */}
-    </HomeProfileLayout>
-  );
+        </HomeProfileLayout>
+    );
 }

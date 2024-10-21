@@ -1,4 +1,4 @@
-export const Like = () => {
+export const LikeIcon = () => {
     return (
         <div className="cursor-pointer">
             <svg
