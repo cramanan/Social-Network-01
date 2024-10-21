@@ -12,28 +12,19 @@
   }
 }
 
-html {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    214.03deg,
-    rgba(22, 103, 224, 0.79) -10.5%,
-    rgba(228, 146, 230, 0.76) 75.68%
-  );
-}
-
+html,
 body {
-  width: 100%;
   height: 100%;
-}
-
-.border-gradient-test {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   background: linear-gradient(
     214.03deg,
     rgba(22, 103, 224, 0.79) -10.5%,
     rgba(228, 146, 230, 0.76) 75.68%
   );
 }
+
 .icon-size {
   width: 20px;
   height: 20px;
@@ -41,4 +32,16 @@ body {
 .modal-open > *:not(.fixed) {
   filter: blur(5px);
   pointer-events: none;
+}
+
+header {
+  height: 4rem; /* Ajustez cette valeur selon la hauteur de votre header */
+}
+
+.SideNavMenu {
+  width: 16rem; /* Ajustez cette valeur selon la largeur de votre SideNavMenu */
+}
+
+.Chat {
+  width: 16rem; /* Ajustez cette valeur selon la largeur de votre Chat */
 }

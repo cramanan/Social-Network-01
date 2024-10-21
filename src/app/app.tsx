@@ -14,7 +14,6 @@ const App: React.FC = () => {
           element={
             <HomeProfileLayout>
               <Home />
-              <Profile />
             </HomeProfileLayout>
           }
         />
@@ -27,22 +26,6 @@ const App: React.FC = () => {
           }
         />
       </Routes>
-      <Route
-        path="/"
-        element={
-          <HomeProfileLayout>
-            <Home />
-          </HomeProfileLayout>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <HomeProfileLayout>
-            <Profile />
-          </HomeProfileLayout>
-        }
-      />
     </Router>
   );
 };
