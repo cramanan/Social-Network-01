@@ -1,13 +1,13 @@
 import { createContext, useContext } from "react";
 import { User } from "@/types/user";
 
-interface ContextType {
-    user: User | null;
+type ContextType = {
+    user: User | undefined;
     setUser: (user: User) => void;
-}
+};
 
 export const authContext = createContext<ContextType>({
-    user: null,
+    user: undefined,
     setUser: () => {},
 });
 

@@ -4,9 +4,12 @@ import Actualite from "@/components/Actualite";
 
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 // import ChatBox from "@/components/ChatBox";
+// import ChatList from "@/components/ChatList";
 // import Comment from "@/components/Comment";
 // import CreatePost from "@/components/CreatePost";
+// import FindUser from "@/components/FindUser";
 // import FriendInvite from "@/components/FriendInvite";
+// import FriendInviteList from "@/components/FriendInviteList";
 // import { ProfileCircle } from "@/components/icons/ProfileCircle";
 // import Media from "@/components/Media";
 // import Post from "@/components/Post";
@@ -14,8 +17,8 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 // import ProfilePost from "@/components/ProfilePost";
 // import ProfileStats from "@/components/ProfileStats";
 // import Publication from "@/components/Publication";
-// import UserList from "@/components/UserList";
-// import Users from "@/components/Users";
+// import SideNavMenu from "@/components/SideNavMenu";
+// import { useAuth } from "@/providers/AuthContext";
 
 export default function Home() {
     return (

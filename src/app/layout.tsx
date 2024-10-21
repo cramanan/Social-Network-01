@@ -1,6 +1,7 @@
 import AuthProvider from "@/providers/AuthProvider";
 import type { Metadata } from "next";
 import "./globals.css";
+import WebSocketProvider from "@/providers/WebSocketProvider";
 
 export const metadata: Metadata = {
     title: "Social Network",
@@ -15,9 +16,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                    <WebSocketProvider>{children}</WebSocketProvider>
+                </AuthProvider>
             </body>
         </html>
     );
 }
-

@@ -9,11 +9,11 @@ import { ChatIcon } from "./icons/ChatIcon";
 import { FindUserIcon } from "./icons/FindUserIcon";
 
 const Chat = () => {
-    const useToggle = (initialState = false) => {
-        const [state, setState] = useState(initialState);
-        const toggle = () => setState((prev) => !prev);
-        return [state, toggle] as const;
-    };
+  const useToggle = (initialState = false) => {
+    const [state, setState] = useState(initialState);
+    const toggle = () => setState((prev) => !prev);
+    return [state, toggle] as const;
+  };
 
     const [isChatListOpen, toggleChatList] = useToggle(false);
     const [isFindUserOpen, toggleFindUser] = useToggle(false);
