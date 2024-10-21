@@ -1,0 +1,28 @@
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: Dockerfile.golang
+        ports:
+            - "3001:3001"
+        networks:
+            - my_network
+    frontend:
+        build:
+            context: .
+            dockerfile: Dockerfile.next
+            args:
+                API_URL: http://backend:3001
+
+        ports:
+            - "3000:3000"
+
+        depends_on:
+            - backend
+
+        networks:
+            - my_network
+
+networks:
+    my_network:
+        driver: bridge
