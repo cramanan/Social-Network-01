@@ -2,7 +2,6 @@ package database_test
 
 import (
 	"context"
-	"io"
 	"log"
 	"os"
 	"testing"
@@ -14,39 +13,20 @@ import (
 var store *SQLite3Store
 
 func TestMain(m *testing.M) {
-	file, err := os.CreateTemp(".", "sqlite3_test_*.db")
+
+	file, err := os.CreateTemp("../db", "sqlite3_test_*.db")
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
+
 	}
 	defer os.Remove(file.Name())
-
-	initFile, err := os.Open("../db/init.sql")
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	body, err := io.ReadAll(initFile)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
 	store, err = NewSQLite3Store(file.Name())
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 	defer store.Close()
-
-	_, err = store.Exec(string(body))
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	os.Exit(m.Run())
+	defer os.Exit(m.Run())
 }
 
 func TestCreateUser(t *testing.T) {
