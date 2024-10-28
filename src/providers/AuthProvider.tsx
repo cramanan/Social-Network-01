@@ -5,7 +5,7 @@ import { authContext } from "./AuthContext";
 import { User } from "@/types/user";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | undefined>(undefined);
+    const [user, setUser] = useState<User>();
 
     useEffect(() => {
         fetch("/api/auth")
