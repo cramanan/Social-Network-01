@@ -5,7 +5,7 @@ import React from "react";
 
 import { ProfileCircle } from "./icons/ProfileCircle";
 import { useAuth } from "@/providers/AuthContext";
-import SearchBar from "./SearchBar";
+import { SearchIcon } from "./icons/SearchIcon";
 
 export default function Header() {
   const { user } = useAuth();
@@ -27,7 +27,7 @@ export default function Header() {
             className="flex justify-center items-center w-12 h-8 border border-white rounded-l-3xl bg-white bg-opacity-40 border-r-0"
             aria-hidden="true"
           >
-            <SearchBar id="search-bar" />
+            <SearchIcon />
           </div>
           <label htmlFor="search-input" className="sr-only">
             Search
