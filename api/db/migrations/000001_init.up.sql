@@ -17,8 +17,12 @@ CREATE TABLE IF NOT EXISTS posts (
     user_id TEXT REFERENCES users(id),
     group_id TEXT DEFAULT '00000000' REFERENCES groups(id),
     content TEXT NOT NULL,
-    image_path TEXT,
     timestamp DATETIME NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS posts_images (
+    post_id TEXT REFERENCES posts(id),
+    path TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS posts_status (
@@ -63,5 +67,8 @@ CREATE TABLE IF NOT EXISTS groups(
 );
 
 INSERT INTO groups VALUES(
-    '00000000', 'Global', 'Global group', date('now')
+    '00000000',
+    'Global',
+    'Global group',
+    date('now')
 );

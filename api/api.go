@@ -35,9 +35,7 @@ type APIerror struct {
 	Message  string `json:"message"`
 }
 
-func (err APIerror) Error() string {
-	return err.ErrorMsg
-}
+func (err APIerror) Error() string { return err.ErrorMsg }
 
 func NewAPI(addr string, dbFilePath string) (*API, error) {
 	server := new(API)
@@ -70,7 +68,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.HandleFunc("/api/socket", server.Socket)
 
-	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
+	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
 
 	server.WSUpgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {

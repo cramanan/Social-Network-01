@@ -31,11 +31,6 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 		return err
 	}
 
-	marshalImages, err := json.Marshal(req.Images)
-	if err != nil {
-		return err
-	}
-
 	marshalSelectedUsers, err := json.Marshal(req.SelectedUsers)
 	if err != nil {
 		return err
@@ -54,20 +49,19 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 			}
 
 			if !exists {
-				return fmt.Errorf("user with id:%s do not exist", userid)
+				return fmt.Errorf("user with id: %s do not exist", userid)
 			}
 		}
 	}
 
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO posts VALUES(?, ?, COALESCE(?, "00000000"), ?, ?, ?);
+		INSERT INTO posts VALUES(?, ?, COALESCE(?, "00000000"), ?, ?);
 		INSERT INTO posts_status VALUES(?, ?, ?);`,
 
 		id.String(),
 		req.UserId,
 		req.GroupName,
 		req.Content,
-		marshalImages,
 		time.Now(),
 
 		id.String(),
@@ -76,6 +70,17 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 	)
 	if err != nil {
 		return err
+	}
+
+	for _, image := range req.Images {
+		_, err = tx.ExecContext(ctx, `
+		INSERT INTO posts_images VALUES(?, ?)`,
+			id.String(),
+			image,
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit()
@@ -100,8 +105,7 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 	var unmarshalImages, unmarshalUsers []byte
 
 	err = tx.QueryRowContext(ctx, `
-	SELECT 
-		posts.*, ps.status_enum, ps.users
+	SELECT posts.*, ps.status_enum, ps.users
 	FROM posts JOIN posts_status
 	ON posts.id = posts_status.post_id
 	WHERE id = ?;`, postId).Scan(
@@ -127,7 +131,7 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 	return
 }
 
-func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupname string, limit, offset int) (posts []*models.Post, err error) {
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []*models.Post, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -138,27 +142,52 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupname string, 
 	SELECT * FROM posts 
 	WHERE group_id = ?
 	LIMIT ? OFFSET ?;`,
-		groupname, limit, offset)
+		groupId, limit, offset)
 	if err != nil {
 		return
 	}
 
+	postsMap := make(map[string]*[]string, 0)
+
 	for rows.Next() {
 		post := new(models.Post)
-
-		images := []byte{}
-
-		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &images, &post.Timestamp)
+		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &post.Timestamp)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
 		posts = append(posts, post)
+		postsMap[post.Id] = &post.Images
+	}
+
+	rows, err = store.QueryContext(ctx, `
+	SELECT pi.post_id, pi.path
+	FROM posts_images pi JOIN posts p
+	ON p.id = pi.post_id
+	WHERE group_id = ?`,
+		groupId)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		var postId, path string
+		err = rows.Scan(&postId, &path)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		*postsMap[postId] = append(*postsMap[postId], path)
+	}
+
+	for _, post := range posts {
+		log.Println(post.Images)
 	}
 
 	if posts == nil {
-		posts = []*models.Post{}
+		posts = make([]*models.Post, 0)
 	}
 
 	return posts, tx.Commit()
