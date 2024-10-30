@@ -5,7 +5,6 @@ import { ProfileCircle } from "./icons/ProfileCircle";
 import { SendPostIcon } from "./icons/sendPostIcon";
 import { CloseIcon } from "./icons/CloseIcon";
 import { ImageIcon } from "./icons/ImageIcon";
-import { unknown } from "zod";
 
 export const NewPost = () => {
     const [postText, setPostText] = useState("");
