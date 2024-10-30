@@ -9,6 +9,7 @@ import { CommentIcon } from "./icons/CommentIcon";
 import { Post } from "@/types/post";
 import Image from "next/image";
 import Link from "next/link";
+import formatDate from "@/utils/formatDate";
 
 const PostComponent = ({ post }: { post: Post }) => {
     const [isLiked, setIsLiked] = useState(false);
@@ -20,8 +21,8 @@ const PostComponent = ({ post }: { post: Post }) => {
             <div className="flex flex-col relative w-full bg-white/95 rounded-[30px]">
                 <div className="flex flex-row justify-between items-center mr-5">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-5">
+                        <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
                         <div className="flex flex-col">
-                            <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
                             <Link
                                 href={`/user/${post.userId}`}
                                 className="h-[21px] text-black text-xl font-semibold font-['Inter']"
@@ -29,7 +30,7 @@ const PostComponent = ({ post }: { post: Post }) => {
                                 {post.username}
                             </Link>
                             <span className="h-[29px] text-black/50 text-base font-extralight font-['Inter']">
-                                Friday 6 september 16:03
+                                {formatDate(post.timestamp)}
                             </span>
                         </div>
                     </div>

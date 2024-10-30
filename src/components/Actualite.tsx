@@ -20,7 +20,6 @@ const Actualite = () => {
         "text-black/50 text-xl font-extralight font-['Inter'] tracking-wide";
 
     const [posts, setPosts] = useState<Post[]>([]);
-    console.log(posts);
 
     const [params, setParams] = useState<QueryParams>({ limit: 10, offset: 0 });
 
