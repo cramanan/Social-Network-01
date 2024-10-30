@@ -14,6 +14,7 @@
 
 html,
 body {
+  width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -29,22 +30,11 @@ body {
   width: 20px;
   height: 20px;
 }
+/* 
 .modal-open > *:not(.fixed) {
   filter: blur(5px);
   pointer-events: none;
-}
-
-header {
-  height: 4rem; /* Ajustez cette valeur selon la hauteur de votre header */
-}
-
-.SideNavMenu {
-  width: 16rem; /* Ajustez cette valeur selon la largeur de votre SideNavMenu */
-}
-
-.Chat {
-  width: 16rem; /* Ajustez cette valeur selon la largeur de votre Chat */
-}
+} */
 
 .border-gradient-test {
   background: linear-gradient(

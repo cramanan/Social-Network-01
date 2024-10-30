@@ -62,7 +62,7 @@ const Chat = () => {
     <>
       <nav
         id="chat-nav"
-        className="w-72 flex bg-white bg-opacity-40 m-3 rounded-b-3xl px-7"
+        className="w-72 h-12 flex bg-white bg-opacity-40 m-3 rounded-b-3xl px-7"
         aria-label="Chat Navigation"
       >
         <ul className="w-full flex flex-row justify-between items-center">
@@ -86,11 +86,10 @@ const Chat = () => {
         aria-hidden={!isChatListOpen}
         className={`
         absolute top-16 right-[3.4rem] transition-all duration-300 ease-in-out
-        ${
-          isChatListOpen
+        ${isChatListOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-5 pointer-events-none"
-        }
+          }
       `}
         aria-label="Chat list"
       >
@@ -102,11 +101,10 @@ const Chat = () => {
         aria-hidden={!isFindUserOpen}
         className={`
         absolute right-3 top-16 transition-all duration-300 ease-in-out
-        ${
-          isFindUserOpen
+        ${isFindUserOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-5 pointer-events-none"
-        }
+          }
       `}
         aria-label="Find user list"
       >
@@ -118,11 +116,10 @@ const Chat = () => {
         aria-hidden={!isUserListOpen}
         className={`
         absolute right-3 top-16 transition-all duration-300 ease-in-out
-        ${
-          isUserListOpen
+        ${isUserListOpen
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 translate-y-5 pointer-events-none"
-        }
+          }
       `}
         aria-label="User list"
       >

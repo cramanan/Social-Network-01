@@ -21,31 +21,13 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 // import { useAuth } from "@/providers/AuthContext";
 
 export default function Home() {
-    return (
-        <HomeProfileLayout>
-            <main>
-                <div className="flex justify-center w-full h-full">
-                    <Actualite />
-                </div>
-            </main>
-            {/* <main className="flex flex-col gap-5 justify-center items-center">
-            <Actualite />
-            <Users />
-            <Chat />
-            <UserList />
-            <ChatBox />
-            <Comment />
-            <CreatePost />
-            <Media />
-            <Post />
-            <ProfileBanner />
-            <ProfileStats />
-            <ProfilePost />
-            <Publication />
-            <SideNavMenu />
-            <FriendInvite />
-            <FriendInviteList />
-        </main> */}
-        </HomeProfileLayout>
-    );
+  return (
+    <>
+      <HomeProfileLayout>
+        <main>
+          <Actualite />
+        </main>
+      </HomeProfileLayout>
+    </>
+  );
 }

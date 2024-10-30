@@ -20,22 +20,6 @@ const ProfileStats = () => {
                         <div className="text-black/50">{item.label}</div>
                     </div>
                 ))}
-                {/* <div className={divStyle}>
-                <div className={statStyle}>5</div>
-                <div className={labelStyle}>Publications</div>
-            </div>
-            <div className={divStyle}>
-                <div className={statStyle}>5</div>
-                <div className={labelStyle}>Followers</div>
-            </div>
-            <div className={divStyle}>
-                <div className={statStyle}>5</div>
-                <div className={labelStyle}>Follows</div>
-            </div>
-            <div className={divStyle}>
-                <div className={statStyle}>5</div>
-                <div className={labelStyle}>Like</div>
-            </div> */}
             </div>
         </>
     );

@@ -22,21 +22,23 @@ export const NewPost = () => {
   };
 
   return (
-    <div className={isModalOpen ? "modal-open" : ""}>
-      <div>
-        <button
-          className="px-4 py-2 relative bg-slate-50  hover:bg-slate-300 p-4 rounded-lg shadow-lg flex flex-row items-center gap-4"
-          onClick={toggleModal}
-        >
-          <ProfileCircle />
-          <div className="text-slate-500  font-extralight font-['Inter']">
-            Create your Post
-          </div>
-        </button>
+    <>
+      <div className={isModalOpen ? "modal-open" : ""}>
+        <div>
+          <button
+            className="px-4 py-2 relative bg-slate-50  hover:bg-slate-300 p-4 rounded-lg shadow-lg flex flex-row items-center gap-4"
+            onClick={toggleModal}
+          >
+            <ProfileCircle />
+            <div className="text-slate-500  font-extralight font-['Inter']">
+              Create your Post
+            </div>
+          </button>
+        </div>
       </div>
       {isModalOpen && (
-        <div className="  fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm  z-50">
-          <div className=" border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg  w-1/2 ">
+        <div className="fixed top-0 inset-0 flex items-center justify-center backdrop-blur-sm z-50">
+          <div className="border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg  w-1/2 ">
             <div className="flex justify-between">
               <h2 className="text-xl text-white font-semibold flex justify-center items-center gap-4 ">
                 <ProfileCircle />
@@ -74,6 +76,6 @@ export const NewPost = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
