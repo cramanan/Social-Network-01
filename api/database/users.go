@@ -61,7 +61,7 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 		user.FirstName,
 		user.LastName,
 		user.DateOfBirth,
-		"https://commons.wikimedia.org/wiki/File:Default_pfp.svg",
+		"https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
 		nil,
 		false,
 		user.Timestamp,
@@ -287,17 +287,7 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 	defer tx.Rollback()
 
 	rows, err := store.QueryContext(ctx,
-		`SELECT 
-			u.id,
-			u.nickname,
-			u.email,
-			u.first_name,
-			u.last_name,
-			u.date_of_birth,
-			u.image_path,
-			u.about_me,
-			u.private,
-			u.timestamp
+		`SELECT u.*
 		FROM follow_records f 
 		JOIN users u 
 		ON f.user_id = u.id
@@ -328,4 +318,30 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 	}
 
 	return users, nil
+}
+
+func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (stats models.UserStats, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	err = store.QueryRowContext(ctx, `SELECT
+		(SELECT COUNT(*) FROM follow_records WHERE user_id = ?) AS followers,
+		(SELECT COUNT(*) FROM follow_records WHERE follower_id = ?) AS following,
+		(SELECT COUNT(*) FROM posts WHERE user_id = ?) AS posts,
+		(SELECT COUNT(*) FROM likes_records WHERE user_id = ?) AS likes;`,
+		userId, userId, userId, userId).Scan(
+
+		&stats.NumFollowers,
+		&stats.NumFollowing,
+		&stats.NumPosts,
+		&stats.NumLikes)
+	if err != nil {
+		return
+	}
+
+	stats.Id = userId
+	return
 }

@@ -214,3 +214,15 @@ func (server *API) GetUser(writer http.ResponseWriter, request *http.Request) er
 
 	return writeJSON(writer, http.StatusOK, s.User)
 }
+
+func (server *API) GetUserStats(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	stats, err := server.Storage.GetUserStats(ctx, request.PathValue("userid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, stats)
+}
