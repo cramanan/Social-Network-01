@@ -367,7 +367,7 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 			return err
 		}
 
-		req.Images[idx] = temp.Name()
+		req.Images[idx] = fmt.Sprintf("/%s", temp.Name())
 	}
 
 	err = server.Storage.CreatePost(ctx, req)
