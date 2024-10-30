@@ -143,6 +143,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	FROM posts p JOIN users u
 	ON p.user_id = u.id
 	WHERE group_id = ?
+	ORDER BY timestamp DESC
 	LIMIT ? OFFSET ?;`,
 		groupId, limit, offset)
 	if err != nil {
