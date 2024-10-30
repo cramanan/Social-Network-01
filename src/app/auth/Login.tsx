@@ -1,3 +1,5 @@
+"use client";
+
 import { useAuth } from "@/providers/AuthContext";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -34,7 +36,7 @@ export const Login = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col  w-full gap-20 md:gap-12 p-14">
+            <div className="flex flex-col  w-full gap-20 md:gap-12 pt-14">
                 <h1 className="text-white  text-4xl font-semibold font-['Noto Sans']">
                     Login
                 </h1>
@@ -54,7 +56,9 @@ export const Login = () => {
                         aria-label="Password"
                     />
                 </div>
-                <button type="submit">Sign in</button>
+                <button type="submit" className="m-3">
+                    Sign in
+                </button>
             </div>
         </form>
     );

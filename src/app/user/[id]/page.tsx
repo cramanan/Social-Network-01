@@ -1,4 +1,3 @@
-import Profile from "@/app/profile/page";
 import FollowButton from "@/components/FollowButton";
 import ProfileStats from "@/components/ProfileStats";
 import { User } from "@/types/user";

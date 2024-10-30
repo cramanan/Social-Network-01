@@ -1,3 +1,5 @@
+"use client";
+
 import { useAuth } from "@/providers/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -56,7 +58,7 @@ export const Register = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col  w-full gap-20 md:gap-12 p-14">
+            <div className="flex flex-col  w-full gap-20 md:gap-12 pt-14">
                 <h1 className="text-white  text-4xl font-semibold font-['Noto Sans']">
                     Register
                 </h1>
@@ -106,7 +108,9 @@ export const Register = () => {
                         aria-label="Date of birth"
                     />
                 </div>
-                <button type="submit">Sign up</button>
+                <button type="submit" className="m-3">
+                    Sign up
+                </button>
             </div>
         </form>
     );

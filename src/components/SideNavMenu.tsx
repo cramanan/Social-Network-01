@@ -39,7 +39,7 @@ const SideNavMenu = () => {
             onClick: handleFriendInviteIcon,
         },
         { label: "Home", icon: <HomeIcon />, href: "/" },
-        { label: "Groups", icon: <GroupsIcon /> },
+        { label: "Groups", icon: <GroupsIcon />, href: "/group" },
         { label: "Notifications", icon: <NotificationsIcon /> },
         { label: "Bookmarks", icon: <BookmarkMenuIcon /> },
         { label: "Setting", icon: <SettingIcon /> },
@@ -98,9 +98,10 @@ const SideNavMenu = () => {
             <div
                 id="friend-inv-list"
                 className={`absolute left-[100px] top-[80px] transition-all duration-300 ease-in-out
-                    ${isFriendInvListOpen
-                        ? "opacity-100 translate-x-0 pointer-events-auto"
-                        : "opacity-0 translate-x-5 pointer-events-none"
+                    ${
+                        isFriendInvListOpen
+                            ? "opacity-100 translate-x-0 pointer-events-auto"
+                            : "opacity-0 translate-x-5 pointer-events-none"
                     }`}
                 aria-label="Friend invite list"
             >
