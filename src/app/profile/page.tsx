@@ -10,7 +10,9 @@ export default function Profile() {
       <div className="flex flex-col items-center">
         <ProfileBanner />
         <ProfileStats />
-        <Actualite />
+        <div>
+          <Actualite />
+        </div>
       </div>
     </HomeProfileLayout>
   );

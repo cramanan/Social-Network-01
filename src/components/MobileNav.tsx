@@ -22,7 +22,7 @@ const MobileNav = () => {
                 <div className={`${menuLine} ${isOpen ? "-rotate-45 -translate-y-4" : ""}`} />
             </button>
 
-            <nav className={`fixed top-0 right-0 w-full h-full border-gradient-test duration-300 ease-in-out z-40
+            <nav className={`fixed top-0 right-0 w-4/5 h-full border-gradient-test duration-300 ease-in-out z-40
             ${isOpen ? "opacity-100 -translate-x-0 pointer-events-auto" : "translate-x-1/2 opacity-0 pointer-events-none"}
             `}
             >
