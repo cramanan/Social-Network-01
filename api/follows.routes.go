@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"Social-Network-01/api/database"
@@ -24,6 +25,10 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
+	}
+
+	if sess.User.Id == request.PathValue("userid") {
+		return fmt.Errorf("cannot follow yourself")
 	}
 
 	err = server.Storage.FollowUser(ctx, request.PathValue("userid"), sess.User.Id)

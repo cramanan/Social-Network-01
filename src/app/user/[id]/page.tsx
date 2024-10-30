@@ -1,3 +1,6 @@
+import Profile from "@/app/profile/page";
+import FollowButton from "@/components/FollowButton";
+import ProfileStats from "@/components/ProfileStats";
 import { User } from "@/types/user";
 
 export default async function Page({ params }: { params: { id: string } }) {
@@ -7,5 +10,11 @@ export default async function Page({ params }: { params: { id: string } }) {
 
     const user: User = await resp.json();
 
-    return <>{JSON.stringify(user)}</>;
+    return (
+        <>
+            <div>{JSON.stringify(user)}</div>
+            <ProfileStats userId={user.id} />
+            <FollowButton userId={user.id} username={user.nickname} />
+        </>
+    );
 }

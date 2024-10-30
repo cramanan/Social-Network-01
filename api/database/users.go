@@ -236,9 +236,24 @@ func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId st
 	}
 	defer tx.Rollback()
 
+	query := "INSERT INTO follow_records VALUES(?, ?);"
+	var alreadyFollows bool
+
+	err = tx.QueryRowContext(ctx, `
+	SELECT EXISTS (
+		SELECT * FROM follow_records 
+		WHERE user_id = ? AND follower_id = ?
+	);`, userId, followerId).Scan(&alreadyFollows)
+	if err != nil {
+		return err
+	}
+
+	if alreadyFollows {
+		query = "DELETE FROM follow_records WHERE user_id = ? AND follower_id = ?;"
+	}
+
 	_, err = store.ExecContext(ctx,
-		`INSERT INTO follow_records 
-		VALUES(?, ?);`, userId, followerId)
+		query, userId, followerId)
 	if err != nil {
 		return err
 	}
@@ -343,5 +358,5 @@ func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (sta
 	}
 
 	stats.Id = userId
-	return
+	return stats, tx.Commit()
 }
