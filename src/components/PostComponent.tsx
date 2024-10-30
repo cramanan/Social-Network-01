@@ -24,7 +24,7 @@ const PostComponent = ({ post }: { post: Post }) => {
                         <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
                         <div className="flex flex-col">
                             <span className="h-[21px] text-black text-xl font-semibold font-['Inter']">
-                                {post.userId}
+                                {post.username}
                             </span>
                             <span className="h-[29px] text-black/50 text-base font-extralight font-['Inter']">
                                 Friday 6 september 16:03

@@ -139,7 +139,9 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	defer tx.Rollback()
 
 	rows, err := store.QueryContext(ctx, `
-	SELECT * FROM posts 
+	SELECT p.*, u.nickname
+	FROM posts p JOIN users u
+	ON p.user_id = u.id
 	WHERE group_id = ?
 	LIMIT ? OFFSET ?;`,
 		groupId, limit, offset)
@@ -151,7 +153,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 
 	for rows.Next() {
 		post := new(models.Post)
-		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &post.Timestamp)
+		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &post.Timestamp, &post.Username)
 		if err != nil {
 			log.Println(err)
 			continue

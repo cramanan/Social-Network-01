@@ -12,6 +12,7 @@ const (
 
 type Post struct {
 	Id        string    `json:"id"`
+	Username  string    `json:"username"`
 	UserId    string    `json:"userId"`
 	GroupName string    `json:"groupName"`
 	Content   string    `json:"content"`
