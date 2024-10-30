@@ -70,7 +70,7 @@ const Actualite = () => {
                     aria-label="Posts"
                 >
                     {posts.map((post, idx) => (
-                        <PostComponent post={post} />
+                        <PostComponent key={idx} post={post} />
                     ))}
                 </section>
                 <button onClick={changePage(-1)}>

@@ -8,24 +8,26 @@ import { LikeIcon } from "./icons/LikeIcon";
 import { CommentIcon } from "./icons/CommentIcon";
 import { Post } from "@/types/post";
 import Image from "next/image";
+import Link from "next/link";
 
 const PostComponent = ({ post }: { post: Post }) => {
     const [isLiked, setIsLiked] = useState(false);
 
-    const handleLikeClick = () => {
-        setIsLiked(!isLiked);
-    };
+    const handleLikeClick = () => setIsLiked(!isLiked);
 
     return (
         <>
             <div className="flex flex-col relative w-full bg-white/95 rounded-[30px]">
                 <div className="flex flex-row justify-between items-center mr-5">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-5">
-                        <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
                         <div className="flex flex-col">
-                            <span className="h-[21px] text-black text-xl font-semibold font-['Inter']">
+                            <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
+                            <Link
+                                href={`/user/${post.userId}`}
+                                className="h-[21px] text-black text-xl font-semibold font-['Inter']"
+                            >
                                 {post.username}
-                            </span>
+                            </Link>
                             <span className="h-[29px] text-black/50 text-base font-extralight font-['Inter']">
                                 Friday 6 september 16:03
                             </span>
@@ -35,14 +37,8 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
                 <div className="h-[110px] line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-7 mb-10">
                     {post.images.map((src, idx) => (
-                        <a href={src} target="_blank">
-                            <Image
-                                src={src}
-                                key={idx}
-                                width={100}
-                                height={100}
-                                alt=""
-                            />
+                        <a href={src} key={idx} target="_blank">
+                            <Image src={src} width={100} height={100} alt="" />
                         </a>
                     ))}
                 </div>
