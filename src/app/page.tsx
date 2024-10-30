@@ -21,13 +21,13 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 // import { useAuth } from "@/providers/AuthContext";
 
 export default function Home() {
-    return (
-        <>
-            <HomeProfileLayout>
-                <main>
-                    <Actualite />
-                </main>
-            </HomeProfileLayout>
-        </>
-    );
+  return (
+    <>
+      <HomeProfileLayout>
+        <main>
+          <Actualite />
+        </main>
+      </HomeProfileLayout>
+    </>
+  );
 }
