@@ -185,7 +185,9 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	}
 
 	for _, post := range posts {
-		log.Println(post.Images)
+		if post.Images == nil {
+			post.Images = make([]string, 0)
+		}
 	}
 
 	if posts == nil {
