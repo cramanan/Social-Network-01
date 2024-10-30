@@ -184,14 +184,14 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 		*postsMap[postId] = append(*postsMap[postId], path)
 	}
 
-	for _, post := range posts {
-		if post.Images == nil {
-			post.Images = make([]string, 0)
-		}
-	}
-
 	if posts == nil {
 		posts = make([]*models.Post, 0)
+	} else {
+		for _, post := range posts {
+			if post.Images == nil {
+				post.Images = make([]string, 0)
+			}
+		}
 	}
 
 	return posts, tx.Commit()

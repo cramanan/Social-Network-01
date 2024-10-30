@@ -860,7 +860,6 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 	if err != nil {
 		return err
 	}
-
 	return writeJSON(writer, http.StatusOK, posts)
 }
 
