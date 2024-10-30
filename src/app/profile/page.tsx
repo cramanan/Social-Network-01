@@ -7,14 +7,14 @@ import { redirect } from "next/navigation";
 
 export default function Profile() {
   return (
-    <HomeProfileLayout>
-      <div className="flex flex-col items-center">
+    <>
+      <HomeProfileLayout>
         <ProfileBanner />
         <ProfileStats />
         <div>
           <Actualite />
         </div>
-      </div>
-    </HomeProfileLayout>
+      </HomeProfileLayout>
+    </>
   );
 }
