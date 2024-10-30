@@ -1,7 +1,5 @@
 import Actualite from "@/components/Actualite";
 
-// import Header from "@/components/Header";
-
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 // import ChatBox from "@/components/ChatBox";
 // import ChatList from "@/components/ChatList";
@@ -23,11 +21,7 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 export default function Home() {
   return (
     <HomeProfileLayout>
-      <main>
-        <div className="flex justify-center w-full h-full">
-          <Actualite />
-        </div>
-      </main>
+      <Actualite />
     </HomeProfileLayout>
   );
 }

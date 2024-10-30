@@ -14,16 +14,16 @@ const HomeProfileLayout: React.FC<Props> = ({ children }) => {
       <header className="top-0 w-full">
         <Header />
       </header>
-      <div className="flex flex-row flex-grow">
-        <div className="flex flex-1 items-center">
+      <div className="flex flex-row flex-grow overflow-hidden">
+        <section className="flex flex-1 items-center justify-center">
           <SideNavMenu />
-        </div>
-        <div className="flex flex-col justify-center items-center flex-grow">
+        </section>
+        <section className="overflow-auto flex flex-col justify-center items-center flex-grow h-full">
           {children}
-        </div>
-        <div className="flex justify-end flex-1">
+        </section>
+        <section className="flex justify-end flex-1">
           <Chat />
-        </div>
+        </section>
       </div>
     </div>
   );
