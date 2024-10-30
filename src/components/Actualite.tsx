@@ -7,10 +7,10 @@ import React, { useEffect, useState } from "react";
 
 import { NewPost } from "./newPost";
 import PostComponent from "./PostComponent";
-import { QueryParams } from "@/types/query";
-import { Post } from "@/types/post";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
+import { QueryParams } from "@/types/query";
+import { Post } from "@/types/post";
 // import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 // import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 
@@ -20,6 +20,7 @@ const Actualite = () => {
         "text-black/50 text-xl font-extralight font-['Inter'] tracking-wide";
 
     const [posts, setPosts] = useState<Post[]>([]);
+    console.log(posts);
 
     const [params, setParams] = useState<QueryParams>({ limit: 10, offset: 0 });
 
@@ -38,10 +39,13 @@ const Actualite = () => {
 
     return (
         <>
-            <div className="mt-3 flex flex-col items-center w-screen h-[calc(100vh-60px)]  bg-white/25 md:rounded-t-[25px] lg:w-[900px] lg:rounded-t-[25px]">
-                <div className=" shadow-xl flex flex-row w-full mb-10 ">
-                    <nav aria-label="post filter">
-                        <ul className="w-full flex flex-row gap-10 m-4 mt-3 ">
+            <div className="flex flex-col relative items-center w-screen h-[calc(100vh-128px)] xl:bg-white/25 z-10 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-60px)]">
+                <div className="shadow-xl w-full mb-10 ">
+                    <nav
+                        className="flex flex-col items-center justify-between sm:flex-row"
+                        aria-label="post filter"
+                    >
+                        <ul className="flex flex-row gap-10 m-4 mt-3 ">
                             {["All", "Publication", "Media"].map((filter) => (
                                 <li key={filter} className={navStyle}>
                                     <a
@@ -58,10 +62,10 @@ const Actualite = () => {
                                 </li>
                             ))}
                         </ul>
+                        <div className="flex flex-row">
+                            <NewPost />
+                        </div>
                     </nav>
-                    <div className="flex w-full justify-end items-end">
-                        <NewPost />
-                    </div>
                 </div>
 
                 <section
@@ -69,15 +73,17 @@ const Actualite = () => {
                     aria-label="Posts"
                 >
                     {posts.map((post, idx) => (
-                        <PostComponent key={idx} post={post} />
+                        <PostComponent post={post} key={idx} />
                     ))}
                 </section>
-                <button onClick={changePage(-1)}>
-                    <CloseSideMenuIcon />
-                </button>
-                <button onClick={changePage(+1)}>
-                    <OpenSideMenuIcon />
-                </button>
+                <div className="flex">
+                    <button onClick={changePage(-1)}>
+                        <CloseSideMenuIcon />
+                    </button>
+                    <button onClick={changePage(+1)}>
+                        <OpenSideMenuIcon />
+                    </button>
+                </div>
             </div>
         </>
     );

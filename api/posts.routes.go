@@ -2,8 +2,9 @@ package api
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
 	"Social-Network-01/api/database"
 	"Social-Network-01/api/models"
@@ -13,22 +14,66 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 	if request.Method != http.MethodPost {
 		return err
 	}
-
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
-	req := new(models.PostRequest)
-	err = json.NewDecoder(request.Body).Decode(req)
-	if err != nil {
-		return err
-	}
-
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
 	}
 
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	err = request.ParseMultipartForm(5 * (1 << 20))
+	if err != nil {
+		return err
+	}
+	req := new(models.PostRequest)
+
+	content, ok := request.MultipartForm.Value["content"]
+	if !ok || content == nil {
+		return writeJSON(writer, http.StatusBadRequest,
+			APIerror{
+				http.StatusBadRequest,
+				"Bad Request",
+				"No content in request",
+			})
+	}
+
+	req.Content = content[0]
+	if req.Content == "" {
+		return writeJSON(writer, http.StatusBadRequest,
+			APIerror{
+				http.StatusBadRequest,
+				"Bad Request",
+				"Content is empty",
+			})
+	}
+
 	req.UserId = sess.User.Id
+
+	multipartImages := request.MultipartForm.File["images"]
+
+	req.Images = make([]string, len(multipartImages))
+
+	for idx, fileHeader := range multipartImages {
+		file, err := fileHeader.Open()
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		temp, err := os.CreateTemp("api/images", fmt.Sprintf("*-%s", fileHeader.Filename))
+		if err != nil {
+			return err
+		}
+		defer temp.Close()
+
+		_, err = temp.ReadFrom(file)
+		if err != nil {
+			return err
+		}
+
+		req.Images[idx] = fmt.Sprintf("/%s", temp.Name())
+	}
 
 	err = server.Storage.CreatePost(ctx, req)
 	if err != nil {

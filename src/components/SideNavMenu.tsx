@@ -98,10 +98,9 @@ const SideNavMenu = () => {
             <div
                 id="friend-inv-list"
                 className={`absolute left-[100px] top-[80px] transition-all duration-300 ease-in-out
-                    ${
-                        isFriendInvListOpen
-                            ? "opacity-100 translate-x-0 pointer-events-auto"
-                            : "opacity-0 translate-x-5 pointer-events-none"
+                    ${isFriendInvListOpen
+                        ? "opacity-100 translate-x-0 pointer-events-auto"
+                        : "opacity-0 translate-x-5 pointer-events-none"
                     }`}
                 aria-label="Friend invite list"
             >
