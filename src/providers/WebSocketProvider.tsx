@@ -1,7 +1,8 @@
 "use client";
 
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode } from "react";
 import { webSocketContext } from "./WebSocketContext";
+import { Chat } from "@/types/chat";
 
 export default function WebSocketProvider({
     children,
@@ -12,16 +13,22 @@ export default function WebSocketProvider({
         `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/api/socket`
     );
 
-    const handleOpen = () => console.log("connected");
+    const sendChat = (chat: Chat) => {
+        if (!socket) return;
+        if (socket.readyState !== WebSocket.OPEN) return;
 
-    useEffect(() => {
-        socket.addEventListener("open", handleOpen);
+        socket.send(JSON.stringify({ type: "message", data: chat }));
+    };
 
-        return () => socket.removeEventListener("open", handleOpen);
-    }, []);
+    const ping = () => {
+        if (!socket) return;
+        if (socket.readyState !== WebSocket.OPEN) return;
+
+        socket.send(JSON.stringify({ type: "ping", data: {} }));
+    };
 
     return (
-        <webSocketContext.Provider value={socket}>
+        <webSocketContext.Provider value={{ socket, sendChat, ping }}>
             {children}
         </webSocketContext.Provider>
     );

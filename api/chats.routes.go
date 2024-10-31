@@ -3,14 +3,26 @@ package api
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
+	"reflect"
 
 	"Social-Network-01/api/database"
+	"Social-Network-01/api/models"
 )
 
+func GenericUnmarshal[T any](raw json.RawMessage) (value T, err error) {
+	err = json.Unmarshal(raw, &value)
+	if err != nil {
+		log.Println(err, reflect.TypeFor[T]())
+		return
+	}
+	return
+}
+
 func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
-	_, err := server.Sessions.GetSession(request)
+	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		writeJSON(writer, http.StatusUnauthorized, "Unauthorized")
 		return
@@ -23,17 +35,45 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	for {
-		value := new(any)
-		err = conn.ReadJSON(value)
+		var raw models.RawMessage
+		err = conn.ReadJSON(&raw)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		err = conn.WriteJSON(value)
-		if err != nil {
-			log.Println(err)
-			return
+		switch raw.Type {
+		case "message":
+			rawchat, err := GenericUnmarshal[models.RawChat](raw.Data)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+
+			_, err = server.Storage.GetUser(request.Context(), rawchat.RecipientId)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+
+			chat := models.Chat{
+				SenderId:    sess.User.Id,
+				RecipientId: rawchat.RecipientId,
+				Content:     rawchat.Content,
+			}
+
+			log.Println(chat)
+
+			err = server.Storage.StoreChat(request.Context(), chat)
+			if err != nil {
+				log.Println(err)
+			}
+
+		case "ping":
+			err = conn.WriteJSON("PONG")
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}
 }

@@ -41,11 +41,9 @@ CREATE TABLE IF NOT EXISTS comments(
 );
 
 CREATE TABLE IF NOT EXISTS chats(
-    id TEXT PRIMARY KEY,
     sender_id TEXT REFERENCES users(id),
     recipient_id TEXT REFERENCES users(id),
     content TEXT NOT NULL,
-    img_path TEXT,
     timestamp DATETIME NOT NULL
 );
 

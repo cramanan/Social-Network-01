@@ -1,5 +1,14 @@
+import { Chat } from "@/types/chat";
 import { createContext, useContext } from "react";
 
-export const webSocketContext = createContext<WebSocket | null>(null);
+type WebSocketContextType = {
+    socket: WebSocket;
+    sendChat: (chat: Chat) => void;
+    ping: () => void;
+};
+
+export const webSocketContext = createContext<WebSocketContextType | null>(
+    null
+);
 
 export const useWebSocket = () => useContext(webSocketContext);
