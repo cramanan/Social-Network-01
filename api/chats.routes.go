@@ -54,7 +54,7 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 
 		switch raw.Type {
 		case "message":
-			rawchat, err := GenericUnmarshal[models.RawChat](raw.Data)
+			rawchat, err := GenericUnmarshal[models.ClientChat](raw.Data)
 			if err != nil {
 				log.Println(err)
 				break

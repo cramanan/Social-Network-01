@@ -11,13 +11,13 @@ type RawMessage struct {
 }
 
 type Ping struct{}
-type RawChat struct {
+type ClientChat struct {
 	RecipientId string `json:"recipientId"`
 	Content     string `json:"content"`
 }
 
 type Chat struct {
-	SenderId    string    `json:"id"`
+	SenderId    string    `json:"senderId"`
 	RecipientId string    `json:"recipientId"`
 	Content     string    `json:"content"`
 	Timestamp   time.Time `json:"timestamp"`
