@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"Social-Network-01/api/database"
 
@@ -27,6 +28,9 @@ type API struct {
 	Sessions *database.SessionStore
 
 	WSUpgrader websocket.Upgrader
+
+	sync.RWMutex
+	users map[string]*websocket.Conn
 }
 
 type APIerror struct {
@@ -50,6 +54,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.User))
 	router.HandleFunc("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
 	router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
+	router.HandleFunc("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
 	// router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
 	// router.HandleFunc("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))
 
@@ -67,6 +72,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	// router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
 	// router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
+	server.users = make(map[string]*websocket.Conn)
 	router.HandleFunc("/api/socket", server.Socket)
 
 	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))

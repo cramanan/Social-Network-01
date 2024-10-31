@@ -49,7 +49,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 		FROM chats 
 		WHERE (sender_id = ? AND recipient_id = ?)
 		OR (recipient_id = ? AND sender_id = ?)
-		ORDER BY timestamp DESC 
+		ORDER BY timestamp 
 		LIMIT ? OFFSET ? ;`, user1Id, user2Id, user1Id, user2Id, limit, offset)
 	if err != nil {
 		return nil, err

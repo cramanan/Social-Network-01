@@ -34,6 +34,16 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	server.Lock()
+	server.users[sess.User.Id] = conn
+	server.Unlock()
+
+	defer func() {
+		server.Lock()
+		delete(server.users, sess.User.Id)
+		server.Unlock()
+	}()
+
 	for {
 		var raw models.RawMessage
 		err = conn.ReadJSON(&raw)
@@ -62,12 +72,13 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 				Content:     rawchat.Content,
 			}
 
-			log.Println(chat)
-
 			err = server.Storage.StoreChat(request.Context(), chat)
 			if err != nil {
 				log.Println(err)
 			}
+
+			server.users[chat.RecipientId].WriteJSON(chat)
+			conn.WriteJSON(chat)
 
 		case "ping":
 			err = conn.WriteJSON("PONG")
@@ -84,42 +95,45 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
-	if request.Method == http.MethodGet {
-		limit, offset := parseRequestLimitAndOffset(request)
-		sessionUser, err := server.Sessions.GetSession(request)
-		if err != nil {
-			return writeJSON(writer, http.StatusNotFound,
-				APIerror{
-					http.StatusNotFound,
-					"Not found",
-					"User does not exist",
-				},
-			)
-		}
-
-		chats, err := server.Storage.GetChats(ctx, request.PathValue("userid"), sessionUser.User.Id, limit, offset)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"Chat not found",
-					},
-				)
-			}
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, chats)
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
 	}
 
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
+	sessionUser, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return writeJSON(writer, http.StatusNotFound,
+			APIerror{
+				http.StatusNotFound,
+				"Not found",
+				"User does not exist",
+			},
+		)
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	chats, err := server.Storage.GetChats(ctx, request.PathValue("userid"), sessionUser.User.Id, limit, offset)
+	if err == sql.ErrNoRows {
+		return writeJSON(writer, http.StatusNotFound,
+			APIerror{
+				http.StatusNotFound,
+				"Not found",
+				"Chat not found",
+			},
+		)
+	}
+	if err != nil {
+
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, chats)
+
 }
 
 // Retrieve all chats beetween 2 users from the database using their userIds.
