@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/providers/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 
@@ -33,28 +32,17 @@ export const Register = () => {
     const { register, handleSubmit } = useForm<RegisterFields>({
         resolver: zodResolver(UserSchema),
     });
+    const { signup } = useAuth();
 
-    const { setUser } = useAuth();
-
-    const router = useRouter();
-
-    const onSubmit = (data: RegisterFields) => {
-        fetch("/api/register", {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-            .then((resp) => {
-                if (resp.ok) return resp.json();
-                throw "Error";
-            })
-            .then(setUser)
-            .then(() => router.push("/"))
-
-            .catch(console.error);
-    };
+    const onSubmit = ({
+        nickname,
+        email,
+        password,
+        firstName,
+        lastName,
+        dateOfBirth,
+    }: RegisterFields) =>
+        signup(nickname, email, password, firstName, lastName, dateOfBirth);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

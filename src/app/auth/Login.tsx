@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/providers/AuthContext";
-import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 // Form Datas
@@ -13,24 +12,10 @@ type LoginFields = {
 export const Login = () => {
     const { register, handleSubmit } = useForm<LoginFields>();
 
-    const { setUser } = useAuth();
+    const { login } = useAuth();
 
-    const onSubmit = (data: LoginFields) => {
-        fetch("/api/login", {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-            .then((resp) => {
-                if (resp.ok) return resp.json();
-                throw "Error";
-            })
-            .then(setUser)
-            .then(() => redirect("/"))
-            .catch(console.error);
-    };
+    const onSubmit = ({ email, password }: LoginFields) =>
+        login(email, password);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

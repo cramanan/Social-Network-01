@@ -2,9 +2,7 @@
 
 import React, { useState } from "react";
 import Comment from "./Comment";
-import { RedLikeIcon } from "./icons/RedLikeIcon";
 import { BookmarkIcon } from "./icons/BookmarkIcon";
-import { LikeIcon } from "./icons/LikeIcon";
 import { CommentIcon } from "./icons/CommentIcon";
 import { Post } from "@/types/post";
 import Image from "next/image";
