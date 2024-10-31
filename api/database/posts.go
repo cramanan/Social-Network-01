@@ -150,7 +150,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 		return
 	}
 
-	postsMap := make(map[string]*[]string, 0)
+	postsMap := make(map[string]*[]string)
 
 	for rows.Next() {
 		post := new(models.Post)
