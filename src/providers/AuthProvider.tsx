@@ -61,13 +61,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         login();
     }, []);
 
-    if (loading)
-        children = (
-            <div className="h-full w-full flex items-center justify-center">
-                Loading...
-            </div>
-        );
-
     return (
         <authContext.Provider value={{ user, loading, signup, login, logout }}>
             {children}
