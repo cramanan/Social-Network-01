@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/providers/AuthContext";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 // Form Datas
@@ -12,8 +12,6 @@ type LoginFields = {
 
 export const Login = () => {
     const { register, handleSubmit } = useForm<LoginFields>();
-
-    const router = useRouter();
 
     const { setUser } = useAuth();
 
@@ -30,7 +28,7 @@ export const Login = () => {
                 throw "Error";
             })
             .then(setUser)
-            .then(() => router.push("/"))
+            .then(() => redirect("/"))
             .catch(console.error);
     };
 

@@ -14,7 +14,7 @@ export default function GroupPage() {
     // };
 
     useEffect(() => {
-        fetch(`/api/group?limit=${params.limit}&offset=${params.offset}`)
+        fetch(`/api/groups?limit=${params.limit}&offset=${params.offset}`)
             .then((resp) => (resp.ok ? resp.json() : []))
             .then(setGroups)
             .catch(console.error); // TODO: edit Global to a valid URL value
