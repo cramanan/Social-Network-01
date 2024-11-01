@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from "react";
 import { webSocketContext } from "./WebSocketContext";
-import { Chat } from "@/types/chat";
+import { ClientChat } from "@/types/chat";
 
 export default function WebSocketProvider({
     children,
@@ -13,22 +13,15 @@ export default function WebSocketProvider({
         `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/api/socket`
     );
 
-    const sendChat = (chat: Chat) => {
+    const sendChat = (chat: ClientChat) => {
         if (!socket) return;
         if (socket.readyState !== WebSocket.OPEN) return;
 
         socket.send(JSON.stringify({ type: "message", data: chat }));
     };
 
-    const ping = () => {
-        if (!socket) return;
-        if (socket.readyState !== WebSocket.OPEN) return;
-
-        socket.send(JSON.stringify({ type: "ping", data: {} }));
-    };
-
     return (
-        <webSocketContext.Provider value={{ socket, sendChat, ping }}>
+        <webSocketContext.Provider value={{ socket, sendChat }}>
             {children}
         </webSocketContext.Provider>
     );

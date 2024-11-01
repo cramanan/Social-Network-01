@@ -1,7 +1,6 @@
 import Link from "next/link";
 import ChatRoom from "./ChatRoom";
 
-// Server Side User In
 export default async function Page({ params }: { params: { id: string } }) {
     const { id } = await params;
 

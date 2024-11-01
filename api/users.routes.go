@@ -226,3 +226,34 @@ func (server *API) GetUserStats(writer http.ResponseWriter, request *http.Reques
 
 	return writeJSON(writer, http.StatusOK, stats)
 }
+
+func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	users, err := server.Storage.GetMessagedUsers(ctx, sess.User.Id, limit, offset)
+	if err != nil {
+		return err
+	}
+
+	type OnlineUser struct {
+		*models.User
+		Online bool `json:"online"`
+	}
+
+	onlineUsers := make([]OnlineUser, len(users))
+
+	for idx, user := range users {
+		onlineUsers[idx] = OnlineUser{User: user}
+		_, onlineUsers[idx].Online = server.users[user.Id]
+	}
+
+	return writeJSON(writer, http.StatusOK, onlineUsers)
+}

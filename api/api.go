@@ -74,6 +74,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	server.users = make(map[string]*websocket.Conn)
 	router.HandleFunc("/api/socket", server.Socket)
+	router.HandleFunc("/api/online", handleFunc(server.GetOnlineUsers))
 
 	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
 

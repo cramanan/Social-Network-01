@@ -178,48 +178,57 @@ func (store *SQLite3Store) DeleteUser(ctx context.Context, userId string) error 
 // `ctx` is the context of the request. `id` is the corresponding user in the database and is usualy find in the request pathvalue.
 //
 // This method return an array of users (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) SortUsers(ctx context.Context, id string) (users []models.User, err error) {
-	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true}) // Begin SQL Transaction (readonly)
+func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, limit, offset int) (users []*models.User, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	defer tx.Rollback()
-	rows, err := tx.QueryContext(ctx, `
+
+	rows, err := store.QueryContext(ctx, `
 	WITH contacted AS (
-		SELECT DISTINCT m.recipientid, u.name
-		FROM messages m JOIN users u
-		ON m.recipientid = u.id
-		WHERE m.senderid = ?
-		GROUP BY u.name
-		ORDER BY m.created DESC, u.name
+		SELECT DISTINCT m.recipient_id, u.nickname, u.image_path
+		FROM chats m JOIN users u
+		ON m.recipient_id = u.id
+		WHERE m.sender_id = ?
+		GROUP BY u.nickname
+		ORDER BY MAX(m.timestamp) DESC, u.nickname
 	), not_contacted AS (
-		SELECT u.id, u.name
+		SELECT u.id, u.nickname, u.image_path
 		FROM users u
-		WHERE u.id NOT IN (SELECT recipientid FROM contacted)
+		WHERE u.id NOT IN (SELECT recipient_id FROM contacted)
 		AND u.id != ?
-		ORDER BY u.name ASC
+		ORDER BY u.nickname ASC
 	)
 
 	SELECT * FROM contacted
 	UNION ALL
-	SELECT * FROM not_contacted;`, id, id)
+	SELECT * FROM not_contacted
+	LIMIT ? OFFSET ?;`,
+		userId,
+		userId,
+		limit,
+		offset)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 
 	for rows.Next() {
-		var user models.User
-		err = rows.Scan(&user.Id, &user.Nickname)
+		user := new(models.User)
+		err = rows.Scan(
+			&user.Id,
+			&user.Nickname,
+			&user.ImagePath,
+		)
 		if err != nil {
 			log.Println(err)
-			return nil, err
+			continue
 		}
+
 		users = append(users, user)
 	}
 
-	return users, tx.Commit()
+	return users, nil
 }
 
 // Perform the action of following one from another in the database using their userids.
