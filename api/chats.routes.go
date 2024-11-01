@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"time"
 
 	"Social-Network-01/api/database"
 	"Social-Network-01/api/models"
@@ -70,6 +71,7 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 				SenderId:    sess.User.Id,
 				RecipientId: rawchat.RecipientId,
 				Content:     rawchat.Content,
+				Timestamp:   time.Now(),
 			}
 
 			err = server.Storage.StoreChat(request.Context(), chat)
@@ -128,7 +130,6 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 		)
 	}
 	if err != nil {
-
 		return err
 	}
 

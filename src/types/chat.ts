@@ -1,8 +1,8 @@
-export type Chat = {
+export type ClientChat = {
     recipientId: string;
     content: string;
 };
 
-export type ServerChat = Chat & {
+export type ServerChat = ClientChat & {
     timestamp: string;
 };

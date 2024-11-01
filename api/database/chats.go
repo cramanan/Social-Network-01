@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"Social-Network-01/api/models"
 )
@@ -20,7 +19,7 @@ func (store *SQLite3Store) StoreChat(ctx context.Context, chat models.Chat) (err
 		chat.SenderId,
 		chat.RecipientId,
 		chat.Content,
-		time.Now(),
+		chat.Timestamp,
 	)
 	if err != nil {
 		return err
@@ -70,6 +69,10 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	err = rows.Err()
 	if err != nil {
 		return nil, err
+	}
+
+	if chats == nil {
+		chats = make([]models.Chat, 0)
 	}
 
 	return chats, nil
