@@ -48,14 +48,21 @@ export default function ChatRoom({ recipient }: { recipient: User }) {
                 {messages.map((msg, idx) => (
                     <li
                         key={idx}
-                        className={`flex flex-col w-fit p-2 m-2 rounded-3xl ${
+                        className={`flex flex-col w-fit ${
                             msg.recipientId === recipient.id
-                                ? "bg-[#b88ee5] text-black self-end items-end"
-                                : "bg-[#4174e2] text-white self-start"
+                                ? " self-end items-end"
+                                : " self-start"
                         }`}
                     >
-                        <div>{msg.recipientId}</div>
-                        <p>{msg.content}</p>
+                        <p
+                            className={`p-3 rounded-2xl ${
+                                msg.recipientId === recipient.id
+                                    ? "bg-[#b88ee5] text-black"
+                                    : "bg-[#4174e2] text-white"
+                            }`}
+                        >
+                            {msg.content}
+                        </p>
                         <div>
                             {new Date(msg.timestamp).toLocaleDateString()},
                             {new Date(msg.timestamp).toLocaleTimeString()}

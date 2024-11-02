@@ -20,7 +20,7 @@ type ClientChat struct {
 	Content     string `json:"content"`
 }
 
-type Chat struct {
+type ServerChat struct {
 	SenderId    string    `json:"senderId"`
 	RecipientId string    `json:"recipientId"`
 	Content     string    `json:"content"`

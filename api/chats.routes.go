@@ -3,24 +3,13 @@ package api
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"log"
 	"net/http"
-	"reflect"
 	"time"
 
 	"Social-Network-01/api/database"
 	"Social-Network-01/api/models"
 )
-
-func GenericUnmarshal[T any](raw json.RawMessage) (value T, err error) {
-	err = json.Unmarshal(raw, &value)
-	if err != nil {
-		log.Println(err, reflect.TypeFor[T]())
-		return
-	}
-	return
-}
 
 func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	sess, err := server.Sessions.GetSession(request)
@@ -77,9 +66,9 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 			break
 		}
 
-		chat := models.SocketMessage[models.Chat]{
+		chat := models.SocketMessage[models.ServerChat]{
 			Type: "message",
-			Data: models.Chat{
+			Data: models.ServerChat{
 				SenderId:    sess.User.Id,
 				RecipientId: rawchat.Data.RecipientId,
 				Content:     rawchat.Data.Content,

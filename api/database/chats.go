@@ -8,7 +8,7 @@ import (
 	"Social-Network-01/api/models"
 )
 
-func (store *SQLite3Store) StoreChat(ctx context.Context, chat models.Chat) (err error) {
+func (store *SQLite3Store) StoreChat(ctx context.Context, chat models.ServerChat) (err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func (store *SQLite3Store) StoreChat(ctx context.Context, chat models.Chat) (err
 // method using the request.
 //
 // This method return an array of chat (see ./api/models/chat.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string, limit, offset int) (chats []models.Chat, err error) {
+func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string, limit, offset int) (chats []models.ServerChat, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	defer rows.Close()
 
 	for rows.Next() {
-		chat := models.Chat{}
+		chat := models.ServerChat{}
 		err := rows.Scan(&chat.SenderId, &chat.RecipientId, &chat.Content, &chat.Timestamp)
 		if err != nil {
 			fmt.Println(err)
@@ -72,7 +72,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	}
 
 	if chats == nil {
-		chats = make([]models.Chat, 0)
+		chats = make([]models.ServerChat, 0)
 	}
 
 	return chats, nil

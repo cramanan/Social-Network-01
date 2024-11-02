@@ -18,7 +18,7 @@ export default function Profile() {
         <HomeProfileLayout>
             <div className="flex flex-col items-center">
                 <ProfileBanner
-                    nickname={user.nickname}
+                    id={user.id}
                     firstName={user.firstName}
                     image={user.image}
                 />

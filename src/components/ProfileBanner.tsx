@@ -3,11 +3,11 @@ import React from "react";
 
 const ProfileBanner = ({
     image,
-    nickname,
+    id,
     firstName,
 }: {
     image: string;
-    nickname: string;
+    id: string;
     firstName: string;
 }) => {
     return (
@@ -24,7 +24,7 @@ const ProfileBanner = ({
                     {firstName}
                 </div>
                 <div className="text-black/70 text-xl font-light font-['Inter']">
-                    @{nickname}
+                    @{id}
                 </div>
             </div>
         </div>
