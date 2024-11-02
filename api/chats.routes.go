@@ -64,46 +64,37 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	}()
 
 	for {
-		var raw models.RawMessage
-		err = conn.ReadJSON(&raw)
+		var rawchat models.SocketMessage[models.ClientChat]
+		err = conn.ReadJSON(&rawchat)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		switch raw.Type {
-		case "message":
-			rawchat, err := GenericUnmarshal[models.ClientChat](raw.Data)
-			if err != nil {
-				log.Println(err)
-				break
-			}
-
-			_, err = server.Storage.GetUser(request.Context(), rawchat.RecipientId)
-			if err != nil {
-				log.Println(err)
-				break
-			}
-
-			chat := models.SocketMessage[models.Chat]{
-				Type: "message",
-				Data: models.Chat{
-					SenderId:    sess.User.Id,
-					RecipientId: rawchat.RecipientId,
-					Content:     rawchat.Content,
-					Timestamp:   time.Now(),
-				},
-			}
-
-			err = server.Storage.StoreChat(request.Context(), chat.Data)
-			if err != nil {
-				log.Println(err)
-			}
-
-			server.users[chat.Data.RecipientId].WriteJSON(chat)
-			conn.WriteJSON(chat)
-
+		_, err = server.Storage.GetUser(request.Context(), rawchat.Data.RecipientId)
+		if err != nil {
+			log.Println(err)
+			break
 		}
+
+		chat := models.SocketMessage[models.Chat]{
+			Type: "message",
+			Data: models.Chat{
+				SenderId:    sess.User.Id,
+				RecipientId: rawchat.Data.RecipientId,
+				Content:     rawchat.Data.Content,
+				Timestamp:   time.Now(),
+			},
+		}
+
+		err = server.Storage.StoreChat(request.Context(), chat.Data)
+		if err != nil {
+			log.Println(err)
+		}
+
+		server.users[chat.Data.RecipientId].WriteJSON(chat)
+		conn.WriteJSON(chat)
+
 	}
 }
 
