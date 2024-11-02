@@ -1,7 +1,7 @@
 "use client";
 
 import { useWebSocket } from "@/providers/WebSocketContext";
-import { ClientChat, ServerChat } from "@/types/chat";
+import { ClientChat, ServerChat, SocketMessage } from "@/types/chat";
 import { User } from "@/types/user";
 import React, { useEffect, useState } from "react";
 
@@ -28,7 +28,10 @@ export default function ChatRoom({ recipient }: { recipient: User }) {
         if (!websocket) return;
 
         const addMessage = (msg: MessageEvent) => {
-            setMessages((prev) => [...prev, JSON.parse(msg.data)]);
+            const message = JSON.parse(msg.data) as SocketMessage<ServerChat>;
+            if (message.type != "message") return;
+
+            setMessages((prev) => [...prev, message.data]);
         };
 
         websocket.socket.addEventListener("message", addMessage);

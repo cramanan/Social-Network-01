@@ -1,6 +1,7 @@
 "use client";
 
 import { useWebSocket } from "@/providers/WebSocketContext";
+import { ServerChat, SocketMessage } from "@/types/chat";
 import { User } from "@/types/user";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,8 +27,19 @@ export default function Page() {
         fetchUsers();
     }, []);
 
+    // Handle incoming connection and disconnection
     const handleConnection = (msg: MessageEvent) => {
-        console.log(msg.data);
+        const message = JSON.parse(msg.data) as SocketMessage<OnlineUser>; // Parse the message to get type
+        if (message.type !== "ping") return;
+
+        const update = users.map((user) => {
+            if (user.id === message.data.id) user.online = message.data.online;
+            return user;
+        });
+
+        console.log(update);
+
+        setUsers(update);
     };
 
     useEffect(() => {
@@ -37,7 +49,7 @@ export default function Page() {
 
         return () =>
             websocket.socket.removeEventListener("message", handleConnection);
-    }, []);
+    }, [users]);
 
     if (!websocket) return <>No socket</>;
 
@@ -58,7 +70,7 @@ export default function Page() {
                         />
                         {user.online}
                     </div>
-                    <span>{user.nickname}</span>
+                    <span>{user.id}</span>
                 </Link>
             ))}
         </div>

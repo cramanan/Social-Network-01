@@ -36,3 +36,8 @@ type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+type OnlineUser struct {
+	*User
+	Online bool `json:"online"`
+}

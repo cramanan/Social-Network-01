@@ -1,5 +1,5 @@
-type SocketMessage<T = unknown> = {
-    type : string
+export type SocketMessage<T = unknown> = {
+    type : "message" | "ping"
     data : T
 }
 

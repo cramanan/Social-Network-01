@@ -243,15 +243,10 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 		return err
 	}
 
-	type OnlineUser struct {
-		*models.User
-		Online bool `json:"online"`
-	}
-
-	onlineUsers := make([]OnlineUser, len(users))
+	onlineUsers := make([]models.OnlineUser, len(users))
 
 	for idx, user := range users {
-		onlineUsers[idx] = OnlineUser{User: user}
+		onlineUsers[idx] = models.OnlineUser{User: user}
 		_, onlineUsers[idx].Online = server.users[user.Id]
 	}
 

@@ -5,12 +5,16 @@ import (
 	"time"
 )
 
+type SocketMessage[T any] struct {
+	Type string `json:"type"`
+	Data T      `json:"data"`
+}
+
 type RawMessage struct {
 	Type string          `json:"type"`
 	Data json.RawMessage `json:"data"`
 }
 
-type Ping struct{}
 type ClientChat struct {
 	RecipientId string `json:"recipientId"`
 	Content     string `json:"content"`

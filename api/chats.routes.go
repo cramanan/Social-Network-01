@@ -35,6 +35,15 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	for _, userConn := range server.users {
+		ping := models.SocketMessage[models.OnlineUser]{
+			Type: "ping",
+			Data: models.OnlineUser{User: &models.User{Id: sess.User.Id}, Online: true},
+		}
+
+		userConn.WriteJSON(ping)
+	}
+
 	server.Lock()
 	server.users[sess.User.Id] = conn
 	server.Unlock()
@@ -43,6 +52,15 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		server.Lock()
 		delete(server.users, sess.User.Id)
 		server.Unlock()
+
+		for _, userConn := range server.users {
+			ping := models.SocketMessage[models.OnlineUser]{
+				Type: "ping",
+				Data: models.OnlineUser{User: &models.User{Id: sess.User.Id}, Online: false},
+			}
+
+			userConn.WriteJSON(ping)
+		}
 	}()
 
 	for {
@@ -67,26 +85,24 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 				break
 			}
 
-			chat := models.Chat{
-				SenderId:    sess.User.Id,
-				RecipientId: rawchat.RecipientId,
-				Content:     rawchat.Content,
-				Timestamp:   time.Now(),
+			chat := models.SocketMessage[models.Chat]{
+				Type: "message",
+				Data: models.Chat{
+					SenderId:    sess.User.Id,
+					RecipientId: rawchat.RecipientId,
+					Content:     rawchat.Content,
+					Timestamp:   time.Now(),
+				},
 			}
 
-			err = server.Storage.StoreChat(request.Context(), chat)
+			err = server.Storage.StoreChat(request.Context(), chat.Data)
 			if err != nil {
 				log.Println(err)
 			}
 
-			server.users[chat.RecipientId].WriteJSON(chat)
+			server.users[chat.Data.RecipientId].WriteJSON(chat)
 			conn.WriteJSON(chat)
 
-		case "ping":
-			err = conn.WriteJSON("PONG")
-			if err != nil {
-				log.Println(err)
-			}
 		}
 	}
 }
