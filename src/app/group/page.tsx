@@ -2,9 +2,10 @@
 
 import { Group } from "@/types/group";
 import { QueryParams } from "@/types/query";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function GroupPage() {
+export default function Page() {
     const [groups, setGroups] = useState<Group[]>([]);
     const [params] = useState<QueryParams>({ limit: 10, offset: 0 });
 
@@ -20,5 +21,13 @@ export default function GroupPage() {
             .catch(console.error); // TODO: edit Global to a valid URL value
     }, [params.limit, params.offset]);
 
-    return <div>Groups : {JSON.stringify(groups)}</div>;
+    return (
+        <div>
+            {groups.map((group, idx) => (
+                <Link key={idx} href={`/group/${group.id}`}>
+                    {group.name}
+                </Link>
+            ))}
+        </div>
+    );
 }
