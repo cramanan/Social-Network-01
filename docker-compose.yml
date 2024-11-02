@@ -12,7 +12,7 @@ services:
             context: .
             dockerfile: Dockerfile.next
             args:
-                API_URL: http://backend:3001
+                NEXT_PUBLIC_API_URL: http://backend:3001
 
         ports:
             - "3000:3000"

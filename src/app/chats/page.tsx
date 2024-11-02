@@ -12,12 +12,11 @@ type OnlineUser = User & { online: boolean };
 export default function Page() {
     // Online users
     const [users, setUsers] = useState<OnlineUser[]>([]);
-    const websocket = useWebSocket();
 
     useEffect(() => {
         // Fetch online users
         const fetchUsers = async () => {
-            const response = await fetch("/api/online");
+            const response = await fetch("/api/online?limit=20");
             if (!response.ok) return;
             const users = await response.json();
             setUsers(users);
@@ -25,6 +24,8 @@ export default function Page() {
 
         fetchUsers();
     }, []);
+
+    const websocket = useWebSocket();
 
     // Handle incoming connection and disconnection
     const handleConnection = (msg: MessageEvent) => {
@@ -51,7 +52,7 @@ export default function Page() {
 
         // Remove when the component is unmounted
         return () => websocket.socket.removeEventListener("message", callback);
-    }, [websocket, callback]); // handleConnection func depends on the users
+    }, [websocket, callback]);
 
     // If the websocket somehow couldn't load
     if (!websocket) return <>No socket</>;

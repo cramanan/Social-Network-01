@@ -2,18 +2,17 @@ import ChatRoom from "./ChatRoom";
 import Image from "next/image";
 import { BackIcon } from "@/components/icons/BackIcon";
 import Link from "next/link";
+import { User } from "@/types/user";
+import { Params } from "@/types/query";
 
-type Params = Promise<{ id: string }>;
-
-export default async function Page(props: { params: Params }) {
-    const params = await props.params;
-    const id = params.id;
+export default async function Page({ params }: { params: Params }) {
+    const { id } = await params;
 
     const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/user/${id}`
     );
 
-    const user = await response.json();
+    const user: User = await response.json();
 
     return (
         <>
@@ -21,7 +20,10 @@ export default async function Page(props: { params: Params }) {
                 <Link href="/chats">
                     <BackIcon />
                 </Link>
-                <div className="flex flex-col items-center">
+                <Link
+                    href={`/user/${user.id}`}
+                    className="flex flex-col items-center"
+                >
                     <Image
                         src={user.image}
                         alt={`${user.nickname}'s profile picture`}
@@ -30,7 +32,7 @@ export default async function Page(props: { params: Params }) {
                         priority
                     />
                     <div>{user.nickname}</div>
-                </div>
+                </Link>
                 <span />
             </h1>
             <ChatRoom recipient={user} />
