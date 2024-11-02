@@ -1,8 +1,11 @@
 import Link from "next/link";
 import ChatRoom from "./ChatRoom";
 
-export default async function Page({ params }: { params: { id: string } }) {
-    const { id } = await params;
+type Params = Promise<{ id: string }>;
+
+export default async function Page(props: { params: Params }) {
+    const params = await props.params;
+    const id = params.id;
 
     const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/user/${id}`
