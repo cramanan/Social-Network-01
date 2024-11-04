@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/golang-migrate/migrate"
@@ -26,25 +25,43 @@ func NewSQLite3Store(dbFilePath string) (*SQLite3Store, error) {
 		return nil, err
 	}
 
-	instance, err := sqlite3.WithInstance(db, new(sqlite3.Config))
+	return &SQLite3Store{db}, nil
+}
+
+func (store *SQLite3Store) Up(migrationDir string) error {
+	instance, err := sqlite3.WithInstance(store.DB, new(sqlite3.Config)) // TODO: refactor
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	fSrc, err := new(file.File).Open("api/db/migrations")
+	fSrc, err := new(file.File).Open(migrationDir)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	m, err := migrate.NewWithInstance("file", fSrc, "sqlite3", instance)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	// modify for Down
-	if err := m.Up(); err != migrate.ErrNoChange {
-		log.Fatal(err)
+	return m.Up()
+}
+
+func (store *SQLite3Store) Down(migrationDir string) error {
+	instance, err := sqlite3.WithInstance(store.DB, new(sqlite3.Config))
+	if err != nil {
+		return err
 	}
 
-	return &SQLite3Store{db}, nil
+	fSrc, err := new(file.File).Open(migrationDir)
+	if err != nil {
+		return err
+	}
+
+	m, err := migrate.NewWithInstance("file", fSrc, "sqlite3", instance)
+	if err != nil {
+		return err
+	}
+
+	return m.Down()
 }
