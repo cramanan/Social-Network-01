@@ -28,6 +28,9 @@ export default function Header() {
                     <div className="hidden xl:flex">
                         <SearchBar id="search-bar-header" />
                     </div>
+                    <div className="hidden xl:flex">
+                        <SearchBar id="search-bar-header" />
+                    </div>
 
                     <div className="hidden items-center xl:flex xl:relative">
                         <div className="flex relative z-10 -m-10 w-11 h-11 bg-white border rounded-full">

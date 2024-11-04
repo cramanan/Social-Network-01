@@ -35,7 +35,7 @@ const Actualite = () => {
             <div className="flex flex-col relative items-center w-screen h-[calc(100vh-128px)] xl:bg-white/25 z-10 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-60px)]">
                 <div className="shadow-xl w-full mb-10 ">
                     <nav
-                        className="flex flex-col items-center justify-between sm:flex-row"
+                        className="flex flex-wrap items-center justify-center sm:flex-row sm:justify-between"
                         aria-label="post filter"
                     >
                         <ul className="flex flex-row gap-10 m-4 mt-3 ">

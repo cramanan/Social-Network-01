@@ -1,4 +1,5 @@
-import Actualite from "@/components/Actualite";
+// import Actualite from "@/components/Actualite";
+import { FriendListMobile } from "@/components/mobile/FriendListMobile";
 
 // import Header from "@/components/Header";
 
@@ -24,9 +25,7 @@ export default function Home() {
     return (
         <>
             <HomeProfileLayout>
-                <main>
-                    <Actualite />
-                </main>
+                <FriendListMobile />
             </HomeProfileLayout>
         </>
     );
