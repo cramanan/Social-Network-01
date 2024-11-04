@@ -150,7 +150,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 		return
 	}
 
-	postsMap := make(map[string]*[]string)
+	postsMap := make(map[string]*[]string, 0)
 
 	for rows.Next() {
 		post := new(models.Post)
@@ -212,7 +212,6 @@ func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) 
 		FROM likes_records 
 		WHERE user_id = ? AND post_id = ?
 	);`, userId, postId).Scan(&exists)
-
 	if err != nil {
 		return err
 	}

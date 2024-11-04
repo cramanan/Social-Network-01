@@ -22,9 +22,10 @@ const ProfileBanner = ({
             <div className="w-[440px] h-15 bg-white rounded-r-[30px] flex flex-col justify-between py-1 pl-10">
                 <div className="text-black text-2xl font-semibold font-['Inter']">
                     {firstName}
+                    {firstName}
                 </div>
                 <div className="text-black/70 text-xl font-light font-['Inter']">
-                    @{nickname}
+                    @{nickname}@{nickname}
                 </div>
             </div>
         </div>

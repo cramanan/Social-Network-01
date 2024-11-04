@@ -45,3 +45,13 @@ body {
     rgba(228, 146, 230, 1) 75.68%
   );
 }
+
+.page-container {
+  width: 100%;
+  overflow: hidden; /* Empêche le débordement horizontal */
+}
+
+.actualite-container {
+  max-width: 100%; /* Assure que le conteneur ne dépasse pas la largeur de la page */
+  overflow: hidden; /* Empêche le débordement du contenu */
+}

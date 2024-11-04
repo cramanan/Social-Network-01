@@ -48,7 +48,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.HandleFunc("/api/auth", handleFunc(server.GetUser))
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.User))
-	router.HandleFunc("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
+	// router.HandleFunc("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
 	router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
 	// router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
 	// router.HandleFunc("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))

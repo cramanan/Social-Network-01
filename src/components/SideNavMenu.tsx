@@ -50,15 +50,14 @@ const SideNavMenu = () => {
         <>
             <nav
                 id="sideNav"
-                className="w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 -translate-x-44 duration-300 ease-in-out select-none"
+                className="w-[250px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 -translate-x-44 duration-300 ease-in-out select-none"
                 aria-label="Side navigation"
-                aria-expanded={isOpen}
             >
                 <ul className="h-full flex flex-col justify-between">
                     <li>
                         <button
                             id="backIcon"
-                            className="w-[51px] translate-x-44 duration-300 ease-in-out"
+                            className="w-[51px] ml-0 translate-x-44 duration-300 ease-in-out "
                             aria-label={isOpen ? "Close menu" : "Open menu"}
                             onClick={toggleSideNav}
                         >
@@ -75,7 +74,7 @@ const SideNavMenu = () => {
                             key={index}
                             className="flex flex-row justify-between items-center"
                         >
-                            <span className="text-white text-2xl font-semibold font-['Inter']">
+                            <span className="text-white text-xl font-semibold font-['Inter']">
                                 {item.label}
                             </span>
                             {item.href ? (
@@ -98,9 +97,10 @@ const SideNavMenu = () => {
             <div
                 id="friend-inv-list"
                 className={`h-[667px] transition-all duration-300 ease-in-out
-                    ${isFriendInvListOpen
-                        ? "opacity-100 -translate-x-40 pointer-events-auto"
-                        : "opacity-0 -translate-x-32 pointer-events-none"
+                    ${
+                        isFriendInvListOpen
+                            ? "opacity-100 -translate-x-40 pointer-events-auto"
+                            : "opacity-0 -translate-x-32 pointer-events-none"
                     }`}
                 aria-label="Friend invite list"
             >
