@@ -39,8 +39,3 @@ next-env.d.ts
 
 __debug*
 
-/api/images/*
-
-*.sqlite3
-*.db
-*.sqlite

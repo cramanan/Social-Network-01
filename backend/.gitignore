@@ -1,0 +1,6 @@
+/api/images/*
+!/api/images/.gitkeep
+
+*.sqlite3
+*.db
+*.sqlite

@@ -1,6 +1,7 @@
-import CommentForm from "@/components/CommentForm";
 import { Post } from "@/types/post";
 import { Params } from "@/types/query";
+import CommentForm from "./CommentForm";
+import { notFound } from "next/navigation";
 
 export default async function Page({ params }: { params: Params }) {
     const { id } = await params;
