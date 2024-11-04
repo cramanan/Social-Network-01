@@ -1,6 +1,6 @@
 "use client";
 
-import { useWebSocket } from "@/providers/WebSocketContext";
+import { useWebSocket } from "@/hooks/useWebSocket";
 import { ClientChat, ServerChat, SocketMessage } from "@/types/chat";
 import { User } from "@/types/user";
 import React, { useEffect, useState } from "react";

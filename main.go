@@ -18,24 +18,18 @@ func main() {
 	}
 
 	switch os.Args[1] {
-
 	case "up":
 		err = api.Storage.Up("api/db/migrations")
-		log.Println(err)
 
 	case "down":
 		err = api.Storage.Down("api/db/migrations")
-		if err != nil {
-			log.Fatalln(err)
-		}
 
 	case "serve":
 		log.Printf("Starting server on port %s", api.Addr)
 		err = api.ListenAndServe()
-		if err != nil {
-			log.Fatalln(err)
-		}
-
 	}
 
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

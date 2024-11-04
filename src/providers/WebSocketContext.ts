@@ -9,5 +9,3 @@ type WebSocketContextType = {
 export const webSocketContext = createContext<WebSocketContextType | null>(
     null
 );
-
-export const useWebSocket = () => useContext(webSocketContext);

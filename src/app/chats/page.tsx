@@ -1,7 +1,7 @@
 "use client";
 
 import useQueryParams from "@/hooks/useQueryParams";
-import { useWebSocket } from "@/providers/WebSocketContext";
+import { useWebSocket } from "@/hooks/useWebSocket";
 import { SocketMessage } from "@/types/chat";
 import { OnlineUser } from "@/types/user";
 import Image from "next/image";
