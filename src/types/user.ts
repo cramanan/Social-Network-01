@@ -9,3 +9,5 @@ export type User = {
     aboutMe?: string;
     private: boolean;
 };
+
+export type OnlineUser = User & { online: boolean };

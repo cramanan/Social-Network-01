@@ -9,8 +9,8 @@ import { NewPost } from "./newPost";
 import PostComponent from "./PostComponent";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
-import { QueryParams } from "@/types/query";
 import { Post } from "@/types/post";
+import useQueryParams from "@/hooks/useQueryParams";
 // import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 // import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 
@@ -21,20 +21,14 @@ const Actualite = () => {
 
     const [posts, setPosts] = useState<Post[]>([]);
 
-    const [params, setParams] = useState<QueryParams>({ limit: 10, offset: 0 });
+    const { limit, offset, next, previous } = useQueryParams();
 
-    const changePage = (n: number) => () => {
-        if (params.offset + n * params.limit < 0) return;
-        setParams({ ...params, offset: n * 10 });
-    };
     useEffect(() => {
-        fetch(
-            `/api/group/00000000/posts?limit=${params.limit}&offset=${params.offset}`
-        )
+        fetch(`/api/group/00000000/posts?limit=${limit}&offset=${offset}`)
             .then((resp) => (resp.ok ? resp.json() : []))
             .then(setPosts)
             .catch(console.error);
-    }, [params.limit, params.offset]);
+    }, [limit, offset]);
 
     return (
         <>
@@ -76,10 +70,10 @@ const Actualite = () => {
                     ))}
                 </section>
                 <div className="flex">
-                    <button onClick={changePage(-1)}>
+                    <button onClick={previous}>
                         <CloseSideMenuIcon />
                     </button>
-                    <button onClick={changePage(+1)}>
+                    <button onClick={next}>
                         <OpenSideMenuIcon />
                     </button>
                 </div>

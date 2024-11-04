@@ -14,7 +14,9 @@ export default async function Page({ params }: { params: Params }) {
 
     return (
         <>
-            <div>{JSON.stringify(user)}</div>
+            <div className="whitespace-pre-wrap">
+                {JSON.stringify(user, null, "\t")}
+            </div>
             <ProfileStats userId={user.id} />
             <FollowButton userId={user.id} username={user.nickname} />
         </>
