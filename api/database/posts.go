@@ -131,7 +131,7 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 	return
 }
 
-func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []*models.Post, err error) {
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []models.Post, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -150,49 +150,20 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 		return
 	}
 
-	postsMap := make(map[string]*[]string)
-
 	for rows.Next() {
-		post := new(models.Post)
+		post := models.Post{}
 		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &post.Timestamp, &post.Username)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
+		post.Images = make([]string, 0) // TODO: restore image system
 		posts = append(posts, post)
-		postsMap[post.Id] = &post.Images
-	}
-
-	rows, err = store.QueryContext(ctx, `
-	SELECT pi.post_id, pi.path
-	FROM posts_images pi JOIN posts p
-	ON p.id = pi.post_id
-	WHERE group_id = ?`,
-		groupId)
-	if err != nil {
-		return
-	}
-
-	for rows.Next() {
-		var postId, path string
-		err = rows.Scan(&postId, &path)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		*postsMap[postId] = append(*postsMap[postId], path)
 	}
 
 	if posts == nil {
-		posts = make([]*models.Post, 0)
-	} else {
-		for _, post := range posts {
-			if post.Images == nil {
-				post.Images = make([]string, 0)
-			}
-		}
+		posts = make([]models.Post, 0)
 	}
 
 	return posts, tx.Commit()

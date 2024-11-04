@@ -101,5 +101,9 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 		groups = append(groups, group)
 	}
 
+	if groups == nil {
+		groups = make([]*models.Group, 0)
+	}
+
 	return
 }
