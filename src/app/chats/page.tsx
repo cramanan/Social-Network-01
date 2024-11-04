@@ -1,29 +1,31 @@
 "use client";
 
+import useQueryParams from "@/hooks/useQueryParams";
 import { useWebSocket } from "@/providers/WebSocketContext";
 import { SocketMessage } from "@/types/chat";
-import { User } from "@/types/user";
+import { OnlineUser } from "@/types/user";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 
-type OnlineUser = User & { online: boolean };
-
 export default function Page() {
     // Online users
     const [users, setUsers] = useState<OnlineUser[]>([]);
+    const { limit, offset, next, previous } = useQueryParams();
 
     useEffect(() => {
         // Fetch online users
         const fetchUsers = async () => {
-            const response = await fetch("/api/online?limit=20");
+            const response = await fetch(
+                `/api/online?limit=${limit}&offset=${offset}`
+            );
             if (!response.ok) return;
             const users = await response.json();
             setUsers(users);
         };
 
         fetchUsers();
-    }, []);
+    }, [limit, offset]);
 
     const websocket = useWebSocket();
 
@@ -32,7 +34,7 @@ export default function Page() {
         const message = JSON.parse(msg.data) as SocketMessage<OnlineUser>; // Parse the message to get type
         if (message.type !== "ping") return; // ignore if it is not of type "ping"
 
-        // Check for each displayed user if the incoming/outcoming user
+        // Check for each displayed user if the user is incoming/outcoming
         const update = users.map((user) => {
             if (user.id === message.data.id) user.online = message.data.online;
             return user;
@@ -84,6 +86,12 @@ export default function Page() {
                     </Link>
                 ))}
             </div>
+            <button className="w-fit" onClick={next}>
+                next
+            </button>
+            <button className="w-fit" onClick={previous}>
+                previous
+            </button>
         </>
     );
 }

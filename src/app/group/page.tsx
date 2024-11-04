@@ -1,25 +1,20 @@
 "use client";
 
+import useQueryParams from "@/hooks/useQueryParams";
 import { Group } from "@/types/group";
-import { QueryParams } from "@/types/query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Page() {
     const [groups, setGroups] = useState<Group[]>([]);
-    const [params] = useState<QueryParams>({ limit: 10, offset: 0 });
-
-    // const changePage = (n: number) => () => {
-    //     if (params.offset + n * params.limit < 0) return;
-    //     setParams({ ...params, offset: n * 10 });
-    // };
+    const { limit, offset, next, previous } = useQueryParams();
 
     useEffect(() => {
-        fetch(`/api/groups?limit=${params.limit}&offset=${params.offset}`)
+        fetch(`/api/groups?limit=${limit}&offset=${offset}`)
             .then((resp) => (resp.ok ? resp.json() : []))
             .then(setGroups)
             .catch(console.error); // TODO: edit Global to a valid URL value
-    }, [params.limit, params.offset]);
+    }, [limit, offset]);
 
     return (
         <div>
@@ -28,6 +23,12 @@ export default function Page() {
                     {group.name}
                 </Link>
             ))}
+            <button className="block" onClick={next}>
+                next
+            </button>
+            <button className="block" onClick={previous}>
+                previous
+            </button>
         </div>
     );
 }
