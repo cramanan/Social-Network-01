@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 import { User } from "@/types/user";
 
 type ContextType = {
@@ -23,5 +23,3 @@ export const authContext = createContext<ContextType>({
     login: () => {},
     logout: () => {},
 });
-
-export const useAuth = () => useContext(authContext);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/providers/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 
 // Form Datas

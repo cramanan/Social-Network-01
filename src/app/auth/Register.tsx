@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/providers/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";

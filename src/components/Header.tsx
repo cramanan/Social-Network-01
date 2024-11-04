@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/providers/AuthContext";
 import { ProfileCircle } from "./icons/ProfileCircle";
 import SearchBar from "./SearchBar";
 import MobileNav from "./MobileNav";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
     const { user } = useAuth();
