@@ -15,7 +15,6 @@ export default function CommentForm({ post }: { post: Post }) {
         const data = new FormData(e.currentTarget);
         data.append("postId", post.id);
         data.append("content", content);
-        console.log(data);
 
         const response = await fetch(`/api/post/${post.id}/comment`, {
             method: "POST",
@@ -27,7 +26,7 @@ export default function CommentForm({ post }: { post: Post }) {
 
     return (
         <form onSubmit={onSubmit}>
-            <h2>Comment {post.username}'s post:</h2>
+            <h2>Comment {post.username}&apos;s post:</h2>
             <textarea
                 onChange={onChange}
                 className="resize-none"

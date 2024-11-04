@@ -9,7 +9,8 @@ import (
 
 func main() {
 	if len(os.Args) != 2 {
-		log.Fatalln("no command")
+		log.Println("Warning: started without any command. running \"serve\" by default")
+		os.Args = append(os.Args, "serve")
 	}
 
 	api, err := api.NewAPI(":3001", "api/db/db.sqlite3")
