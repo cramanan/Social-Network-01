@@ -1,6 +1,7 @@
+"use client";
+
 import { useAuth } from "@/providers/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 
@@ -31,32 +32,21 @@ export const Register = () => {
     const { register, handleSubmit } = useForm<RegisterFields>({
         resolver: zodResolver(UserSchema),
     });
+    const { signup } = useAuth();
 
-    const { setUser } = useAuth();
-
-    const router = useRouter();
-
-    const onSubmit = (data: RegisterFields) => {
-        fetch("/api/register", {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-            .then((resp) => {
-                if (resp.ok) return resp.json();
-                throw "Error";
-            })
-            .then(setUser)
-            .then(() => router.push("/"))
-
-            .catch(console.error);
-    };
+    const onSubmit = ({
+        nickname,
+        email,
+        password,
+        firstName,
+        lastName,
+        dateOfBirth,
+    }: RegisterFields) =>
+        signup(nickname, email, password, firstName, lastName, dateOfBirth);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col  w-full gap-20 md:gap-12 p-14">
+            <div className="flex flex-col  w-full gap-20 md:gap-12 pt-14">
                 <h1 className="text-white  text-4xl font-semibold font-['Noto Sans']">
                     Register
                 </h1>
@@ -106,7 +96,9 @@ export const Register = () => {
                         aria-label="Date of birth"
                     />
                 </div>
-                <button type="submit">Sign up</button>
+                <button type="submit" className="m-3">
+                    Sign up
+                </button>
             </div>
         </form>
     );

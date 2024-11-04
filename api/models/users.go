@@ -9,10 +9,18 @@ type User struct {
 	FirstName   string    `json:"firstName"`
 	LastName    string    `json:"lastName"`
 	DateOfBirth time.Time `json:"dateOfBirth"`
-	ImagePath   *string   `json:"image"`
+	ImagePath   string    `json:"image"`
 	AboutMe     *string   `json:"aboutMe"`
 	Private     bool      `json:"private"`
 	Timestamp   time.Time `json:"timestamp"`
+}
+
+type UserStats struct {
+	Id           string `json:"id"`
+	NumFollowers int    `json:"numFollowers"`
+	NumFollowing int    `json:"numFollowing"`
+	NumPosts     int    `json:"numPosts"`
+	NumLikes     int    `json:"numLikes"`
 }
 
 type RegisterRequest struct {

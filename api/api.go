@@ -35,9 +35,7 @@ type APIerror struct {
 	Message  string `json:"message"`
 }
 
-func (err APIerror) Error() string {
-	return err.ErrorMsg
-}
+func (err APIerror) Error() string { return err.ErrorMsg }
 
 func NewAPI(addr string, dbFilePath string) (*API, error) {
 	server := new(API)
@@ -50,12 +48,13 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.HandleFunc("/api/auth", handleFunc(server.GetUser))
 	router.HandleFunc("/api/user/{userid}", handleFunc(server.User))
-	// router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
+	router.HandleFunc("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
+	router.HandleFunc("/api/user/{userid}/follow", handleFunc(server.FollowUser))
 	// router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
 	// router.HandleFunc("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))
 
 	router.HandleFunc("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
-	// router.HandleFunc("/api/groups", handleFunc(server.GetGroups))
+	router.HandleFunc("/api/groups", handleFunc(server.GetGroups))
 	// router.HandleFunc("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
 	// router.HandleFunc("/api/group/{groupname}", handleFunc(server.Group))
 
@@ -70,7 +69,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.HandleFunc("/api/socket", server.Socket)
 
-	router.Handle("/images/", http.FileServer(http.Dir("api/images")))
+	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
 
 	server.WSUpgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {

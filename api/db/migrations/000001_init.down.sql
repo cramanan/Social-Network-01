@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS users;
 
 DROP TABLE IF EXISTS posts;
 
+DROP TABLE IF EXISTS posts_images;
+
 DROP TABLE IF EXISTS posts_status;
 
 DROP TABLE IF EXISTS comments;

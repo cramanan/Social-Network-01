@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     date_of_birth DATETIME NOT NULL,
-    image_path TEXT NOT NULL DEFAULT "https://commons.wikimedia.org/wiki/File:Default_pfp.svg",
+    image_path TEXT NOT NULL DEFAULT "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
     about_me TEXT,
     private BOOLEAN NOT NULL,
     timestamp DATETIME NOT NULL
@@ -17,8 +17,12 @@ CREATE TABLE IF NOT EXISTS posts (
     user_id TEXT REFERENCES users(id),
     group_id TEXT DEFAULT '00000000' REFERENCES groups(id),
     content TEXT NOT NULL,
-    image_path TEXT,
     timestamp DATETIME NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS posts_images (
+    post_id TEXT REFERENCES posts(id),
+    path TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS posts_status (
@@ -63,5 +67,8 @@ CREATE TABLE IF NOT EXISTS groups(
 );
 
 INSERT INTO groups VALUES(
-    '00000000', 'Global', 'Global group', date('now')
+    '00000000',
+    'Global',
+    'Global group',
+    date('now')
 );

@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react'
 import SearchBar from "./SearchBar";
-import { HomeIcon } from "./icons/HomeIcon";
+import { GroupsIcon } from "./icons/GroupsIcon";
+import { BookmarkIcon } from "./icons/BookmarkIcon";
+import { SettingIcon } from "./icons/SettingIcon";
 
 const MobileNav = () => {
     const [isOpen, setIsOpen] = useState(false)
-
 
     const handleClick = () => {
         setIsOpen(!isOpen);
@@ -30,8 +31,20 @@ const MobileNav = () => {
                     <li className="w-full flex justify-center border-b border-black p-2"><SearchBar id={"mobile-search-nav"} /></li>
                     <li className="border-b border-black p-2">
                         <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
-                            <HomeIcon />
-                            <span className="font-bold text-white font-['Inter'] text-2xl">Home</span>
+                            <GroupsIcon />
+                            <span className="font-bold text-white font-['Inter'] text-2xl">Group</span>
+                        </a>
+                    </li>
+                    <li className="border-b border-black p-2">
+                        <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
+                            <BookmarkIcon />
+                            <span className="font-bold text-white font-['Inter'] text-2xl">Bookmark</span>
+                        </a>
+                    </li>
+                    <li className="border-b border-black p-2">
+                        <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
+                            <SettingIcon />
+                            <span className="font-bold text-white font-['Inter'] text-2xl">Setting</span>
                         </a>
                     </li>
                 </ul>

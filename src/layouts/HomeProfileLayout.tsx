@@ -13,18 +13,20 @@ const HomeProfileLayout: React.FC<Props> = ({ children }) => {
     <>
       <Header />
 
-      <div className="hidden absolute left-0 top-[150px] xl:flex">
-        <SideNavMenu />
-      </div>
-
-      <main className="flex flex-grow">
-        <div className="absolute left-1/2 -translate-x-1/2 xl:mt-3">
-          {children}
+      <div className="flex flex-row h-full">
+        <div className="hidden items-center left-0 top-[150px] xl:flex xl:mt-3">
+          <SideNavMenu />
         </div>
-      </main>
 
-      <div className="hidden absolute top-20 right-0 xl:flex">
-        <Chat />
+        <main className="flex flex-grow">
+          {/* <div className="absolute left-1/2 -translate-x-1/2 xl:mt-3"> */}
+          {children}
+          {/* </div> */}
+        </main>
+
+        <div className="hidden right-0 xl:flex xl:mt-3">
+          <Chat />
+        </div>
       </div>
 
       <div className="xl:hidden">

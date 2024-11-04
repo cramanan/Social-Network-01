@@ -5,17 +5,71 @@ import { authContext } from "./AuthContext";
 import { User } from "@/types/user";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | undefined>(undefined);
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const login = async (email: string, password: string) => {
+        const response = await fetch("/api/login", {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+        });
+        const data = await response.json();
+        setUser(data);
+    };
+
+    const signup = async (
+        nickname: string,
+        email: string,
+        password: string,
+        firstName: string,
+        lastName: string,
+        dateOfBirth: string
+    ) => {
+        const response = await fetch("/api/register", {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({
+                nickname,
+                email,
+                password,
+                firstName,
+                lastName,
+                dateOfBirth,
+            }),
+        });
+        const data = await response.json();
+        setUser(data);
+    };
+
+    const logout = async () => {
+        await fetch("/api/logout");
+        setUser(null);
+    };
 
     useEffect(() => {
-        fetch("/api/auth")
-            .then((resp) => (resp.ok ? resp.json() : null))
-            .then(setUser)
-            .catch(console.error);
+        const login = async () => {
+            const response = await fetch("/api/auth");
+            const data = await response.json();
+            setUser(data);
+            setLoading(false);
+        };
+        login();
     }, []);
 
+    if (loading)
+        children = (
+            <div className="h-full w-full flex items-center justify-center">
+                Loading...
+            </div>
+        );
+
     return (
-        <authContext.Provider value={{ user, setUser }}>
+        <authContext.Provider value={{ user, loading, signup, login, logout }}>
             {children}
         </authContext.Provider>
     );

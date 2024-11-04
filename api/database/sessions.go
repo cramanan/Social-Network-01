@@ -73,7 +73,7 @@ func (store *SessionStore) NewSession(w http.ResponseWriter, r *http.Request) *S
 		Value:    session.ID,
 		Expires:  time.Now().Add(session_timeout),
 		Path:     "/",
-		SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: false,
 	}
 	session.Expires = cookie.Expires
