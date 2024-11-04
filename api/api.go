@@ -65,11 +65,12 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.HandleFunc("/api/post", handleFunc(server.CreatePost))
 	router.HandleFunc("/api/post/{postid}", handleFunc(server.Post))
+	router.HandleFunc("/api/post/{postid}/comment", handleFunc(server.Comment))
 	router.HandleFunc("/api/post/{postid}/like", server.Protected(server.LikePost))
+	// router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
 
 	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
 	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
-	// router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
 	// router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
 	server.users = make(map[string]*websocket.Conn)

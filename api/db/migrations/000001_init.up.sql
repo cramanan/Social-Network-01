@@ -32,11 +32,10 @@ CREATE TABLE IF NOT EXISTS posts_status (
 );
 
 CREATE TABLE IF NOT EXISTS comments(
-    id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
-    parent_id TEXT REFERENCES posts(id),
+    post_id TEXT REFERENCES posts(id),
     content TEXT NOT NULL,
-    img_path BLOB,
+    image_path TEXT NOT NULL,
     timestamp DATETIME NOT NULL
 );
 

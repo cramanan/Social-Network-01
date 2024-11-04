@@ -15,7 +15,7 @@ import (
 // `limit` and `offset` can be retrieve with the parseRequestLimitAndOffset method using the request.
 //
 // This method return an array of comment (see ./api/models/comments.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit, offset int) (comments []models.Comments, err error) {
+func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit, offset int) (comments []models.Comment, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -29,8 +29,8 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 	defer rows.Close()
 
 	for rows.Next() {
-		comment := models.Comments{}
-		err := rows.Scan(&comment.Id, &comment.UserId, &comment.ParentId, &comment.Content, &comment.ImgPath, &comment.TimeStamp)
+		comment := models.Comment{}
+		err := rows.Scan(&comment.UserId, &comment.PostId, &comment.Content, &comment.Image, &comment.Timestamp)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -45,4 +45,25 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 	}
 
 	return comments, nil
+}
+
+func (store *SQLite3Store) CreateComment(ctx context.Context, comment models.Comment) (err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.ExecContext(ctx, "INSERT INTO comments VALUES(?, ?, ?, ?, ?);",
+		comment.UserId,
+		comment.PostId,
+		comment.Content,
+		comment.Image,
+		comment.Timestamp,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

@@ -101,29 +101,22 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 
 	post = new(models.Post)
 
-	var status_enum int
-	var unmarshalImages, unmarshalUsers []byte
-
 	err = tx.QueryRowContext(ctx, `
-	SELECT posts.*, ps.status_enum, ps.users
-	FROM posts JOIN posts_status
-	ON posts.id = posts_status.post_id
-	WHERE id = ?;`, postId).Scan(
+	SELECT p.*, u.nickname
+	FROM posts p JOIN users u
+	ON p.user_id = u.id
+	WHERE p.id = ?;`, postId).Scan(
 		&post.Id,
 		&post.UserId,
-		&post.GroupName,
+		&post.GroupId,
 		&post.Content,
-		&unmarshalImages,
 		&post.Timestamp,
-
-		&status_enum,
-		&unmarshalUsers,
+		&post.Username,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(unmarshalImages, &post.Images)
 	if post.Images == nil {
 		post.Images = make([]string, 0)
 	}
@@ -152,7 +145,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 
 	for rows.Next() {
 		post := models.Post{}
-		err = rows.Scan(&post.Id, &post.UserId, &post.GroupName, &post.Content, &post.Timestamp, &post.Username)
+		err = rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Content, &post.Timestamp, &post.Username)
 		if err != nil {
 			log.Println(err)
 			continue

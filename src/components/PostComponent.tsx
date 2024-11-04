@@ -49,9 +49,12 @@ const PostComponent = ({ post }: { post: Post }) => {
                     </div>
                 )}
 
-                <div className="h-[110px] line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-7 mb-10">
+                <Link
+                    href={`/post/${post.id}`}
+                    className="h-[110px] line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-7 mb-10"
+                >
                     {post.content}
-                </div>
+                </Link>
                 <div className="flex flex-row gap-5 ml-5">
                     <svg
                         className="cursor-pointer"
