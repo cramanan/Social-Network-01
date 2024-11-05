@@ -11,7 +11,7 @@ import (
 // Perform the action of following one from another.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 	if request.Method != http.MethodPost {
@@ -31,12 +31,31 @@ func (server *API) FollowUser(writer http.ResponseWriter, request *http.Request)
 		return fmt.Errorf("cannot follow yourself")
 	}
 
-	err = server.Storage.FollowUser(ctx, request.PathValue("userid"), sess.User.Id)
+	err = server.Storage.SendFriendRequest(ctx, request.PathValue("userid"), sess.User.Id)
 	if err != nil {
 		return err
 	}
 
 	return writeJSON(writer, http.StatusCreated, "Created")
+}
+
+func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	followerId := request.PathValue("userid")
+
+	err = server.Storage.AcceptFriendRequest(ctx, sess.User.Id, followerId)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, http.StatusOK)
 }
 
 // Retrieve all follower of a user from the database.

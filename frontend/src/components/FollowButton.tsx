@@ -10,7 +10,7 @@ export default function FollowButton({
     username: string;
 }) {
     const follow = () =>
-        fetch(`/api/user/${userId}/follow`, { method: "POST" });
+        fetch(`/api/user/${userId}/send-request`, { method: "POST" });
     return (
         <button className="bg-gray-300 w-fit rounded-xl p-2" onClick={follow}>
             Follow {username}

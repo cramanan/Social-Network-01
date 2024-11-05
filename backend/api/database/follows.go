@@ -39,7 +39,7 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 // `followerId` is the corresponding following user in the database and is usualy find in the sessions field of the API structure.
 //
 // This method return an SQL error or nil if there are none.
-func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId string) error {
+func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, followerId string) error {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -63,6 +63,24 @@ func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId st
 	}
 
 	_, err = store.ExecContext(ctx, query, userId, followerId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (store *SQLite3Store) AcceptFriendRequest(ctx context.Context, userId, followerId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.ExecContext(ctx, `
+	UPDATE follow_records 
+	SET accepted = TRUE 
+	WHERE user_id = ? and follower_id = ?;`, userId, followerId)
 	if err != nil {
 		return err
 	}
