@@ -247,7 +247,7 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 
 	for idx, user := range users {
 		onlineUsers[idx] = models.OnlineUser{User: user}
-		_, onlineUsers[idx].Online = server.users[user.Id]
+		_, onlineUsers[idx].Online = server.WebSocket.Users[user.Id]
 	}
 
 	return writeJSON(writer, http.StatusOK, onlineUsers)

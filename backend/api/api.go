@@ -5,11 +5,11 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"sync"
 
 	"Social-Network-01/api/database"
+	"Social-Network-01/api/websocket"
 
-	"github.com/gorilla/websocket"
+	gorilla "github.com/gorilla/websocket"
 )
 
 // The API struct inherits from Golang's native http.Server and has built-in:
@@ -27,10 +27,7 @@ type API struct {
 	//  using HTTP request's Cookies.
 	Sessions *database.SessionStore
 
-	WSUpgrader websocket.Upgrader
-
-	sync.RWMutex
-	users map[string]*websocket.Conn
+	WebSocket websocket.WebSocket
 }
 
 type APIerror struct {
@@ -74,17 +71,17 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
 	// router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
-	server.users = make(map[string]*websocket.Conn)
-	router.HandleFunc("/api/socket", server.Socket)
-	router.HandleFunc("/api/online", handleFunc(server.GetOnlineUsers))
-
-	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
-
-	server.WSUpgrader = websocket.Upgrader{
+	server.WebSocket.Upgrader = gorilla.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true // TODO: Check origin
 		},
 	}
+
+	server.WebSocket.Users = make(map[string]*websocket.SocketConn)
+	router.HandleFunc("/api/socket", server.Socket)
+	router.HandleFunc("/api/online", handleFunc(server.GetOnlineUsers))
+
+	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
 
 	server.Server.Handler = router
 
