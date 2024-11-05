@@ -231,71 +231,6 @@ func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, 
 	return users, nil
 }
 
-// Perform the action of following one from another in the database using their userids.
-//
-// `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `userId` is the corresponding followed user in the database and is usualy find in the request pathvalue.
-// `followerId` is the corresponding following user in the database and is usualy find in the sessions field of the API structure.
-//
-// This method return an SQL error or nil if there are none.
-func (store *SQLite3Store) FollowUser(ctx context.Context, userId, followerId string) error {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	query := "INSERT INTO follow_records VALUES(?, ?);"
-	var alreadyFollows bool
-
-	err = tx.QueryRowContext(ctx, `
-	SELECT EXISTS (
-		SELECT * FROM follow_records 
-		WHERE user_id = ? AND follower_id = ?
-	);`, userId, followerId).Scan(&alreadyFollows)
-	if err != nil {
-		return err
-	}
-
-	if alreadyFollows {
-		query = "DELETE FROM follow_records WHERE user_id = ? AND follower_id = ?;"
-	}
-
-	_, err = store.ExecContext(ctx,
-		query, userId, followerId)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// Perform the action of unfollowing one from another in the database using their userids.
-//
-// `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `userId` is the corresponding followed user in the database and is usualy find in the request pathvalue.
-// `followerId` is the corresponding following user in the database and is usualy find in the sessions field of the API structure.
-//
-// This method return an SQL error or nil if there are none.
-func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId string) error {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	_, err = store.ExecContext(ctx,
-		`DELETE FROM follow_records
-		WHERE user_id = ? AND follower_id =  ?;`,
-
-		userId, followerId)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
 // Retrieve all follower of a user from the database using his userId.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
@@ -315,7 +250,7 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 		FROM follow_records f 
 		JOIN users u 
 		ON f.user_id = u.id
-		WHERE user_id = ?
+		WHERE user_id = ? AND accepted = TRUE
 		LIMIT ? OFFSET ?;`, userId, limit, offset)
 	if err != nil {
 		return nil, err
@@ -352,8 +287,8 @@ func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (sta
 	defer tx.Rollback()
 
 	err = store.QueryRowContext(ctx, `SELECT
-		(SELECT COUNT(*) FROM follow_records WHERE user_id = ?) AS followers,
-		(SELECT COUNT(*) FROM follow_records WHERE follower_id = ?) AS following,
+		(SELECT COUNT(*) FROM follow_records WHERE user_id = ? AND accepted = TRUE) AS followers,
+		(SELECT COUNT(*) FROM follow_records WHERE follower_id = ? AND accepted = TRUE) AS following,
 		(SELECT COUNT(*) FROM posts WHERE user_id = ?) AS posts,
 		(SELECT COUNT(*) FROM likes_records WHERE user_id = ?) AS likes;`,
 		userId, userId, userId, userId).Scan(

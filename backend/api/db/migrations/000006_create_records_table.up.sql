@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS follow_records(
-    user_id TEXT REFERENCES users(id),
-    follower_id TEXT REFERENCES users(id)
+    user_id TEXT NOT NULL REFERENCES users(id),
+    follower_id TEXT NOT NULL REFERENCES users(id),
+    accepted BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS likes_records(
