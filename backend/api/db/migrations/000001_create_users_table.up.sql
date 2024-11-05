@@ -12,64 +12,6 @@ CREATE TABLE IF NOT EXISTS users (
     timestamp DATETIME NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS posts (
-    id TEXT PRIMARY KEY,
-    user_id TEXT REFERENCES users(id),
-    group_id TEXT DEFAULT '00000000' REFERENCES groups(id),
-    content TEXT NOT NULL,
-    timestamp DATETIME NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS posts_images (
-    post_id TEXT REFERENCES posts(id),
-    path TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS posts_status (
-    post_id TEXT REFERENCES posts(id),
-    status_enum INTEGER,
-    users_ids BLOB
-);
-
-CREATE TABLE IF NOT EXISTS comments(
-    user_id TEXT REFERENCES users(id),
-    post_id TEXT REFERENCES posts(id),
-    content TEXT NOT NULL,
-    image_path TEXT NOT NULL,
-    timestamp DATETIME NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS chats(
-    sender_id TEXT REFERENCES users(id),
-    recipient_id TEXT REFERENCES users(id),
-    content TEXT NOT NULL,
-    timestamp DATETIME NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS follow_records(
-    user_id TEXT REFERENCES users(id),
-    follower_id TEXT REFERENCES users(id)
-);
-
-CREATE TABLE IF NOT EXISTS likes_records(
-    user_id TEXT REFERENCES users(id),
-    post_id TEXT REFERENCES posts(id)
-);
-
-CREATE TABLE IF NOT EXISTS groups(
-    id TEXT NOT NULL PRIMARY KEY,
-    name TEXT UNIQUE,
-    description TEXT NOT NULL,
-    timestamp DATETIME NOT NULL
-);
-
-INSERT INTO groups VALUES(
-    '00000000',
-    'Global',
-    'Global group',
-    date('now')
-);
-
 
 INSERT INTO users (id, nickname, email, password, first_name, last_name, date_of_birth, image_path, about_me, private, timestamp) VALUES ('8d1dfeb4-ae24-4979-a8d0-ba86f744dc39', 'lfyfield0', 'lfyfield0@usatoday.com', '$2a$04$lskrAzvQZPeenKMm5PfGUuuJEbl/.acme4au0BmYzRRInqPb0k3Cm', 'Lisa', 'Fyfield', '10/14/2024', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJ/SURBVDjLbVJBaxNBGH2bpEkTmxi1NTRKTZtoQUHEWz0Igj2I4kG9eVNQhEBO7bEHc+yv8JAiHnr2B4gFqVrQRhObljQolBSTJqZJdnZmfbNr2rU68DEz33zfm/fejGHbNrxjaWlpRCk1J6WcYZxkgPGTsWJZ1mIul/vlrTe8AIVC4Qqbl5PJ5GQsFoPP5wP36PV6qNfr2OIg0L35+fm1fwDYPMLDj+l0OmOaJmq1Gjqdjr4dgUAAiUTCqSsWixvMXV5YWOjqvW+AxOSz8fHxjBAC5XJ5s91up7gO6tDrUqn0QwOTXYZSsoO+wGDB5EwkEkGlUgGb7mSz2apHajWfz9+sVqvFVCrl1P4PYExr5m16vYUjQ+c0O11DtmN/ebD95pG9UpnGzl7Y0Xz30ir8toAtLdiWG0JIvFi76piaGG7g9plVTD/5YLgMCPLg/g0YtMTwhznfApRBfsP6kAYJSKuN57Md5oXTsvHy7aEEfZMutHZfIRAahWGMsHAICMeZVsD+HmTrG8zudyhrH+HJLGyz7wEgRSh9k4nm+nvqPIb4xWuovV5k/2lMXJ9F8+s6ARqIpk6QsIQtTC+AcGTYpBqfvgBfcJTuKMi+xKfdMCZgIp6eRK8TYu2+w2oA4PwDm+5qVK218XmNLN7xxILqKfS7pGqTWekLmuVtV65STs8hA73RqJQQP5+CP3KKACamHj7FlGBDawfH00kEW0MuA8o9AmA6qMrSHqwTIAoM08hAkHkN0ES3UYfotBGdiNFu5cr2AmgJobOPET7nhxEMuU/o40soSjO7iHbbVNgnUen6pY0/AOCTbC7PuV44H0f8Cetg5g9zP5aU7loDcfwGcrKyzYdvwUUAAAAASUVORK5CYII=', 'Self-enabling bifurcated artificial intelligence', true, '2024-05-03 05:21:51');
 INSERT INTO users (id, nickname, email, password, first_name, last_name, date_of_birth, image_path, about_me, private, timestamp) VALUES ('d81c3cba-33b3-4142-b212-cbf29abfcfbb', 'prubinow1', 'prubinow1@diigo.com', '$2a$04$rBVNPPkkGRd2kVa8DZc2metpPaHvBAktDRn6jhpCkFqRL1ztexzJC', 'Portia', 'Rubinow', '01/24/2024', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADvSURBVDjLY/z//z8DJYCJgUIwxAwImOWx22uSExvZBvz68cvm5/dfV5HFGEGxUHoiExwVf//8Zfjz+w/D719/GH79/A3UAMK/GH4CMYiWFJJk+PXrN8PN27cunWq/oA/SwwIzyUrYluHvP6AB//7A8e+/f4H4N8Pvf0D8Fyb2h+HLl696WllqJ69Nu2XOArMZpBCuGajoN1jxbwT9FyH36/dvkCt/w10Acvb+h3uxOhvoZzCbi4OLQVJSiuH1q9cMt2/cvXB7zj0beBgQAwwKtS2AFuwH2vwIqFmd5Fi40H/1BFDzQaBrdTFiYYTnBQAI58A33Wys0AAAAABJRU5ErkJggg==', 'Focused static application', true, '2024-09-24 23:49:43');

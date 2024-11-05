@@ -5,13 +5,11 @@ type QueryParams = {
     offset: number;
 };
 
-export default function useQueryParams(defaultValue?: QueryParams) {
-    const [params, setParams] = useState<QueryParams>(
-        defaultValue ?? {
-            limit: 20,
-            offset: 0,
-        }
-    );
+export default function useQueryParams(limit?: number) {
+    const [params, setParams] = useState<QueryParams>({
+        limit: limit ?? 20,
+        offset: 0,
+    });
 
     const next = () =>
         setParams({ ...params, offset: params.offset + params.limit });
@@ -21,11 +19,16 @@ export default function useQueryParams(defaultValue?: QueryParams) {
             setParams({ ...params, offset: params.offset - params.limit });
     };
 
+    const nextWithFunc = (fn: () => boolean) => {
+        if (fn()) next();
+    };
+
     return {
         limit: params.limit,
         offset: params.offset,
         setParams,
         next,
         previous,
+        nextWithFunc,
     };
 }
