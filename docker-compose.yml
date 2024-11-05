@@ -1,18 +1,19 @@
 services:
     backend:
         build:
-            context: .
-            dockerfile: Dockerfile.golang
+            context: ./backend
+            dockerfile: Dockerfile
         ports:
             - "3001:3001"
         networks:
             - my_network
+
     frontend:
         build:
-            context: .
-            dockerfile: Dockerfile.next
+            context: ./frontend
+            dockerfile: Dockerfile
             args:
-                API_URL: http://backend:3001
+                NEXT_PUBLIC_API_URL: http://backend:3001
 
         ports:
             - "3000:3000"
