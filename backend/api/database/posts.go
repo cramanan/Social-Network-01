@@ -3,8 +3,6 @@ package database
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -19,7 +17,7 @@ import (
 // `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/models/posts.go).
 //
 // This method return a Post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostRequest) (err error) {
+func (store *SQLite3Store) CreatePost(ctx context.Context, req models.Post) (err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err
@@ -31,42 +29,18 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 		return err
 	}
 
-	marshalSelectedUsers, err := json.Marshal(req.SelectedUsers)
-	if err != nil {
-		return err
+	if req.GroupId == "" {
+		req.GroupId = "00000000"
 	}
 
-	if req.Status != models.ENUM_ALMOST_PRIVATE {
-		marshalSelectedUsers = nil
-	} else {
-		var exists bool
-		for _, userid := range req.SelectedUsers {
-			err = tx.QueryRowContext(ctx, `SELECT EXISTS(
-				SELECT 1 FROM users WHERE id = ?
-			);`, userid).Scan(&exists)
-			if err != nil {
-				return err
-			}
-
-			if !exists {
-				return fmt.Errorf("user with id: %s do not exist", userid)
-			}
-		}
-	}
-
-	_, err = tx.ExecContext(ctx, `
-		INSERT INTO posts VALUES(?, ?, COALESCE(?, "00000000"), ?, ?);
-		INSERT INTO posts_status VALUES(?, ?, ?);`,
-
+	_, err = tx.ExecContext(ctx, "INSERT INTO posts VALUES(?, ?, ?, ?, ?);",
 		id.String(),
 		req.UserId,
-		req.GroupName,
+		req.GroupId,
 		req.Content,
 		time.Now(),
 
 		id.String(),
-		req.Status,
-		marshalSelectedUsers,
 	)
 	if err != nil {
 		return err

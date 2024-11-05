@@ -26,10 +26,11 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 	if err != nil {
 		return err
 	}
-	req := new(models.PostRequest)
+
+	req := models.Post{}
 
 	content, ok := request.MultipartForm.Value["content"]
-	if !ok || content == nil {
+	if !ok || len(content) < 1 {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
 				http.StatusBadRequest,
@@ -87,7 +88,7 @@ func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err 
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
-	// sess, err := server.Sessions.GetSession(request)
+	// _, err = server.Sessions.GetSession(request)
 	// if err != nil {
 	// 	return err
 	// }
