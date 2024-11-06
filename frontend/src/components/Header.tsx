@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ProfileCircle } from "./icons/ProfileCircle";
 import SearchBar from "./SearchBar";
-import MobileNav from "./mobile/MobileNav";
+import MobileNav from "./MobileNav";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {

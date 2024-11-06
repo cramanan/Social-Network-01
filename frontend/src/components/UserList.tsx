@@ -7,9 +7,19 @@ export default function UserList() {
         <>
             <div
                 id="userList"
-                className="w-60 h-fit bg-white bg-opacity-40 rounded-3xl py-3"
+                className="flex flex-col w-full h-[calc(100vh-111px)] xl:w-60 xl:h-fit xl:bg-white/40 xl:rounded-3xl xl:py-3"
             >
-                <div className="flex flex-col gap-3 mx-5">
+                <h2 className="text-4xl text-white text-center py-5 xl:sr-only">Friend List</h2>
+
+                <div className="flex flex-col items-center gap-3 mx-5 overflow-scroll no-scrollbar xl:h-[75vh]">
+                    <Users />
+                    <Users />
+                    <Users />
+                    <Users />
+                    <Users />
+                    <Users />
+                    <Users />
+                    <Users />
                     <Users />
                     <Users />
                     <Users />

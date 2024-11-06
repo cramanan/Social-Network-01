@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import SearchBar from "../SearchBar";
-import { GroupsIcon } from "../icons/GroupsIcon";
-import { BookmarkIcon } from "../icons/BookmarkIcon";
-import { SettingIcon } from "../icons/SettingIcon";
+import SearchBar from "./SearchBar";
+import { GroupsIcon } from "./icons/GroupsIcon";
+import { BookmarkIcon } from "./icons/BookmarkIcon";
+import { SettingIcon } from "./icons/SettingIcon";
 
 const MobileNav = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -29,18 +29,21 @@ const MobileNav = () => {
             >
                 <ul className="flex flex-col relative w-full h-full mt-14">
                     <li className="w-full flex justify-center border-b border-black p-2"><SearchBar id={"mobile-search-nav"} /></li>
+
                     <li className="border-b border-black p-2">
                         <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
                             <GroupsIcon />
                             <span className="font-bold text-white font-['Inter'] text-2xl">Group</span>
                         </a>
                     </li>
+
                     <li className="border-b border-black p-2">
                         <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
                             <BookmarkIcon />
                             <span className="font-bold text-white font-['Inter'] text-2xl">Bookmark</span>
                         </a>
                     </li>
+
                     <li className="border-b border-black p-2">
                         <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
                             <SettingIcon />

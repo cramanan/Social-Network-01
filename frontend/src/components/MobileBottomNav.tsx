@@ -1,9 +1,9 @@
 'use client'
 
-import { HomeIcon } from "../icons/HomeIcon"
-import { FindUserIcon } from "../icons/FindUserIcon"
-import { UserListIcon } from "../icons/UserListIcon"
-import ChatIcon from "../icons/ChatIcon"
+import { HomeIcon } from "./icons/HomeIcon"
+import { FindUserIcon } from "./icons/FindUserIcon"
+import { UserListIcon } from "./icons/UserListIcon"
+import ChatIcon from "./icons/ChatIcon"
 
 const MobileBottomNav = () => {
     return (
@@ -16,16 +16,19 @@ const MobileBottomNav = () => {
                                 <span className="sr-only">Home</span><HomeIcon />
                             </a>
                         </li>
+
                         <li>
                             <a href="/FriendList">
                                 <span className="sr-only">UserList</span><UserListIcon />
                             </a>
                         </li>
+
                         <li>
                             <button>
                                 <span className="sr-only">FindUser</span><FindUserIcon />
                             </button>
                         </li>
+
                         <li>
                             <button>
                                 <span className="sr-only">Chat</span><ChatIcon />
