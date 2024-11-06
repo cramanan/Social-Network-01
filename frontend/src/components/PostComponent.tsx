@@ -23,11 +23,11 @@ const PostComponent = ({ post }: { post: Post }) => {
                         <div className="flex flex-col">
                             <Link
                                 href={`/user/${post.userId}`}
-                                className="h-[21px] text-black text-xl font-semibold font-['Inter']"
+                                className="text-black text-xl font-semibold font-['Inter']"
                             >
                                 {post.username}
                             </Link>
-                            <span className="h-[29px] text-black/50 text-base font-extralight font-['Inter']">
+                            <span className="text-black/50 text-base font-extralight font-['Inter']">
                                 {formatDate(post.timestamp)}
                             </span>
                         </div>

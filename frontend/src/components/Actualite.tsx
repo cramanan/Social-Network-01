@@ -32,8 +32,8 @@ const Actualite = () => {
 
     return (
         <>
-            <div className="flex flex-col absolute left-1/2 -translate-x-1/2 xl:mt-3 items-center w-screen h-[calc(100vh-128px)] xl:bg-white/25 z-10 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-60px)]">
-                <div className="shadow-xl w-full mb-10 ">
+            <div className="flex flex-col absolute left-1/2 -translate-x-1/2 xl:mt-3 items-center w-screen h-[calc(100vh-130px)] xl:bg-white/25 z-10 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-60px)]">
+                <div className="shadow-xl w-full mb-5 ">
                     <nav
                         className="flex flex-wrap items-center justify-center sm:flex-row sm:justify-between"
                         aria-label="post filter"
@@ -62,14 +62,14 @@ const Actualite = () => {
                 </div>
 
                 <section
-                    className="flex flex-col gap-3 mx-3 overflow-scroll no-scrollbar"
+                    className="flex flex-col w-full h-[77vh] gap-3 px-5 overflow-scroll no-scrollbar"
                     aria-label="Posts"
                 >
                     {posts.map((post, idx) => (
                         <PostComponent post={post} key={idx} />
                     ))}
                 </section>
-                <div className="flex">
+                <div className="flex gap-5 pt-2">
                     <button onClick={previous}>
                         <CloseSideMenuIcon />
                     </button>

@@ -19,7 +19,7 @@ const ProfileBanner = ({
                 src={image}
                 className="w-36 h-36 z-10 bg-white rounded-full -m-8"
             />
-            <div className="w-[440px] h-15 bg-white rounded-r-[30px] flex flex-col justify-between py-1 pl-10">
+            <div className="flex flex-col min-w-[28vw] h-16 bg-white rounded-r-[30px] justify-between py-1 pl-10">
                 <div className="text-black text-2xl font-semibold font-['Inter']">
                     {firstName}
                 </div>

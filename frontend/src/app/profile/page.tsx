@@ -15,13 +15,16 @@ export default function Profile() {
 
     return (
         <HomeProfileLayout>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col w-full items-center gap-2">
                 <ProfileBanner
                     id={user.id}
                     firstName={user.firstName}
                     image={user.image}
                 />
-                <ProfileStats userId={user.id} />
+
+                <div className="flex translate-x-14 -translate-y-10">
+                    <ProfileStats userId={user.id} />
+                </div>
             </div>
         </HomeProfileLayout>
     );

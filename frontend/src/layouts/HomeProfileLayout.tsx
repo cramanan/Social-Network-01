@@ -19,9 +19,9 @@ const HomeProfileLayout: React.FC<Props> = ({ children }) => {
                 </div>
 
                 <main className="flex flex-grow">
-                    {/* <div className="absolute left-1/2 -translate-x-1/2 xl:mt-3"> */}
-                    {children}
-                    {/* </div> */}
+                    <div className="absolute left-1/2 -translate-x-1/2 xl:mt-3">
+                        {children}
+                    </div>
                 </main>
 
                 <div className="hidden right-0 xl:flex xl:mt-3">
