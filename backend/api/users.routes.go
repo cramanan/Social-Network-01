@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"net/mail"
 
@@ -181,6 +180,11 @@ func (server *API) Auth(writer http.ResponseWriter, request *http.Request) (err 
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
 	switch request.Method {
 	case http.MethodGet:
 		s, err := server.Sessions.GetSession(request)
@@ -198,21 +202,36 @@ func (server *API) Auth(writer http.ResponseWriter, request *http.Request) (err 
 
 		user := types.User{}
 
+		data := request.MultipartForm.Value["data"]
+		if len(data) != 1 {
+			return fmt.Errorf("invalid number of datas")
+		}
+
+		err = json.Unmarshal([]byte(data[0]), &user)
+		if err != nil {
+			return err
+		}
+
 		imgs, err := MultiPartFiles(request)
 		if err != nil {
 			return err
 		}
 
+		//TODO: DELETE old profile picture
+
 		if len(imgs) > 0 {
 			user.ImagePath = imgs[0]
+		} else {
+			user.ImagePath = ""
 		}
 
-		for key, value := range request.MultipartForm.Value {
-			log.Println(key, value)
+		modified, err := server.Storage.UpdateUser(ctx, sess.User.Id, user)
+		if err != nil {
+			return err
 		}
+		sess.User = *modified
 
-		return fmt.Errorf("todo")
-		// return server.Storage.UpdateUser(ctx, request.PathValue("userid"), user)
+		return writeJSON(writer, http.StatusOK, modified)
 
 	case http.MethodDelete:
 		sess, err := server.Sessions.GetSession(request)

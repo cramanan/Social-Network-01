@@ -307,34 +307,41 @@ func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (sta
 	return stats, tx.Commit()
 }
 
-func (store *SQLite3Store) UpdateUser(ctx context.Context, id string, value types.User) (err error) {
+func (store *SQLite3Store) UpdateUser(ctx context.Context, id string, value types.User) (modified *types.User, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
-		return
+		return nil, err
 	}
-	defer tx.Rollback()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
 
 	var original types.User
-
+	dummy := make([]byte, 0)
+	// Retrieve the original user
 	err = tx.QueryRow(`
-	SELECT 
-		nickname,
-		first_name,
-		last_name,
-		image_path,
-		about_me,
-		is_private
+	SELECT *
 	FROM users
 	WHERE id = ?;`, id).Scan(
+		&original.Id,
 		&original.Nickname,
+		&original.Email,
+		&dummy,
 		&original.FirstName,
 		&original.LastName,
+		&original.DateOfBirth,
 		&original.ImagePath,
 		&original.AboutMe,
 		&original.IsPrivate,
+		&original.Timestamp,
 	)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("user with id %s not found", id)
+	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ValidString := func(value string) bool {
@@ -344,46 +351,64 @@ func (store *SQLite3Store) UpdateUser(ctx context.Context, id string, value type
 	queryParts := make([]string, 0, 6)
 	args := make([]any, 0, 6)
 
+	// Collect updated fields
 	if ValidString(value.Nickname) && value.Nickname != original.Nickname {
 		queryParts = append(queryParts, "nickname = ?")
-		args = append(args, &value.Nickname)
+		args = append(args, value.Nickname)
+		original.Nickname = value.Nickname
 	}
 
 	if ValidString(value.FirstName) && value.FirstName != original.FirstName {
 		queryParts = append(queryParts, "first_name = ?")
-		args = append(args, &value.FirstName)
+		args = append(args, value.FirstName)
+		original.FirstName = value.FirstName
+
 	}
 
 	if ValidString(value.LastName) && value.LastName != original.LastName {
 		queryParts = append(queryParts, "last_name = ?")
-		args = append(args, &value.LastName)
+		args = append(args, value.LastName)
+		original.LastName = value.LastName
+
 	}
 
 	if ValidString(value.ImagePath) && value.ImagePath != original.ImagePath {
 		queryParts = append(queryParts, "image_path = ?")
-		args = append(args, &value.ImagePath)
+		args = append(args, value.ImagePath)
+		original.ImagePath = value.ImagePath
 	}
 
 	if value.AboutMe != original.AboutMe {
 		queryParts = append(queryParts, "about_me = ?")
-		args = append(args, &value.AboutMe)
+		args = append(args, value.AboutMe)
+		original.AboutMe = value.AboutMe
+
 	}
 
 	if value.IsPrivate != original.IsPrivate {
 		queryParts = append(queryParts, "is_private = ?")
-		args = append(args, &value.IsPrivate)
+		args = append(args, value.IsPrivate)
+		original.IsPrivate = value.IsPrivate
 	}
 
 	if len(queryParts) == 0 {
-		return nil // No changes to update
+		return &original, nil // Return the original user if no changes were made
 	}
 
+	// Prepare the update query
 	query := fmt.Sprintf("UPDATE users SET %s WHERE id = ?", strings.Join(queryParts, ","))
 	args = append(args, id)
+	modified = &original
 
+	// Execute the update
 	if _, err = tx.ExecContext(ctx, query, args...); err != nil {
-		return err
+		return nil, err
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return modified, nil
 }

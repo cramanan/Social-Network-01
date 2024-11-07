@@ -173,7 +173,7 @@ func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
 
 	multipartImages := request.MultipartForm.File["images"]
 
-	filepaths = make([]string, 0, len(multipartImages))
+	filepaths = make([]string, len(multipartImages))
 
 	for idx, fileHeader := range multipartImages {
 		file, err := fileHeader.Open()
@@ -182,7 +182,7 @@ func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
 		}
 		defer file.Close()
 
-		temp, err := os.CreateTemp("api/images", fmt.Sprintf("/*-%s", fileHeader.Filename))
+		temp, err := os.CreateTemp("api/images", fmt.Sprintf("*-%s", fileHeader.Filename))
 		if err != nil {
 			return nil, err
 		}
@@ -193,7 +193,7 @@ func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
 			return nil, err
 		}
 
-		filepaths[idx] = temp.Name()
+		filepaths[idx] = fmt.Sprintf("/%s", temp.Name())
 	}
 	return filepaths, nil
 }

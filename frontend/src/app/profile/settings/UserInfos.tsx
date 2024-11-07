@@ -32,6 +32,7 @@ export default function UserInfos({
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const body = new FormData(e.currentTarget);
+        body.append("data", JSON.stringify(formState));
         fetch("/api/auth", { method: "PATCH", body });
     };
 
@@ -39,7 +40,7 @@ export default function UserInfos({
         <form className="w-fit flex flex-col" onSubmit={onSubmit}>
             <div className="w-fit relative flex items-center">
                 <label
-                    htmlFor="image"
+                    htmlFor="images"
                     className="h-full w-full flex items-center justify-center absolute"
                 >
                     <svg
@@ -54,8 +55,8 @@ export default function UserInfos({
                 </label>
                 <input
                     type="file"
-                    name="image"
-                    id="image"
+                    name="images"
+                    id="images"
                     onChange={onChange}
                     className="absolute hidden"
                 />
