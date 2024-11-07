@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
 	"net/mail"
 
@@ -189,15 +191,28 @@ func (server *API) Auth(writer http.ResponseWriter, request *http.Request) (err 
 		return writeJSON(writer, http.StatusOK, s.User)
 
 	case http.MethodPatch:
-		//TODO: PARSE MULTIPART FORM
-		user := types.User{}
-
-		err = json.NewDecoder(request.Body).Decode(&user)
+		err = request.ParseMultipartForm(5 * (1 << 20))
 		if err != nil {
 			return err
 		}
 
-		return server.Storage.UpdateUser(ctx, request.PathValue("userid"), user)
+		user := types.User{}
+
+		imgs, err := MultiPartFiles(request)
+		if err != nil {
+			return err
+		}
+
+		if len(imgs) > 0 {
+			user.ImagePath = imgs[0]
+		}
+
+		for key, value := range request.MultipartForm.Value {
+			log.Println(key, value)
+		}
+
+		return fmt.Errorf("todo")
+		// return server.Storage.UpdateUser(ctx, request.PathValue("userid"), user)
 
 	case http.MethodDelete:
 		sess, err := server.Sessions.GetSession(request)

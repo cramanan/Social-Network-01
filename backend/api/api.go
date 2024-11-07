@@ -2,8 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"Social-Network-01/api/database"
@@ -161,4 +163,37 @@ func (server *API) Protected(fn handlerFunc) http.HandlerFunc {
 				})
 		}
 	})
+}
+
+func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
+	err = request.ParseMultipartForm(5 * (1 << 20))
+	if err != nil {
+		return nil, err
+	}
+
+	multipartImages := request.MultipartForm.File["images"]
+
+	filepaths = make([]string, 0, len(multipartImages))
+
+	for idx, fileHeader := range multipartImages {
+		file, err := fileHeader.Open()
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+
+		temp, err := os.CreateTemp("api/images", fmt.Sprintf("/*-%s", fileHeader.Filename))
+		if err != nil {
+			return nil, err
+		}
+		defer temp.Close()
+
+		_, err = temp.ReadFrom(file)
+		if err != nil {
+			return nil, err
+		}
+
+		filepaths[idx] = temp.Name()
+	}
+	return filepaths, nil
 }

@@ -2,7 +2,6 @@
 
 import ProfileBanner from "@/components/ProfileBanner";
 import ProfileStats from "@/components/ProfileStats";
-import UserInfos from "@/components/UserInfos";
 import { useAuth } from "@/hooks/useAuth";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { redirect } from "next/navigation";
@@ -23,7 +22,6 @@ export default function Profile() {
                     image={user.image}
                 />
                 <ProfileStats userId={user.id} />
-                <UserInfos {...user} />
             </div>
         </HomeProfileLayout>
     );
