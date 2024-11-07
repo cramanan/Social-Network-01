@@ -61,6 +61,8 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.HandleFunc("/api/groups", handleFunc(server.GetGroups))
 	router.HandleFunc("/api/group/{groupname}", handleFunc(server.Group))
 	router.HandleFunc("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
+	router.HandleFunc("/api/create/group", handleFunc(server.CreateGroup))
+
 	// router.HandleFunc("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
 
 	router.HandleFunc("/api/post", handleFunc(server.CreatePost))
@@ -82,6 +84,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	server.WebSocket.Users = make(map[string]*websocket.SocketConn)
 	router.HandleFunc("/api/socket", server.Socket)
 	router.HandleFunc("/api/online", handleFunc(server.GetOnlineUsers))
+	router.HandleFunc("/api/friend-list", handleFunc(server.GetUserFriendList))
 
 	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
 
@@ -166,11 +169,6 @@ func (server *API) Protected(fn handlerFunc) http.HandlerFunc {
 }
 
 func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
-	err = request.ParseMultipartForm(5 * (1 << 20))
-	if err != nil {
-		return nil, err
-	}
-
 	multipartImages := request.MultipartForm.File["images"]
 
 	filepaths = make([]string, len(multipartImages))

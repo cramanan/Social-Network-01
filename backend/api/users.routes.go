@@ -302,3 +302,26 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 
 	return writeJSON(writer, http.StatusOK, onlineUsers)
 }
+
+func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	users, err := server.Storage.GetUserFriendList(context.TODO(), sess.User.Id, limit, offset)
+	if err != nil {
+		return err
+	}
+
+	onlineUsers := make([]types.OnlineUser, len(users))
+
+	for idx, user := range users {
+		onlineUsers[idx] = types.OnlineUser{User: user}
+		_, onlineUsers[idx].Online = server.WebSocket.Users[user.Id]
+	}
+
+	return nil
+}

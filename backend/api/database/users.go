@@ -412,3 +412,52 @@ func (store *SQLite3Store) UpdateUser(ctx context.Context, id string, value type
 
 	return modified, nil
 }
+
+func (store *SQLite3Store) GetUserFriendList(ctx context.Context, userId string, limit, offset int) (users []*types.User, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := tx.QueryContext(ctx, `
+	SELECT 
+		u.id,
+		u.nickname,
+		u.email,
+		u.first_name,
+		u.last_name,
+		u.date_of_birth
+		u.image_path,
+		u.about_me,
+		u.is_private,
+		u.timestamp
+	FROM users u 
+	JOIN followers_record f
+	ON u.id = f.follower_id
+	WHERE u.id = ?;`, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		user := new(types.User)
+		err = rows.Scan(
+			&user.Id,
+			&user.Nickname,
+			&user.Email,
+			&user.FirstName,
+			&user.LastName,
+			&user.DateOfBirth,
+			&user.ImagePath,
+			&user.AboutMe,
+			&user.IsPrivate,
+			&user.Timestamp,
+		)
+		if err != nil {
+			continue
+		}
+
+		users = append(users, user)
+	}
+	return
+}

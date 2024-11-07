@@ -66,16 +66,21 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (ne
 	newgroup.Timestamp = time.Now().UTC()
 
 	_, err = store.ExecContext(ctx,
-		`INSERT INTO groups VALUES (?,?,?,?)`,
+		`INSERT INTO groups VALUES (?,?,?,?,?)`,
 		newgroup.Id,
 		newgroup.Name,
 		newgroup.Description,
+		"https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
 		newgroup.Timestamp)
 	if err != nil {
 		return
 	}
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
 
-	return newgroup, tx.Commit()
+	return newgroup, nil
 }
 
 func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (groups []*types.Group, err error) {
@@ -92,7 +97,7 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 
 	for rows.Next() {
 		group := new(types.Group)
-		err = rows.Scan(&group.Id, &group.Name, &group.Description, &group.Timestamp)
+		err = rows.Scan(&group.Id, &group.Name, &group.Description, &group.Image, &group.Timestamp)
 		if err != nil {
 			log.Println(err)
 			continue
