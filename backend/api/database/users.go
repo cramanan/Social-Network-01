@@ -3,10 +3,12 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -15,10 +17,10 @@ import (
 // Perform the action of registering one user in the database.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `req` is a RegisterRequest (see ./api/models/users.go) and is create from a form data after posting.
+// `ctx` is the context of the request. `req` is a RegisterRequest (see ./api/types/users.go) and is create from a form data after posting.
 //
-// This method return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.RegisterRequest) (user models.User, err error) {
+// This method return a user (see ./api/types/users.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) RegisterUser(ctx context.Context, req *types.RegisterRequest) (user types.User, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -76,10 +78,10 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *models.Registe
 // Perform the action of logging one user.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `req` is a LoginRequest (see ./api/models/users.go) and is create from a form data after posting.
+// `ctx` is the context of the request. `req` is a LoginRequest (see ./api/types/users.go) and is create from a form data after posting.
 //
-// This method return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest) (user models.User, err error) {
+// This method return a user (see ./api/types/users.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) LogUser(ctx context.Context, req *types.LoginRequest) (user types.User, err error) {
 	row := store.QueryRowContext(ctx, "SELECT * FROM users WHERE email = ?;", req.Email)
 	comp := []byte{}
 
@@ -93,7 +95,7 @@ func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest
 		&user.DateOfBirth,
 		&user.ImagePath,
 		&user.AboutMe,
-		&user.Private,
+		&user.IsPrivate,
 		&user.Timestamp,
 	)
 	if err != nil {
@@ -109,15 +111,15 @@ func (store *SQLite3Store) LogUser(ctx context.Context, req *models.LoginRequest
 // `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue or
 // in the sessions field of the API structure.
 //
-// This method return a user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *models.User, err error) {
+// This method return a user (see ./api/types/users.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *types.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
 
-	user = new(models.User)
+	user = new(types.User)
 	err = store.QueryRowContext(ctx, `SELECT 
 		id,
 		nickname,
@@ -127,7 +129,7 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 		date_of_birth,
 		image_path,
 		about_me,
-		private,
+		is_private,
 		timestamp
 
 		FROM users WHERE id = ?;`, userId).Scan(
@@ -140,7 +142,7 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *mo
 		&user.DateOfBirth,
 		&user.ImagePath,
 		&user.AboutMe,
-		&user.Private,
+		&user.IsPrivate,
 		&user.Timestamp,
 	)
 	if err != nil {
@@ -177,8 +179,8 @@ func (store *SQLite3Store) DeleteUser(ctx context.Context, userId string) error 
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `id` is the corresponding user in the database and is usualy find in the request pathvalue.
 //
-// This method return an array of users (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, limit, offset int) (users []*models.User, err error) {
+// This method return an array of users (see ./api/types/users.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, limit, offset int) (users []*types.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return
@@ -214,7 +216,7 @@ func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, 
 	}
 
 	for rows.Next() {
-		user := new(models.User)
+		user := new(types.User)
 		err = rows.Scan(
 			&user.Id,
 			&user.Nickname,
@@ -237,8 +239,8 @@ func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, 
 // `ctx` is the context of the request. `userId` is the corresponding user in the database and is usualy find in the request pathvalue.
 // `limit` and `offset` can be retrieve with the parseRequestLimitAndOffset method using the request.
 //
-// This method return an array of user (see ./api/models/users.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string, limit, offset int) (users []models.User, err error) {
+// This method return an array of user (see ./api/types/users.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string, limit, offset int) (users []types.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -257,7 +259,7 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 	}
 
 	for rows.Next() {
-		user := models.User{}
+		user := types.User{}
 		err = rows.Scan(
 			&user.Id,
 			&user.Nickname,
@@ -267,7 +269,7 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 			&user.DateOfBirth,
 			&user.ImagePath,
 			&user.AboutMe,
-			&user.Private,
+			&user.IsPrivate,
 			&user.Timestamp,
 		)
 		if err != nil {
@@ -279,7 +281,7 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 	return users, nil
 }
 
-func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (stats models.UserStats, err error) {
+func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (stats types.UserStats, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return
@@ -303,4 +305,85 @@ func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (sta
 
 	stats.Id = userId
 	return stats, tx.Commit()
+}
+
+func (store *SQLite3Store) UpdateUser(ctx context.Context, id string, value types.User) (err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	var original types.User
+
+	err = tx.QueryRow(`
+	SELECT 
+		nickname,
+		first_name,
+		last_name,
+		image_path,
+		about_me,
+		is_private
+	FROM users
+	WHERE id = ?;`, id).Scan(
+		&original.Nickname,
+		&original.FirstName,
+		&original.LastName,
+		&original.ImagePath,
+		&original.AboutMe,
+		&original.IsPrivate,
+	)
+	if err != nil {
+		return err
+	}
+
+	ValidString := func(value string) bool {
+		return strings.TrimSpace(value) != ""
+	}
+
+	queryParts := make([]string, 0, 6)
+	args := make([]any, 0, 6)
+
+	if ValidString(value.Nickname) && value.Nickname != original.Nickname {
+		queryParts = append(queryParts, "nickname = ?")
+		args = append(args, &value.Nickname)
+	}
+
+	if ValidString(value.FirstName) && value.FirstName != original.FirstName {
+		queryParts = append(queryParts, "first_name = ?")
+		args = append(args, &value.FirstName)
+	}
+
+	if ValidString(value.LastName) && value.LastName != original.LastName {
+		queryParts = append(queryParts, "last_name = ?")
+		args = append(args, &value.LastName)
+	}
+
+	if ValidString(value.ImagePath) && value.ImagePath != original.ImagePath {
+		queryParts = append(queryParts, "image_path = ?")
+		args = append(args, &value.ImagePath)
+	}
+
+	if value.AboutMe != original.AboutMe {
+		queryParts = append(queryParts, "about_me = ?")
+		args = append(args, &value.AboutMe)
+	}
+
+	if value.IsPrivate != original.IsPrivate {
+		queryParts = append(queryParts, "is_private = ?")
+		args = append(args, &value.IsPrivate)
+	}
+
+	if len(queryParts) == 0 {
+		return nil // No changes to update
+	}
+
+	query := fmt.Sprintf("UPDATE users SET %s WHERE id = ?", strings.Join(queryParts, ","))
+	args = append(args, id)
+
+	if _, err = tx.ExecContext(ctx, query, args...); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

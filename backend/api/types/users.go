@@ -1,4 +1,4 @@
-package models
+package types
 
 import "time"
 
@@ -11,7 +11,7 @@ type User struct {
 	DateOfBirth time.Time `json:"dateOfBirth"`
 	ImagePath   string    `json:"image"`
 	AboutMe     *string   `json:"aboutMe"`
-	Private     bool      `json:"private"`
+	IsPrivate   bool      `json:"isPrivate"`
 	Timestamp   time.Time `json:"timestamp"`
 }
 

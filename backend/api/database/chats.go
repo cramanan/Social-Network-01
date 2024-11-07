@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
-func (store *SQLite3Store) StoreChat(ctx context.Context, chat models.ServerChat) (err error) {
+func (store *SQLite3Store) StoreChat(ctx context.Context, chat types.ServerChat) (err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err
@@ -35,8 +35,8 @@ func (store *SQLite3Store) StoreChat(ctx context.Context, chat models.ServerChat
 // request pathvalue and in the sessions field of the API structure. `limit` and `offset` can be retrieve with the parseRequestLimitAndOffset
 // method using the request.
 //
-// This method return an array of chat (see ./api/models/chat.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string, limit, offset int) (chats []models.ServerChat, err error) {
+// This method return an array of chat (see ./api/types/chat.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string, limit, offset int) (chats []types.ServerChat, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	defer rows.Close()
 
 	for rows.Next() {
-		chat := models.ServerChat{}
+		chat := types.ServerChat{}
 		err := rows.Scan(&chat.SenderId, &chat.RecipientId, &chat.Content, &chat.Timestamp)
 		if err != nil {
 			fmt.Println(err)
@@ -72,7 +72,7 @@ func (store *SQLite3Store) GetChats(ctx context.Context, user1Id, user2Id string
 	}
 
 	if chats == nil {
-		chats = make([]models.ServerChat, 0)
+		chats = make([]types.ServerChat, 0)
 	}
 
 	return chats, nil

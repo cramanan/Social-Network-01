@@ -80,7 +80,7 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 		return err
 	}
 
-	if user.Private {
+	if user.IsPrivate {
 		return writeJSON(writer, http.StatusUnauthorized, APIerror{
 			http.StatusUnauthorized,
 			"Unauthorized",

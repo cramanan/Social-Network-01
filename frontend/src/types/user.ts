@@ -1,3 +1,5 @@
+import { StrictOmit } from "@/utils/types";
+
 export type User = {
     id: string;
     email: string;
@@ -6,8 +8,10 @@ export type User = {
     lastName: string;
     dateOfBirth: string;
     image: string;
-    aboutMe?: string;
-    private: boolean;
+    aboutMe: string | null;
+    isPrivate: boolean;
 };
 
 export type OnlineUser = User & { online: boolean };
+
+export type EditableUser = StrictOmit<User, "id" | "dateOfBirth" | "email">;

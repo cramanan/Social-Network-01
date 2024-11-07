@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
 // Create a new group in the database.
@@ -26,7 +26,7 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 			})
 	}
 
-	newGroup := new(models.Group)
+	newGroup := new(types.Group)
 	err := json.NewDecoder(request.Body).Decode(newGroup)
 	if err != nil {
 		return writeJSON(writer, http.StatusUnprocessableEntity,

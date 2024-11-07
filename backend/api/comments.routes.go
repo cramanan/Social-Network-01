@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
 // Retrieve all comments of one post from the database.
@@ -97,7 +97,7 @@ func (server *API) Comment(writer http.ResponseWriter, request *http.Request) (e
 			return err
 		}
 
-		comment := models.Comment{
+		comment := types.Comment{
 			UserId:    sess.User.Id,
 			PostId:    postId[0],
 			Content:   contents[0],

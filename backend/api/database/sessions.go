@@ -1,7 +1,7 @@
 package database
 
 import (
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 	"errors"
 	"log"
 	"math/rand"
@@ -60,7 +60,7 @@ func (store *SessionStore) timeoutCycle() {
 // The Session type holds the User informations and it's expiration time
 type Session struct {
 	ID      string
-	User    models.User
+	User    types.User
 	Expires time.Time
 }
 

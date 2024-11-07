@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 	"Social-Network-01/api/websocket"
 )
 
@@ -34,9 +34,9 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	for _, userConn := range server.WebSocket.Users {
 
 		// instantiate a socket message
-		ping := models.SocketMessage[models.OnlineUser]{
+		ping := types.SocketMessage[types.OnlineUser]{
 			Type: "ping",
-			Data: models.OnlineUser{User: &models.User{Id: sess.User.Id}, Online: true},
+			Data: types.OnlineUser{User: &types.User{Id: sess.User.Id}, Online: true},
 		}
 
 		userConn.WriteJSON(ping) // Write to online conn
@@ -50,9 +50,9 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 
 		// instantiate a socket message
 		for _, userConn := range server.WebSocket.Users {
-			ping := models.SocketMessage[models.OnlineUser]{
+			ping := types.SocketMessage[types.OnlineUser]{
 				Type: "ping",
-				Data: models.OnlineUser{User: &models.User{Id: sess.User.Id}, Online: false},
+				Data: types.OnlineUser{User: &types.User{Id: sess.User.Id}, Online: false},
 			}
 
 			userConn.WriteJSON(ping) // Write to online conn
@@ -62,7 +62,7 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	// Keep connection alive
 	for {
 		// Read user message and unmarshal it into rawChat
-		var rawchat models.SocketMessage[models.ClientChat]
+		var rawchat types.SocketMessage[types.ClientChat]
 		err = conn.ReadJSON(&rawchat)
 		if err != nil {
 			log.Println(err)
@@ -80,9 +80,9 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 			}
 
 			// Prepare socket message
-			chat := models.SocketMessage[models.ServerChat]{
+			chat := types.SocketMessage[types.ServerChat]{
 				Type: "message",
-				Data: models.ServerChat{
+				Data: types.ServerChat{
 					SenderId:    sess.User.Id,
 					RecipientId: rawchat.Data.RecipientId,
 					Content:     rawchat.Data.Content,

@@ -9,7 +9,7 @@ import (
 	"net/mail"
 
 	"Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
 // Perform the action of registering one user in the database.
@@ -26,7 +26,7 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 			})
 	}
 
-	registerReq := new(models.RegisterRequest)
+	registerReq := new(types.RegisterRequest)
 	err := json.NewDecoder(request.Body).Decode(registerReq)
 	if err != nil {
 		return writeJSON(writer, http.StatusUnprocessableEntity,
@@ -93,7 +93,7 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 			})
 	}
 
-	loginReq := new(models.LoginRequest)
+	loginReq := new(types.LoginRequest)
 
 	if err := json.NewDecoder(request.Body).Decode(loginReq); err != nil {
 		return writeJSON(writer, http.StatusUnprocessableEntity,
@@ -143,7 +143,7 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 // This method acts as a router for different HTTP methods.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) User(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) User(writer http.ResponseWriter, request *http.Request) (err error) {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
@@ -165,8 +165,41 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 
 		return writeJSON(writer, http.StatusOK, user)
 
-	case http.MethodDelete:
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed,
+			APIerror{
+				http.StatusMethodNotAllowed,
+				"Method Not Allowed",
+				"Method not Allowed",
+			})
+	}
+}
 
+func (server *API) Auth(writer http.ResponseWriter, request *http.Request) (err error) {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	switch request.Method {
+	case http.MethodGet:
+		s, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return writeJSON(writer, http.StatusUnauthorized, "You are unauthorized to access this ressource.")
+		}
+
+		return writeJSON(writer, http.StatusOK, s.User)
+
+	case http.MethodPatch:
+		//TODO: PARSE MULTIPART FORM
+		user := types.User{}
+
+		err = json.NewDecoder(request.Body).Decode(&user)
+		if err != nil {
+			return err
+		}
+
+		return server.Storage.UpdateUser(ctx, request.PathValue("userid"), user)
+
+	case http.MethodDelete:
 		sess, err := server.Sessions.GetSession(request)
 		if err != nil {
 			return err
@@ -187,6 +220,7 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 		}
 
 		return writeJSON(writer, http.StatusNoContent, "")
+
 	default:
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -195,24 +229,6 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) error
 				"Method not Allowed",
 			})
 	}
-}
-
-func (server *API) GetUser(writer http.ResponseWriter, request *http.Request) error {
-	if request.Method != http.MethodGet {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
-	}
-
-	s, err := server.Sessions.GetSession(request)
-	if err != nil {
-		return writeJSON(writer, http.StatusUnauthorized, "You are unauthorized to access this ressource.")
-	}
-
-	return writeJSON(writer, http.StatusOK, s.User)
 }
 
 func (server *API) GetUserStats(writer http.ResponseWriter, request *http.Request) error {
@@ -243,10 +259,10 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 		return err
 	}
 
-	onlineUsers := make([]models.OnlineUser, len(users))
+	onlineUsers := make([]types.OnlineUser, len(users))
 
 	for idx, user := range users {
-		onlineUsers[idx] = models.OnlineUser{User: user}
+		onlineUsers[idx] = types.OnlineUser{User: user}
 		_, onlineUsers[idx].Online = server.WebSocket.Users[user.Id]
 	}
 

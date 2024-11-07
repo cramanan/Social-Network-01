@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	. "Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
 var store *SQLite3Store
@@ -37,12 +37,12 @@ func TestCreateUser(t *testing.T) {
 
 	testCases := []struct {
 		desc        string
-		registerReq *models.RegisterRequest
+		registerReq *types.RegisterRequest
 		ShouldErr   bool
 	}{
 		{
 			desc: "valid register request",
-			registerReq: &models.RegisterRequest{
+			registerReq: &types.RegisterRequest{
 				Nickname:    "nickname",
 				Email:       "email@example.com",
 				Password:    "password",
@@ -54,7 +54,7 @@ func TestCreateUser(t *testing.T) {
 		},
 		{
 			desc: "missing nickname",
-			registerReq: &models.RegisterRequest{
+			registerReq: &types.RegisterRequest{
 				Email:       "email@example.com",
 				Password:    "password",
 				FirstName:   "first",
@@ -65,7 +65,7 @@ func TestCreateUser(t *testing.T) {
 		},
 		{
 			desc: "weak password",
-			registerReq: &models.RegisterRequest{
+			registerReq: &types.RegisterRequest{
 				Nickname:    "nickname",
 				Email:       "email@example.com",
 				Password:    "weak",
@@ -77,7 +77,7 @@ func TestCreateUser(t *testing.T) {
 		},
 		{
 			desc: "invalid date of birth",
-			registerReq: &models.RegisterRequest{
+			registerReq: &types.RegisterRequest{
 				Nickname:    "nickname",
 				Email:       "email@example.com",
 				Password:    "password",

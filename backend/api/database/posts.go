@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 
 	"github.com/gofrs/uuid"
 )
@@ -14,10 +14,10 @@ import (
 // Create a new posts in the database.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/models/posts.go).
+// `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/types/posts.go).
 //
-// This method return a Post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) CreatePost(ctx context.Context, req models.Post) (err error) {
+// This method return a Post (see ./api/types/posts.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) CreatePost(ctx context.Context, req types.Post) (err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err
@@ -65,15 +65,15 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req models.Post) (err
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `postId` is the corresponding id in the database and is usualy find in the request pathvalue.
 //
-// This method return a post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *models.Post, err error) {
+// This method return a post (see ./api/types/posts.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *types.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
 
-	post = new(models.Post)
+	post = new(types.Post)
 
 	err = tx.QueryRowContext(ctx, `
 	SELECT p.*, u.nickname
@@ -98,7 +98,7 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 	return
 }
 
-func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []models.Post, err error) {
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []types.Post, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -118,7 +118,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	}
 
 	for rows.Next() {
-		post := models.Post{}
+		post := types.Post{}
 		err = rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Content, &post.Timestamp, &post.Username)
 		if err != nil {
 			log.Println(err)
@@ -130,7 +130,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	}
 
 	if posts == nil {
-		posts = make([]models.Post, 0)
+		posts = make([]types.Post, 0)
 	}
 
 	return posts, tx.Commit()

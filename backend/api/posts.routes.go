@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
 func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request) (err error) {
@@ -27,7 +27,7 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 		return err
 	}
 
-	req := models.Post{}
+	req := types.Post{}
 
 	content, ok := request.MultipartForm.Value["content"]
 	if !ok || len(content) < 1 {
