@@ -109,7 +109,7 @@ export default function UserInfos({
             <input
                 type="checkbox"
                 id="is-private"
-                defaultValue={`${isPrivate}`}
+                defaultChecked={isPrivate}
                 onChange={(e) =>
                     setFormState({ ...formState, isPrivate: e.target.checked })
                 }
