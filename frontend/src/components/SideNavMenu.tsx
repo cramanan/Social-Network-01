@@ -52,8 +52,7 @@ const SideNavMenu = () => {
                 id="sideNav"
                 className="w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 -translate-x-[182px] duration-300 ease-in-out select-none"
                 aria-label="Side navigation"
-                aria-expanded={isOpen}
-            >
+            > {/* aria-expanded={isOpen} */}
                 <ul className="h-full flex flex-col justify-between">
                     <li className={`flex flex-rowitems-center`}>
                         <button

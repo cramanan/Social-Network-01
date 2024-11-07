@@ -83,8 +83,10 @@ const PostComponent = ({ post }: { post: Post }) => {
                     <Comment />
                     <Comment />
                 </div>
-                <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2 cursor-pointer">
-                    See more
+                <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
+                    <a href="" className="cursor-pointer">
+                        See more
+                    </a>
                 </div>
             </div>
         </>

@@ -3,8 +3,8 @@
 import React, { useState } from 'react'
 import SearchBar from "./SearchBar";
 import { GroupsIcon } from "./icons/GroupsIcon";
-import { BookmarkIcon } from "./icons/BookmarkIcon";
 import { SettingIcon } from "./icons/SettingIcon";
+import { BookmarkMenuIcon } from "./icons/BookmarkMenuIcon";
 
 const MobileNav = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -39,7 +39,7 @@ const MobileNav = () => {
 
                     <li className="border-b border-black p-2">
                         <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
-                            <BookmarkIcon />
+                            <BookmarkMenuIcon />
                             <span className="font-bold text-white font-['Inter'] text-2xl">Bookmark</span>
                         </a>
                     </li>

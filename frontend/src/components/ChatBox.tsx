@@ -8,7 +8,7 @@ const ChatBox = () => {
         <>
             <div
                 id="chatBox"
-                className="w-full h-full relative bg-[#fbfbfb] rounded-[25px] flex flex-col xl:w-[343px] xl:h-[642px]"
+                className="w-full h-[calc(100vh-120px)] relative bg-[#fbfbfb] rounded-[25px] flex flex-col xl:w-[343px] xl:h-[642px]"
             >
                 <div className="w-full h-[50px] relative bg-[#445ab3]/20 rounded-tl-[25px] rounded-t-[25px] border-b border-black flex flex-row items-center p-2 xl:w-[343px]">
                     <BackIcon />

@@ -30,9 +30,9 @@ const MobileBottomNav = () => {
                         </li>
 
                         <li>
-                            <button>
+                            <a href="/chats">
                                 <span className="sr-only">Chat</span><ChatIcon />
-                            </button>
+                            </a>
                         </li>
                     </ul>
                 </nav>

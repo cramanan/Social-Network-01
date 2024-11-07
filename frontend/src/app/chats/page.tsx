@@ -1,7 +1,9 @@
 "use client";
 
+import UserList from "@/components/UserList";
 import useQueryParams from "@/hooks/useQueryParams";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { SocketMessage } from "@/types/chat";
 import { OnlineUser } from "@/types/user";
 import Image from "next/image";
@@ -61,37 +63,41 @@ export default function Page() {
 
     return (
         <>
-            <div>
-                {users.map((user, idx) => (
-                    <Link
-                        key={idx}
-                        href={`/chats/${user.id}`}
-                        className="flex items-center gap-2"
-                    >
-                        <div className="relative">
-                            <span
-                                className={`h-3 w-3 block absolute bottom-0 right-0 rounded-full bg-${
-                                    user.online ? "green" : "red"
-                                }-500 z-10`}
-                            />
-                            <Image
-                                src={user.image}
-                                width={40}
-                                height={40}
-                                alt=""
-                            />
-                            {user.online}
-                        </div>
-                        <span>{user.nickname}</span>
-                    </Link>
-                ))}
-            </div>
-            <button className="w-fit" onClick={next}>
-                next
-            </button>
-            <button className="w-fit" onClick={previous}>
-                previous
-            </button>
+            <HomeProfileLayout>
+                <UserList />
+                {/* <div>
+                    {users.map((user, idx) => (
+                        <Link
+                            key={idx}
+                            href={`/chats/${user.id}`}
+                            className="flex items-center gap-2"
+                        >
+                            <div className="relative">
+                                <span
+                                    className={`h-3 w-3 block absolute bottom-0 right-0 rounded-full bg-${user.online ? "green" : "red"
+                                        }-500 z-10`}
+                                />
+                                <Image
+                                    src={user.image}
+                                    width={40}
+                                    height={40}
+                                    alt=""
+                                />
+                                {user.online}
+                            </div>
+                            <span>{user.nickname}</span>
+                        </Link>
+                    ))}
+                </div> */}
+                {/* <div className="w-full h-10 flex flex-row justify-center gap-10">
+                    <button className="w-fit" onClick={next}>
+                        next
+                    </button>
+                    <button className="w-fit" onClick={previous}>
+                        previous
+                    </button>
+                </div> */}
+            </HomeProfileLayout>
         </>
     );
 }
