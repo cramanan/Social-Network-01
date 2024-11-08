@@ -1,34 +1,134 @@
-import React from "react";
+'use client'
+import React, { useEffect, useState } from "react";
 import { BackIcon } from "./icons/BackIcon";
 import { SendIcon } from "./icons/SendIcon";
 import { EmoteIcon } from "./icons/EmoteIcon";
+import { OnlineUser, User } from "@/types/user";
+import Link from "next/link";
+import { ClientChat, ServerChat, SocketMessage } from "@/types/chat";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import useIsMobile from "@/hooks/useIsMobile";
 
-const ChatBox = () => {
+interface ChatBoxProps {
+    user: OnlineUser;
+    onClose: () => void;
+    recipient: User;
+}
+
+const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
+    const isMobile = useIsMobile();
+    // Incoming messages state array
+    const [messages, setMessages] = useState<ServerChat[]>([]);
+
+    // outcoming message state object
+    const [chat, setChat] = useState<ClientChat>({
+        recipientId: recipient.id,
+        content: "",
+    });
+
+    // fetch latest messages
+    useEffect(() => {
+        const fetchMessages = async () => {
+            const response = await fetch(`/api/user/${recipient.id}/chats`);
+            const data = await response.json();
+            setMessages(data);
+        };
+
+        fetchMessages();
+    }, [recipient.id]);
+
+    // retrieve WebSocket from Context
+    const websocket = useWebSocket();
+
+    // Add event listener on mount
+    useEffect(() => {
+        if (!websocket) return;
+
+        const addMessage = (msg: MessageEvent) => {
+            const message = JSON.parse(msg.data) as SocketMessage<ServerChat>;
+            if (message.type !== "message") return;
+
+            setMessages((prev) => [...prev, message.data]);
+        };
+
+        websocket.socket.addEventListener("message", addMessage);
+
+        // Remove event listenet on unmount with a closure function
+        return () =>
+            websocket.socket.removeEventListener("message", addMessage);
+    }, [websocket]);
+
+    // if the socket is somehow null
+    if (!websocket) return <>No socket</>;
     return (
         <>
             <div
                 id="chatBox"
-                className="w-full h-[calc(100vh-120px)] relative bg-[#fbfbfb] rounded-[25px] flex flex-col xl:w-[343px] xl:h-[642px]"
+                className="flex flex-col w-full h-full relative xl:w-[343px] xl:rounded-[25px] xl:h-[642px] xl:translate-x-10 xl:bg-[#fbfbfb]"
             >
-                <div className="w-full h-[50px] relative bg-[#445ab3]/20 rounded-tl-[25px] rounded-t-[25px] border-b border-black flex flex-row items-center p-2 xl:w-[343px]">
-                    <BackIcon />
+                <div className="flex flex-row w-full min-h-14 items-center justify-between border-b border-black px-3 xl:rounded-tl-[25px] xl:rounded-t-[25px] xl:bg-[#445ab3]/20 xl:w-[343px]">
+                    {isMobile ? <Link href={`/chats`} onClick={onClose}>
+                        <BackIcon />
+                    </Link>
+                        :
+                        <button onClick={onClose}>
+                            <BackIcon />
+                        </button>
+                    }
+                    <span>{recipient.nickname}</span>
+                    <span></span>
                 </div>
 
-                <div className="flex flex-col flex-grow overflow-scroll no-scrollbar">
-                    Chat
-                </div>
 
-                <div className="h-[50px] flex flex-row justify-between items-center m-5 bg-[#445ab3]/20 rounded-[25px] p-2">
-                    <div className="flex flex-row gap-2">
-                        <EmoteIcon />
-                        <input
-                            type="text"
-                            placeholder="Enter your message"
-                            className="bg-white/0"
-                        ></input>
-                    </div>
-                    <SendIcon />
-                </div>
+                <ul className="flex flex-col flex-grow px-3 py-2 overflow-scroll no-scrollbar">
+                    {messages.map((msg, index) => {
+                        const isRecipient = msg.recipientId === recipient.id;
+                        const timestamp = new Date(msg.timestamp);
+
+                        return (
+                            <li
+                                key={index}
+                                className={`flex flex-col w-fit ${isRecipient
+                                    ? " self-end items-end"
+                                    : " self-start"
+                                    }`}
+                            >
+                                <p
+                                    className={`p-3 rounded-2xl ${isRecipient
+                                        ? "bg-[#b88ee5] text-black"
+                                        : "bg-[#4174e2] text-white"
+                                        }`}
+                                >
+                                    {msg.content}
+                                </p>
+                                <div>
+                                    {timestamp.toLocaleDateString()},
+                                    {timestamp.toLocaleTimeString()}
+                                </div>
+                            </li>
+                        );
+                    })}
+                </ul>
+
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        websocket.sendChat(chat);
+                        setChat({ ...chat, content: "" });
+                    }}
+                    className="h-[50px] flex flex-row items-center m-5 bg-[#445ab3]/20 rounded-[25px] p-2 gap-2">
+                    <EmoteIcon />
+                    <input
+                        type="text"
+                        placeholder="Enter your message"
+                        onChange={(e) =>
+                            setChat({ ...chat, content: e.target.value })
+                        }
+                        value={chat.content}
+                        className="bg-white/0 w-full placeholder:text-black"
+                    ></input>
+                    <button type="submit"><SendIcon /></button>
+                </form>
             </div>
         </>
     );
