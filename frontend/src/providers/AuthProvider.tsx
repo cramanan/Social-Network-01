@@ -9,13 +9,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     const login = async (email: string, password: string) => {
-        const response = await fetch("/api/login", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify({ email, password }),
-        });
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
+            {
+                headers: { "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({ email, password }),
+            }
+        );
         const data = await response.json();
         setUser(data);
     };
@@ -28,37 +29,41 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         lastName: string,
         dateOfBirth: string
     ) => {
-        const response = await fetch("/api/register", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify({
-                nickname,
-                email,
-                password,
-                firstName,
-                lastName,
-                dateOfBirth,
-            }),
-        });
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/register`,
+            {
+                headers: { "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({
+                    nickname,
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                    dateOfBirth,
+                }),
+            }
+        );
         const data = await response.json();
         setUser(data);
     };
 
     const logout = async () => {
-        await fetch("/api/logout");
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`);
         setUser(null);
+        setLoading(false);
     };
 
     useEffect(() => {
-        const login = async () => {
-            const response = await fetch("/api/auth");
+        const authenticate = async () => {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/auth`
+            );
             const data = await response.json();
             setUser(data);
             setLoading(false);
         };
-        login();
+        authenticate();
     }, []);
 
     return (
