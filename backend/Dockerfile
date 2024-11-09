@@ -8,6 +8,9 @@ COPY go.mod go.sum main.go /app/
 
 RUN go mod download && go build -o backend
 
+# Run the migrations
+RUN ./backend up
+
 # Expose the port
 EXPOSE 3001
 
