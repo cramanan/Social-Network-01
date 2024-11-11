@@ -11,8 +11,7 @@ export default function WebSocketProvider({ children }: Children) {
     );
 
     const sendChat = (chat: ClientChat) => {
-        if (!socket) return;
-        if (socket.readyState !== WebSocket.OPEN) return;
+        if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
         socket.send(JSON.stringify({ type: "message", data: chat }));
     };

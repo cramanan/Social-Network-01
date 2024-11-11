@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/auth`,
+            `${process.env.NEXT_PUBLIC_API_URL}/api/profile`,
             {
                 headers: request.headers,
             }
