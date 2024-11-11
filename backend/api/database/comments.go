@@ -22,7 +22,13 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 	}
 	defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, "SELECT * FROM comments WHERE parent_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ? ;", postId, limit, offset)
+	rows, err := tx.QueryContext(ctx, `
+	SELECT *
+	FROM comments
+	WHERE parent_id = ?
+	ORDER BY timestamp DESC
+	LIMIT ? OFFSET ?;`,
+		postId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +60,7 @@ func (store *SQLite3Store) CreateComment(ctx context.Context, comment types.Comm
 	}
 	defer tx.Rollback()
 
-	_, err = tx.ExecContext(ctx, "INSERT INTO comments VALUES(?, ?, ?, ?, ?);",
+	_, err = tx.ExecContext(ctx, "INSERT INTO comments (user_id, post_id, content, image_path, timestamp) VALUES (?, ?, ?, ?, ?);",
 		comment.UserId,
 		comment.PostId,
 		comment.Content,

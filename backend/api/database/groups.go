@@ -40,7 +40,7 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group 
 // `ctx` is the context of the request. `group` is the corresponding group values (name...).
 //
 // This method return a Group (see ./api/types/groups.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (newgroup *types.Group, err error) {
+func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -50,37 +50,28 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (ne
 	var exists bool
 	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
-		SELECT 1 FROM groups WHERE name = $1
+		SELECT 1 FROM groups WHERE name = ?
 	);`, group.Name).Scan(&exists)
 	if err != nil {
-		return
+		return err
 	}
 	if exists {
-		return nil, ErrConflict
+		return ErrConflict
 	}
 
-	newgroup = new(types.Group)
-	newgroup.Id = generateB64(groupIdLength)
-	newgroup.Name = group.Name
-	newgroup.Description = group.Description
-	newgroup.Timestamp = time.Now().UTC()
+	group.Id = generateB64(groupIdLength)
+	group.Timestamp = time.Now().UTC()
 
 	_, err = store.ExecContext(ctx,
-		`INSERT INTO groups VALUES (?,?,?,?,?)`,
-		newgroup.Id,
-		newgroup.Name,
-		newgroup.Description,
-		"https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
-		newgroup.Timestamp)
+		`INSERT INTO groups (id, name, description, timestamp) VALUES (?, ?, ?, ?);`,
+		group.Id,
+		group.Name,
+		group.Description,
+		group.Timestamp)
 	if err != nil {
 		return
 	}
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
-	}
-
-	return newgroup, nil
+	return tx.Commit()
 }
 
 func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (groups []*types.Group, err error) {
@@ -97,7 +88,12 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 
 	for rows.Next() {
 		group := new(types.Group)
-		err = rows.Scan(&group.Id, &group.Name, &group.Description, &group.Image, &group.Timestamp)
+		err = rows.Scan(
+			&group.Id,
+			&group.Name,
+			&group.Description,
+			&group.Image,
+			&group.Timestamp)
 		if err != nil {
 			log.Println(err)
 			continue

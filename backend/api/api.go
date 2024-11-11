@@ -46,34 +46,36 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("/api/register", handleFunc(server.Register))
-	router.HandleFunc("/api/login", handleFunc(server.Login))
+	router.Handle("/api/register", handleFunc(server.Register))
+	router.Handle("/api/login", handleFunc(server.Login))
 
-	router.HandleFunc("/api/auth", handleFunc(server.Auth))
-	router.HandleFunc("/api/user/{userid}", handleFunc(server.User))
-	router.HandleFunc("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
-	router.HandleFunc("/api/user/{userid}/send-request", handleFunc(server.SendFriendRequest))
-	router.HandleFunc("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest))
-	router.HandleFunc("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
-	// router.HandleFunc("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
-	// router.HandleFunc("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))
+	router.Handle("/api/user/{userid}", handleFunc(server.User))
+	router.Handle("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
+	router.Handle("/api/user/{userid}/send-request", handleFunc(server.SendFriendRequest))
+	router.Handle("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest))
+	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
+	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList))
+	// router.Handle("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
+	// router.Handle("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))
+	router.Handle("/api/profile", handleFunc(server.Profile))
+	router.Handle("/api/profile/posts", handleFunc(server.ProfilePosts))
 
-	router.HandleFunc("/api/groups", handleFunc(server.GetGroups))
-	router.HandleFunc("/api/group/{groupname}", handleFunc(server.Group))
-	router.HandleFunc("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
-	router.HandleFunc("/api/create/group", handleFunc(server.CreateGroup))
+	router.Handle("/api/groups", handleFunc(server.GetGroups))
+	router.Handle("/api/group/{groupname}", handleFunc(server.Group))
+	router.Handle("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
+	router.Handle("/api/create/group", handleFunc(server.CreateGroup))
 
-	// router.HandleFunc("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
+	// router.Handle("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
 
-	router.HandleFunc("/api/post", handleFunc(server.CreatePost))
-	router.HandleFunc("/api/post/{postid}", handleFunc(server.Post))
-	router.HandleFunc("/api/post/{postid}/comment", handleFunc(server.Comment))
-	router.HandleFunc("/api/post/{postid}/like", server.Protected(server.LikePost))
-	// router.HandleFunc("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
+	router.Handle("/api/post", handleFunc(server.CreatePost))
+	router.Handle("/api/post/{postid}", handleFunc(server.Post))
+	router.Handle("/api/post/{postid}/comment", handleFunc(server.Comment))
+	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost))
+	// router.Handle("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
 
-	// router.HandleFunc("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
-	// router.HandleFunc("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
-	// router.HandleFunc("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
+	// router.Handle("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
+	// router.Handle("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
+	// router.Handle("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
 	server.WebSocket.Upgrader = gorilla.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
@@ -83,8 +85,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	server.WebSocket.Users = make(map[string]*websocket.SocketConn)
 	router.HandleFunc("/api/socket", server.Socket)
-	router.HandleFunc("/api/online", handleFunc(server.GetOnlineUsers))
-	router.HandleFunc("/api/friend-list", handleFunc(server.GetUserFriendList))
+	router.Handle("/api/online", handleFunc(server.GetOnlineUsers))
 
 	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
 
@@ -114,8 +115,7 @@ func parseRequestLimitAndOffset(request *http.Request) (limit, offset int) {
 // writeJSON writes the JSON encoding of v to the http.ResponseWriter
 // and sends it with the provided status code as application/json.
 func writeJSON(writer http.ResponseWriter, statusCode int, v any) error {
-	writer.Header().Add("Content-Type", "application/json")
-	writer.Header().Add("Access-Control-Allow-Origin", "*")
+	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(statusCode)
 	return json.NewEncoder(writer).Encode(v)
 }
@@ -125,9 +125,19 @@ func writeJSON(writer http.ResponseWriter, statusCode int, v any) error {
 //	it will use writeJSON to encode the error.
 type handlerFunc func(http.ResponseWriter, *http.Request) error
 
-// api.HandleFunc is the middleware that will change an api.HandlerFunc into a HTTP.HandlerFunc.
+// api.Handle is the middleware that will change an api.HandlerFunc into a HTTP.HandlerFunc.
 func handleFunc(fn handlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// w.Header().Set("Access-Control-Allow-Origin", "*")
+		// w.Header().Set("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, PATCH, OPTIONS")
+		// w.Header().Set("Access-Control-Allow-Headers", "*")
+		// w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// if r.Method == http.MethodOptions {
+		// 	w.WriteHeader(http.StatusOK)
+		// 	return
+		// }
+
 		if err := fn(w, r); err != nil {
 			log.Println(err)
 			writeJSON(w, http.StatusInternalServerError,

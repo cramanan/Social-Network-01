@@ -1,5 +1,5 @@
 // import Actualite from "@/components/Actualite";
-import { FriendListMobile } from "@/components/mobile/FriendListMobile";
+import { NewPost } from "@/components/newPost";
 
 // import Header from "@/components/Header";
 
@@ -23,10 +23,8 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 
 export default function Home() {
     return (
-        <>
-            <HomeProfileLayout>
-                <FriendListMobile />
-            </HomeProfileLayout>
-        </>
+        <HomeProfileLayout>
+            <NewPost />
+        </HomeProfileLayout>
     );
 }

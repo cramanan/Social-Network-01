@@ -138,6 +138,24 @@ func (server *API) LikePost(writer http.ResponseWriter, request *http.Request) (
 	return writeJSON(writer, http.StatusOK, "OK")
 }
 
+func (server *API) ProfilePosts(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	posts, err := server.Storage.GetUserPosts(ctx, sess.User.Id, limit, offset)
+	if err != nil {
+		return err
+	}
+	return writeJSON(writer, http.StatusOK, posts)
+}
+
 // // Retrieve all posts of one user from the database.
 // //
 // // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.

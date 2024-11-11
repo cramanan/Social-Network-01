@@ -176,7 +176,7 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 	}
 }
 
-func (server *API) Auth(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (err error) {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 

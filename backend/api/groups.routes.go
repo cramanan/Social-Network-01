@@ -59,7 +59,7 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 			})
 	}
 
-	group, err := server.Storage.NewGroup(ctx, newGroup)
+	err = server.Storage.NewGroup(ctx, newGroup)
 	if err == database.ErrConflict {
 		return writeJSON(writer, http.StatusConflict, APIerror{
 			http.StatusConflict,
@@ -71,7 +71,7 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 		return err
 	}
 
-	return writeJSON(writer, http.StatusOK, group)
+	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
 // Retrieve the group from the database using its name.

@@ -80,7 +80,8 @@ func (store *SQLite3Store) AcceptFriendRequest(ctx context.Context, userId, foll
 	_, err = tx.ExecContext(ctx, `
 	UPDATE follow_records 
 	SET accepted = TRUE 
-	WHERE user_id = ? and follower_id = ?;`, userId, followerId)
+	WHERE user_id = ? and follower_id = ?;`,
+		userId, followerId)
 	if err != nil {
 		return err
 	}
@@ -102,10 +103,9 @@ func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId 
 	}
 	defer tx.Rollback()
 
-	_, err = store.ExecContext(ctx,
-		`DELETE FROM follow_records
-		WHERE user_id = ? AND follower_id =  ?;`,
-
+	_, err = store.ExecContext(ctx, `
+	DELETE FROM follow_records
+	WHERE user_id = ? AND follower_id = ?;`,
 		userId, followerId)
 	if err != nil {
 		return err

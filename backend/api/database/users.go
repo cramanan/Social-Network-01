@@ -28,7 +28,10 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *types.Register
 	defer tx.Rollback()
 
 	var exists bool
-	err = tx.QueryRowContext(ctx, "SELECT EXISTS (SELECT 1 FROM users WHERE email = $1);", req.Email).Scan(&exists)
+	err = tx.QueryRowContext(ctx, `
+	SELECT EXISTS (
+		SELECT 1 FROM users WHERE email = ?
+	);`, req.Email).Scan(&exists)
 	if err != nil {
 		return
 	}
@@ -55,7 +58,8 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *types.Register
 	user.DateOfBirth, err = time.Parse("2006-05-01", req.DateOfBirth)
 	user.Timestamp = time.Now().UTC()
 
-	_, err = tx.ExecContext(ctx, "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+	_, err = tx.ExecContext(ctx, `
+		INSERT INTO users (id, nickname, email, password, first_name, last_name, date_of_birth, image_path, about_me, is_private, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
 		user.Id,
 		user.Nickname,
 		user.Email,
@@ -247,13 +251,14 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 	}
 	defer tx.Rollback()
 
-	rows, err := store.QueryContext(ctx,
-		`SELECT u.*
-		FROM follow_records f 
-		JOIN users u 
-		ON f.user_id = u.id
-		WHERE user_id = ? AND accepted = TRUE
-		LIMIT ? OFFSET ?;`, userId, limit, offset)
+	rows, err := store.QueryContext(ctx, `
+	SELECT u.*
+	FROM follow_records f 
+	JOIN users u 
+	ON f.user_id = u.id
+	WHERE user_id = ? AND accepted = TRUE
+	LIMIT ? OFFSET ?;`,
+		userId, limit, offset)
 	if err != nil {
 		return nil, err
 	}
