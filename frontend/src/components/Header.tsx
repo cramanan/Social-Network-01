@@ -30,15 +30,15 @@ export default function Header() {
                     </div>
 
                     <a href="/profile" className="hidden items-center xl:flex xl:relative">
-                        <div className="flex relative z-10 -m-10 w-11 h-11 bg-white border rounded-full">
+                        <div className="flex items-center justify-center relative z-10 -mr-9 w-11 h-11 bg-white border rounded-full">
                             <ProfileCircle />
                         </div>
-                        <div className=" w-36 relative justify-end bg-white rounded-3xl bg-opacity-40">
+                        <div className=" min-w-36 relative justify-end bg-white rounded-3xl bg-opacity-40">
                             <div className="flex flex-col items-center pl-5">
                                 <div className="text-xs font-bold">
-                                    {user?.nickname}
+                                    {user?.firstName} {user?.lastName}
                                 </div>
-                                <div className="text-xs">@nickname</div>
+                                <div className="text-xs">@{user?.nickname}</div>
                             </div>
                         </div>
                     </a>

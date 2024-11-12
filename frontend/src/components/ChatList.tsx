@@ -81,11 +81,11 @@ const ChatList = () => {
                         ))}
                     </div>
                     <div className="w-full h-10 flex flex-row justify-center gap-10 mt-2">
-                        <button className="w-fit" onClick={next}>
-                            next
-                        </button>
                         <button className="w-fit" onClick={previous}>
                             previous
+                        </button>
+                        <button className="w-fit" onClick={next}>
+                            next
                         </button>
                     </div>
                 </div>

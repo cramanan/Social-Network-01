@@ -15,10 +15,12 @@ export default function Profile() {
 
     return (
         <HomeProfileLayout>
-            <div className="flex flex-col w-full items-center gap-2">
+            <div className="flex flex-col w-full items-center gap-2 mt-3">
                 <ProfileBanner
                     id={user.id}
+                    nickname={user.nickname}
                     firstName={user.firstName}
+                    lastName={user.lastName}
                     image={user.image}
                 />
 

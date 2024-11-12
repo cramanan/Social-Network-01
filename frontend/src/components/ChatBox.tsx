@@ -111,6 +111,7 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                 </ul>
 
                 <form
+                    id="chatMessageForm"
                     onSubmit={(e) => {
                         e.preventDefault();
                         websocket.sendChat(chat);
@@ -119,6 +120,7 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                     className="h-[50px] flex flex-row items-center m-5 bg-[#445ab3]/20 rounded-[25px] p-2 gap-2">
                     <EmoteIcon />
                     <input
+                        id="chatMessage"
                         type="text"
                         placeholder="Enter your message"
                         onChange={(e) =>

@@ -26,7 +26,7 @@ const Users = ({ user, onUserSelect }: UserListProps) => {
                     <div className="flex flex-col">
                         <span >{user.nickname}</span>
                         {/* {user.lastMessage && ( */}
-                        <span className="max-w-[270px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[110px]">last message message message message message message</span>
+                        <span className="max-w-[240px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[110px]">last message message message message message message</span>
                         {/* )} */}
                     </div>
                 </div>
@@ -39,7 +39,7 @@ const Users = ({ user, onUserSelect }: UserListProps) => {
                         <div className="flex flex-col">
                             <span >{user.nickname}</span>
                             {/* {user.lastMessage && ( */}
-                            <span className="max-w-[270px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[110px]">last message message message message message message</span>
+                            <span className="max-w-[240px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[110px]">last message message message message message message</span>
                             {/* )} */}
                         </div>
                     </div>
