@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Comment from "./Comment";
 import { BookmarkIcon } from "./icons/BookmarkIcon";
 import { CommentIcon } from "./icons/CommentIcon";
@@ -11,8 +11,29 @@ import formatDate from "@/utils/formatDate";
 
 const PostComponent = ({ post }: { post: Post }) => {
     const [isLiked, setIsLiked] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [ShowAllComment, setShowAllComment] = useState(false)
+    const [isOverflowing, setIsOverflowing] = useState(false);
+    const contentRef = useRef<HTMLAnchorElement>(null)
 
     const handleLikeClick = () => setIsLiked(!isLiked);
+    const handleSeeMore = () => setIsExpanded(!isExpanded)
+    const handleShowAllComment = () => setShowAllComment(!ShowAllComment)
+
+    useEffect(() => {
+        const checkOverflow = () => {
+            if (contentRef.current) {
+                // Check if content is longer than the container height
+                const isOverflowing = contentRef.current.scrollHeight > contentRef.current.clientHeight;
+                setIsOverflowing(isOverflowing);
+            }
+        };
+
+        checkOverflow();
+        window.addEventListener('resize', checkOverflow)
+
+        return () => window.removeEventListener('resize', checkOverflow);
+    }, [post.content])
 
     return (
         <>
@@ -34,8 +55,9 @@ const PostComponent = ({ post }: { post: Post }) => {
                     </div>
                     <BookmarkIcon />
                 </div>
+
                 {post.images.length > 0 && (
-                    <div className="h-fitline-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] p-3">
+                    <div className="h-fit line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] p-3">
                         {post.images.map((src, idx) => (
                             <a href={src} key={idx} target="_blank">
                                 <Image
@@ -50,11 +72,22 @@ const PostComponent = ({ post }: { post: Post }) => {
                 )}
 
                 <Link
+                    ref={contentRef}
                     href={`/post/${post.id}`}
-                    className="h-[110px] line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-7 mb-10"
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded ? "" : "h-[110px] line-clamp-5 overflow-hidden"}`}
                 >
                     {post.content}
                 </Link>
+
+                {isOverflowing && (
+                    <button
+                        onClick={handleSeeMore}
+                        className="text-center text-black text-sm font-medium font-['Inter']"
+                    >
+                        {isExpanded ? "See less" : "See more"}
+                    </button>
+                )}
+
                 <div className="flex flex-row gap-5 ml-5">
                     <svg
                         className="cursor-pointer"
@@ -79,14 +112,16 @@ const PostComponent = ({ post }: { post: Post }) => {
 
                     <CommentIcon />
                 </div>
-                <div className="mb-5 mt-1 ml-5 mr-10">
+
+                <div className={`overflow-hidden mb-3 mt-1 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"}`}>
                     <Comment />
                     <Comment />
                 </div>
+
                 <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
-                    <a href="" className="cursor-pointer">
-                        See more
-                    </a>
+                    <button onClick={handleShowAllComment} className="cursor-pointer">
+                        {ShowAllComment ? "Less comments" : "More comments"}
+                    </button>
                 </div>
             </div>
         </>

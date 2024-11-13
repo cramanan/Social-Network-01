@@ -35,7 +35,7 @@ const Publication = () => {
                             <input type='text' placeholder='Enter your comment' className="w-[300px] h-[30px] text-black text-xl font-extralight font-['Inter'] bg-white/0"></input>
                         </div>
                         <div className="self-stretch pl-[11px] pr-3 pt-[5px] bg-gradient-to-t from-[#e1d3eb] via-[#6f46c0] to-[#e0d3ea] rounded-[30px] justify-center items-center inline-flex">
-                            <div className="h-[25px] text-center text-black text-[15px] font-medium font-['Inter']">Publier</div>
+                            <div className="h-[25px] text-center text-black text-[15px] font-medium font-['Inter']">Send</div>
                         </div>
                     </div>
                 </div>

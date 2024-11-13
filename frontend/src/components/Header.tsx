@@ -30,7 +30,7 @@ export default function Header() {
                     </div>
 
                     <a href="/profile" className="hidden items-center xl:flex xl:relative">
-                        <div className="flex items-center justify-center relative z-10 -mr-9 w-11 h-11 bg-white border rounded-full">
+                        <div className="flex items-center justify-center relative z-1 -mr-9 w-11 h-11 bg-white border rounded-full">
                             <ProfileCircle />
                         </div>
                         <div className=" min-w-36 relative justify-end bg-white rounded-3xl bg-opacity-40">

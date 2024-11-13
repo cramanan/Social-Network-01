@@ -47,56 +47,59 @@ export const NewPost = () => {
                 </div>
             </div>
             {isModalOpen && (
-                <form
-                    encType="multipart/form-data"
-                    onSubmit={handleSubmit}
-                    className="fixed top-0 inset-0 flex items-center justify-center backdrop-blur-sm z-50"
-                >
-                    <div className="border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg  w-1/2 ">
-                        <div className="flex justify-between">
-                            <h2 className="text-xl text-white font-semibold flex justify-center items-center gap-4 ">
-                                <ProfileCircle />
-                                New Post
-                            </h2>
-                            <button
-                                className="w-10 h-10 flex justify-center items-center hover:bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7]"
-                                onClick={toggleModal}
-                            >
-                                <CloseIcon />
-                            </button>
-                        </div>
-
-                        <textarea
-                            id="content"
-                            className="shadow-lg w-full px-12 py-4 mt-7 rounded-xl  bg-white text-black text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-gray-500 resize-none"
-                            value={postText}
-                            onChange={handleTextChange}
-                            placeholder="What's on your mind?"
-                        />
-
-                        <div className="flex justify-between">
-                            <div className="relative flex flex-row gap-2 shadow-xl bg-slate-300  hover:bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] text-black rounded justify-center items-center px-2 py-1">
-                                <input
-                                    className="opacity-0 absolute w-full h-full cursor-pointer"
-                                    type="file"
-                                    name="images"
-                                    id="images"
-                                    accept="image/jpeg,image/png,image/gif"
-                                    multiple
-                                />
-                                upload
-                                <ImageIcon />
+                <>
+                    <div className="absolute -inset-full bg-black/10 backdrop-blur-sm z-40"></div>
+                    <form
+                        encType="multipart/form-data"
+                        onSubmit={handleSubmit}
+                        className="fixed top-0 inset-0 flex items-center justify-center z-50"
+                    >
+                        <div className="border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg  w-1/2 ">
+                            <div className="flex justify-between">
+                                <h2 className="text-xl text-white font-semibold flex justify-center items-center gap-4 ">
+                                    <ProfileCircle />
+                                    New Post
+                                </h2>
+                                <button
+                                    className="w-10 h-10 flex justify-center items-center hover:bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7]"
+                                    onClick={toggleModal}
+                                >
+                                    <CloseIcon />
+                                </button>
                             </div>
-                            <button
-                                className=" flex flex-row gap-2 shadow-xl bg-slate-300  hover:bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] text-black rounded justify-center items-center px-2 py-1"
-                                type="submit"
-                            >
-                                Send Post
-                                <SendPostIcon />
-                            </button>
+
+                            <textarea
+                                id="content"
+                                className="shadow-lg w-full px-12 py-4 mt-7 rounded-xl  bg-white text-black text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-gray-500 resize-none"
+                                value={postText}
+                                onChange={handleTextChange}
+                                placeholder="What's on your mind?"
+                            />
+
+                            <div className="flex justify-between">
+                                <div className="relative flex flex-row gap-2 shadow-xl bg-slate-300  hover:bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] text-black rounded justify-center items-center px-2 py-1">
+                                    <input
+                                        className="opacity-0 absolute w-full h-full cursor-pointer"
+                                        type="file"
+                                        name="images"
+                                        id="images"
+                                        accept="image/jpeg,image/png,image/gif"
+                                        multiple
+                                    />
+                                    upload
+                                    <ImageIcon />
+                                </div>
+                                <button
+                                    className=" flex flex-row gap-2 shadow-xl bg-slate-300  hover:bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] text-black rounded justify-center items-center px-2 py-1"
+                                    type="submit"
+                                >
+                                    Send Post
+                                    <SendPostIcon />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </>
             )}
         </>
     );

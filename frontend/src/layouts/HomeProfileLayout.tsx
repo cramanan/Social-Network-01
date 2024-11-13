@@ -26,7 +26,7 @@ const HomeProfileLayout: React.FC<Props> = ({ children }) => {
                     </div>
                 </main>
 
-                <div className="hidden right-0 xl:flex xl:mt-3">
+                <div className="hidden right-0 xl:flex  xl:mt-3">
                     <Chat />
                 </div>
             </div>
