@@ -32,14 +32,6 @@ type API struct {
 	WebSocket websocket.WebSocket
 }
 
-type APIerror struct {
-	Status   int    `json:"status"`
-	ErrorMsg string `json:"error"`
-	Message  string `json:"message"`
-}
-
-func (err APIerror) Error() string { return err.ErrorMsg }
-
 func NewAPI(addr string, dbFilePath string) (*API, error) {
 	server := new(API)
 	server.Server.Addr = addr
@@ -63,7 +55,9 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/groups", handleFunc(server.GetGroups))
 	router.Handle("/api/group/{groupname}", handleFunc(server.Group))
 	router.Handle("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
+	router.Handle("/api/group/{groupid}/events", handleFunc(server.GetGroupEvents))
 	router.Handle("/api/create/group", handleFunc(server.CreateGroup))
+	router.Handle("/api/create/event", handleFunc(server.CreateEvent))
 
 	// router.Handle("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
 
@@ -139,7 +133,7 @@ func handleFunc(fn handlerFunc) http.HandlerFunc {
 		// }
 
 		if err := fn(w, r); err != nil {
-			log.Println(err)
+			// log.Println(err)
 			writeJSON(w, http.StatusInternalServerError,
 				APIerror{
 					http.StatusInternalServerError,
