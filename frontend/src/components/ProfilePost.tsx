@@ -9,7 +9,7 @@ const ProfilePost = ({ content, images, timestamp }: Post) => {
     return (
         <div className="flex">
             <div className="w-[800px] h-[300px] p-4 bg-white rounded-l-[30px] flex flex-col justify-between">
-                <div className="flex gap-2">
+                <div className="flex flex-row gap-2">
                     {images.map((image, idx) => (
                         <Image
                             key={idx}
@@ -21,7 +21,7 @@ const ProfilePost = ({ content, images, timestamp }: Post) => {
                         />
                     ))}
                 </div>
-                <div className="resize-none w-full h-44 py-4 px-7 rounded-tl-[30px]">
+                <div className="resize-none w-full h-44 overflow-hidden py-4 px-7 rounded-tl-[30px]">
                     {content}
                 </div>
                 <div className="flex flex-row justify-between p-7 pb-5">

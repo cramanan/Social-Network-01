@@ -40,7 +40,7 @@ const PostComponent = ({ post }: { post: Post }) => {
     return (
         <>
             <div className="flex flex-col relative w-full bg-white/95 rounded-[30px]">
-                <div className="flex flex-row justify-between items-center mr-5">
+                <div className="flex flex-row justify-between items-center mr-5 mb-3">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-5">
                         <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
                         <div className="flex flex-col">
@@ -59,7 +59,7 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
 
                 {post.images.length > 0 && (
-                    <div className="h-fit line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] p-3">
+                    <div className="w-fit ml-5 mb-0">
                         {post.images.map((src, idx) => (
                             <a href={src} key={idx} target="_blank">
                                 <Image
@@ -76,11 +76,10 @@ const PostComponent = ({ post }: { post: Post }) => {
                 <Link
                     ref={contentRef}
                     href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${
-                        isExpanded
-                            ? ""
-                            : "h-[110px] line-clamp-5 overflow-hidden"
-                    }`}
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
+                        ? ""
+                        : "h-[110px] line-clamp-5 overflow-hidden"
+                        }`}
                 >
                     {post.content}
                 </Link>
@@ -120,9 +119,8 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
 
                 <div
-                    className={`overflow-hidden mb-3 mt-1 ml-5 mr-10 ${
-                        ShowAllComment ? "h-fit" : "max-h-[108px]"
-                    }`}
+                    className={`overflow-hidden mb-3 mt-1 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"
+                        }`}
                 >
                     <Comment />
                     <Comment />

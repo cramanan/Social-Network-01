@@ -29,12 +29,17 @@ export default function Profile() {
 
     return (
         <HomeProfileLayout>
-            <div className="flex flex-col items-center gap-2">
-                <ProfileBanner {...user} />
-                <ProfileStats userId={user.id} />
-                {posts.map((post, idx) => (
-                    <ProfilePost key={idx} {...post} />
-                ))}
+            <div className="flex flex-col justify-center items-center">
+                <div className="flex flex-col justify-center items-center my-3">
+                    <ProfileBanner {...user} />
+                    <ProfileStats userId={user.id} />
+                </div>
+
+                <div className="flex flex-col gap-2 h-[calc(100vh-300px)] overflow-scroll no-scrollbar">
+                    {posts.map((post, idx) => (
+                        <ProfilePost key={idx} {...post} />
+                    ))}
+                </div>
             </div>
         </HomeProfileLayout>
     );
