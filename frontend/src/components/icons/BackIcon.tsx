@@ -2,8 +2,8 @@ export const BackIcon = () => {
     return (
         <div className="cursor-pointer">
             <svg
-                width="15"
-                height="15"
+                width="25"
+                height="25"
                 viewBox="0 0 24 24"
                 fill="black"
                 xmlns="http://www.w3.org/2000/svg"

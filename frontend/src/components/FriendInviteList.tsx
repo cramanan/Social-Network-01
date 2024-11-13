@@ -5,11 +5,19 @@ const FriendInviteList = () => {
     return (
         <div
             id="friendInviteList"
-            className="w-full h-full px-2 py-5 flex-col relative bg-white/25 rounded-[30px] gap-2"
+            className="relative flex flex-col w-full h-full xl:w-fit xl:h-fit xl:bg-white/25 xl:rounded-[30px] xl:px-2 xl:py-5"
         >
-            <FriendInvite />
-            <FriendInvite />
-            <FriendInvite />
+            <h2 className="text-4xl text-white text-center py-5 xl:sr-only">
+                Friend Request List
+            </h2>
+
+            <div className="flex flex-col h-[75vh] items-center gap-3 mx-2 overflow-scroll no-scrollbar xl:max-h-[68vh] xl:gap-1">
+                <FriendInvite />
+                <FriendInvite />
+                <FriendInvite />
+                <FriendInvite />
+                <FriendInvite />
+            </div>
         </div>
     );
 };

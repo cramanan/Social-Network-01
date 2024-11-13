@@ -1,6 +1,8 @@
 import { Post } from "@/types/post";
 import { Params } from "@/types/query";
 import CommentForm from "./CommentForm";
+import Publication from "@/components/Publication";
+import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 
 export default async function Page({ params }: { params: Params }) {
     const { id } = await params;
@@ -12,10 +14,12 @@ export default async function Page({ params }: { params: Params }) {
 
     return (
         <>
-            <div className="whitespace-pre-wrap">
-                {JSON.stringify(post, null, "\t")}
-            </div>
-            <CommentForm post={post} />
+            <HomeProfileLayout>
+                <div className="whitespace-pre-wrap">
+                    {JSON.stringify(post, null, "\t")}
+                </div>
+                <CommentForm post={post} />
+            </HomeProfileLayout>
         </>
     );
 }

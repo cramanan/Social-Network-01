@@ -18,11 +18,11 @@ const FindUserList = () => {
         <span>Suggestions</span>
 
         <div className="flex flex-col gap-2 mx-5">
+          {/* <Users />
           <Users />
           <Users />
           <Users />
-          <Users />
-          <Users />
+          <Users /> */}
         </div>
       </div>
     </>

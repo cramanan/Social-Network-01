@@ -30,7 +30,7 @@ export const Login = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col  w-full gap-20 md:gap-12 pt-14">
+            <div className="flex flex-col w-full gap-20 md:gap-12 pt-14">
                 <h1 className="text-white  text-4xl font-semibold font-['Noto Sans']">
                     Login
                 </h1>

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 // import { Post } from "@/types/post";
 // import { QueryParams } from "@/types/query";
 
-import { NewPost } from "./newPost";
+import { NewPost } from "./NewPost";
 import PostComponent from "./PostComponent";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
@@ -32,8 +32,8 @@ const Actualite = () => {
 
     return (
         <>
-            <div className="flex flex-col relative items-center w-screen h-[calc(100vh-128px)] xl:bg-white/25 z-10 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-60px)]">
-                <div className="shadow-xl w-full mb-10 ">
+            <div className="flex flex-col items-center w-screen h-[calc(100vh-185px)] xl:bg-white/25 z-10 xl:mt-3 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-70px)]">
+                <div className="shadow-xl w-full mb-5 ">
                     <nav
                         className="flex flex-wrap items-center justify-center sm:flex-row sm:justify-between"
                         aria-label="post filter"
@@ -62,14 +62,14 @@ const Actualite = () => {
                 </div>
 
                 <section
-                    className="flex flex-col gap-3 mx-3 overflow-scroll no-scrollbar"
+                    className="flex flex-col w-full gap-3 px-5 overflow-scroll no-scrollbar"
                     aria-label="Posts"
                 >
                     {posts.map((post, idx) => (
                         <PostComponent post={post} key={idx} />
                     ))}
                 </section>
-                <div className="flex">
+                <div className="flex gap-5 p-2">
                     <button onClick={previous}>
                         <CloseSideMenuIcon />
                     </button>

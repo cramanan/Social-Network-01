@@ -1,14 +1,16 @@
+'use client'
+
 import Header from "@/components/Header";
 import SideNavMenu from "@/components/SideNavMenu";
 import React from "react";
 import Chat from "@/components/Chat";
 import MobileBottomNav from "@/components/MobileBottomNav";
-
 interface Props {
     children: React.ReactNode;
 }
 
 const HomeProfileLayout: React.FC<Props> = ({ children }) => {
+
     return (
         <>
             <Header />
@@ -19,12 +21,12 @@ const HomeProfileLayout: React.FC<Props> = ({ children }) => {
                 </div>
 
                 <main className="flex flex-grow">
-                    {/* <div className="absolute left-1/2 -translate-x-1/2 xl:mt-3"> */}
-                    {children}
-                    {/* </div> */}
+                    <div className="w-full h-full xl:absolute xl:left-1/2 xl:-translate-x-1/2 xl:w-fit">
+                        {children}
+                    </div>
                 </main>
 
-                <div className="hidden right-0 xl:flex xl:mt-3">
+                <div className="hidden right-0 xl:flex  xl:mt-3">
                     <Chat />
                 </div>
             </div>

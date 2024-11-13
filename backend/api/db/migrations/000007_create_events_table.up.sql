@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS events (
 );
 
 CREATE TABLE IF NOT EXISTS events_records (
-    event_id NOT NULL TEXT REFERENCES events(id),
-    user_id NOT NULL TEXT REFERENCES users(id),
+    event_id TEXT NOT NULL REFERENCES events(id),
+    user_id TEXT NOT NULL REFERENCES users(id),
     going BOOLEAN NOT NULL
 );

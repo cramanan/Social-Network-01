@@ -30,11 +30,7 @@ export default function Profile() {
     return (
         <HomeProfileLayout>
             <div className="flex flex-col items-center gap-2">
-                <ProfileBanner
-                    id={user.id}
-                    firstName={user.firstName}
-                    image={user.image}
-                />
+                <ProfileBanner {...user} />
                 <ProfileStats userId={user.id} />
                 {posts.map((post, idx) => (
                     <ProfilePost key={idx} {...post} />

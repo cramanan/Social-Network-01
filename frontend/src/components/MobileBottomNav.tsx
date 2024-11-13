@@ -16,20 +16,23 @@ const MobileBottomNav = () => {
                                 <span className="sr-only">Home</span><HomeIcon />
                             </a>
                         </li>
+
                         <li>
-                            <button>
+                            <a href="/FriendList">
                                 <span className="sr-only">UserList</span><UserListIcon />
-                            </button>
+                            </a>
                         </li>
+
                         <li>
                             <button>
                                 <span className="sr-only">FindUser</span><FindUserIcon />
                             </button>
                         </li>
+
                         <li>
-                            <button>
+                            <a href="/chats">
                                 <span className="sr-only">Chat</span><ChatIcon />
-                            </button>
+                            </a>
                         </li>
                     </ul>
                 </nav>

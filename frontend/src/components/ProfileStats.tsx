@@ -41,7 +41,7 @@ const ProfileStats = ({ userId }: { userId: string }) => {
                 <div className="text-black/50">{stats.numLikes}</div>
             </div>
             <div className="flex flex-col items-center w-[86px]">
-                <div className="font-bold">Following</div>
+                <div className="font-bold">Follow(s)</div>
                 <div className="text-black/50">{stats.numFollowing}</div>
             </div>
             <div className="flex flex-col items-center w-[86px]">
