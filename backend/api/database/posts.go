@@ -139,7 +139,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 			continue
 		}
 
-		images, err := stmt.QueryContext(ctx)
+		images, err := stmt.QueryContext(ctx, post.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -216,6 +216,14 @@ func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limi
 		return nil, err
 	}
 
+	stmt, err := tx.PrepareContext(ctx, `
+	SELECT path
+	FROM posts_images
+	WHERE post_id = ?;`)
+	if err != nil {
+		return nil, err
+	}
+
 	for rows.Next() {
 		var post types.Post
 
@@ -229,6 +237,24 @@ func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limi
 		if err != nil {
 			log.Println(err)
 			continue
+		}
+
+		images, err := stmt.QueryContext(ctx, post.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		for images.Next() {
+			var path string
+			err = images.Scan(&path)
+			if err != nil {
+				return nil, err
+			}
+			post.Images = append(post.Images, path)
+		}
+
+		if post.Images == nil {
+			post.Images = make([]string, 0)
 		}
 
 		posts = append(posts, post)

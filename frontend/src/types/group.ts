@@ -5,3 +5,12 @@ export type Group = {
     image: string;
     timestamp: string;
 };
+
+export type Event = {
+    id: string;
+    groupId: string;
+    title: string;
+    description: string;
+    date: string;
+    going: boolean;
+};

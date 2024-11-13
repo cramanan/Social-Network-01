@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
         if (!response.ok)
             return Response.redirect(new URL("/auth", request.url));
     } catch (error) {
+        console.error(error);
         return Response.redirect(new URL("/auth", request.url));
     }
 }

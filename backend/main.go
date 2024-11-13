@@ -30,6 +30,9 @@ func main() {
 		err = api.ListenAndServe()
 	}
 
+	// if err == migrate.ErrNoChange {
+	// 	err = nil
+	// }
 	if err != nil {
 		log.Fatalln(err)
 	}

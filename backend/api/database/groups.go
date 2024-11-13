@@ -26,7 +26,7 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group 
 
 	row := tx.QueryRowContext(ctx, `SELECT * FROM groups WHERE id = ?`, groupId)
 	group = new(types.Group)
-	err = row.Scan(&group.Id, &group.Name, &group.Description, &group.Timestamp)
+	err = row.Scan(&group.Id, &group.Name, &group.Description, &group.Image, &group.Timestamp)
 	if err != nil {
 		return nil, err
 	}

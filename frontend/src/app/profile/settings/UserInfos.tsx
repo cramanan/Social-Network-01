@@ -33,7 +33,7 @@ export default function UserInfos({
         e.preventDefault();
         const body = new FormData(e.currentTarget);
         body.append("data", JSON.stringify(formState));
-        fetch("/api/auth", { method: "PATCH", body });
+        fetch("/api/profile", { method: "PATCH", body });
     };
 
     return (

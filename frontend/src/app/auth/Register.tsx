@@ -16,7 +16,7 @@ type RegisterFields = {
 };
 
 // Zod Schema for the resolver
-export const UserSchema: ZodType<RegisterFields> = z.object({
+const RegisterSchema: ZodType<RegisterFields> = z.object({
     email: z.string().email(),
     password: z
         .string()
@@ -30,7 +30,7 @@ export const UserSchema: ZodType<RegisterFields> = z.object({
 
 export const Register = () => {
     const { register, handleSubmit } = useForm<RegisterFields>({
-        resolver: zodResolver(UserSchema),
+        resolver: zodResolver(RegisterSchema),
     });
     const { signup } = useAuth();
 
