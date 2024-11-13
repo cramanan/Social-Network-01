@@ -1,7 +1,9 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { string, z, ZodType } from "zod";
 
 // Form Datas
 type LoginFields = {
@@ -9,8 +11,17 @@ type LoginFields = {
     password: string;
 };
 
+const LoginSchema: ZodType<LoginFields> = z.object({
+    email: string().email(),
+    password: string().min(1, "Invalid password"),
+});
+
 export const Login = () => {
-    const { register, handleSubmit } = useForm<LoginFields>();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<LoginFields>({ resolver: zodResolver(LoginSchema) });
 
     const { login } = useAuth();
 
@@ -24,6 +35,7 @@ export const Login = () => {
                     Login
                 </h1>
                 <div className="flex flex-col justify-center items-center md:gap-4 py-7">
+                    <span>{errors.root?.message}</span>
                     <input
                         type="email"
                         className="w-[350px] px-4 py-3.5 rounded-xl border border-white bg-transparent text-white text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-white"
@@ -31,6 +43,7 @@ export const Login = () => {
                         placeholder="Email"
                         aria-label="Email"
                     />
+                    <span>{errors.email?.message}</span>
                     <input
                         type="password"
                         {...register("password")}
@@ -38,6 +51,7 @@ export const Login = () => {
                         placeholder="Password"
                         aria-label="Password"
                     />
+                    <span>{errors.password?.message}</span>
                 </div>
                 <button type="submit" className="m-3">
                     Sign in

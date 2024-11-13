@@ -11,7 +11,7 @@ const ChatList = () => {
     const [users, setUsers] = useState<OnlineUser[]>([]);
     const { limit, offset, next, previous } = useQueryParams();
     const [selectedUser, setSelectedUser] = useState<OnlineUser | null>(null);
-    const [ShowUserList, setShowUserList] = useState(true)
+    const [ShowUserList, setShowUserList] = useState(true);
 
     useEffect(() => {
         // Fetch online users
@@ -61,23 +61,33 @@ const ChatList = () => {
 
     const handleUserSelect = (user: OnlineUser) => {
         setSelectedUser(user);
-        setShowUserList(!ShowUserList)
+        setShowUserList(!ShowUserList);
     };
 
     const handleCloseChatBox = () => {
         setSelectedUser(null);
-        setShowUserList(!ShowUserList)
+        setShowUserList(!ShowUserList);
     };
 
     return (
         <>
             {ShowUserList && (
-                <div className="relative flex flex-col w-full h-[calc(100vh-185px)] xl:w-60 xl:h-fit xl:rounded-3xl xl:py-3 xl:bg-white/40" aria-label="Chat list" role="region">
-                    <h2 className="text-4xl text-white text-center py-5 xl:sr-only">Chat List</h2>
+                <div
+                    className="relative flex flex-col w-full h-[calc(100vh-185px)] xl:w-60 xl:h-fit xl:rounded-3xl xl:py-3 xl:bg-white/40"
+                    aria-label="Chat list"
+                    role="region"
+                >
+                    <h2 className="text-4xl text-white text-center py-5 xl:sr-only">
+                        Chat List
+                    </h2>
 
                     <div className="flex flex-col gap-3 mx-5 overflow-scroll no-scrollbar xl:max-h-[65vh]">
                         {users.map((user, index) => (
-                            <Users key={index} user={user} onUserSelect={handleUserSelect} />
+                            <Users
+                                key={index}
+                                user={user}
+                                onUserSelect={handleUserSelect}
+                            />
                         ))}
                     </div>
                     <div className="w-full h-10 flex flex-row justify-center gap-10 mt-2">
@@ -92,10 +102,14 @@ const ChatList = () => {
             )}
 
             {selectedUser && (
-                <ChatBox user={selectedUser} recipient={selectedUser} onClose={handleCloseChatBox} />
+                <ChatBox
+                    user={selectedUser}
+                    recipient={selectedUser}
+                    onClose={handleCloseChatBox}
+                />
             )}
         </>
-    )
-}
+    );
+};
 
-export default ChatList
+export default ChatList;

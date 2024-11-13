@@ -18,8 +18,12 @@ const SideNavMenu = () => {
 
     const toggleSideNav = () => {
         setIsOpen(!isOpen);
-        document.getElementById("sideNav")?.classList.toggle("-translate-x-[182px]");
-        document.getElementById("backIcon")?.classList.toggle("translate-x-[182px]");
+        document
+            .getElementById("sideNav")
+            ?.classList.toggle("-translate-x-[182px]");
+        document
+            .getElementById("backIcon")
+            ?.classList.toggle("translate-x-[182px]");
         if (!isOpen) {
             setFriendInvListOpen(false);
         }
@@ -52,7 +56,9 @@ const SideNavMenu = () => {
                 id="sideNav"
                 className="w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 -translate-x-[182px] duration-300 ease-in-out select-none"
                 aria-label="Side navigation"
-            > {/* aria-expanded={isOpen} */}
+            >
+                {" "}
+                {/* aria-expanded={isOpen} */}
                 <ul className="h-full flex flex-col justify-between">
                     <li className={`flex flex-rowitems-center`}>
                         <button
@@ -97,9 +103,10 @@ const SideNavMenu = () => {
             <div
                 id="friend-inv-list"
                 className={`transition-all duration-300 ease-in-out
-                    ${isFriendInvListOpen
-                        ? "opacity-100 -translate-x-44 pointer-events-auto"
-                        : "opacity-0 -translate-x-40 pointer-events-none"
+                    ${
+                        isFriendInvListOpen
+                            ? "opacity-100 -translate-x-44 pointer-events-auto"
+                            : "opacity-0 -translate-x-40 pointer-events-none"
                     }`}
                 aria-label="Friend invite list"
             >

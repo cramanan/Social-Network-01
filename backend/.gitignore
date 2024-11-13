@@ -1,6 +1,9 @@
 /api/images/*
 !/api/images/.gitkeep
 
+.vscode/
+__debug*
+
 *.sqlite3
 *.db
 *.sqlite

@@ -28,7 +28,7 @@ const ProfileBanner = ({
                     {firstName} {lastName}
                 </div>
                 <div className="text-black/70 text-base font-light font-['Inter']">
-                    @{nickname}
+                    @{id}
                 </div>
             </div>
         </div>

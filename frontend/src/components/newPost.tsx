@@ -5,30 +5,39 @@ import { ProfileCircle } from "./icons/ProfileCircle";
 import { SendPostIcon } from "./icons/sendPostIcon";
 import { CloseIcon } from "./icons/CloseIcon";
 import { ImageIcon } from "./icons/ImageIcon";
+import { Post } from "@/types/post";
+import Image from "next/image";
+
+type PostFields = Pick<Post, "content" | "images">;
 
 export const NewPost = () => {
-    const [postText, setPostText] = useState("");
+    const [fields, setFields] = useState<PostFields>({
+        content: "",
+        images: [],
+    });
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
-        setPostText(e.target.value);
-
     const toggleModal = () => setIsModalOpen(!isModalOpen);
+    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+        setFields({ ...fields, content: e.target.value });
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        const images: string[] = [];
+        for (const file of files) images.push(URL.createObjectURL(file));
+
+        setFields({ ...fields, images });
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const multipart = new FormData(e.currentTarget);
-        multipart.append("content", postText);
-        fetch("/api/post", {
-            method: "POST",
-            body: multipart,
-        })
-            .then((resp) => {
-                if (resp.ok) return resp.json();
-                throw "Error";
-            })
-            .then(toggleModal)
-            .catch(console.error);
+        const body = new FormData(e.currentTarget);
+        body.append("content", fields.content);
+        const response = await fetch("/api/post", { method: "POST", body });
+
+        if (response.ok) toggleModal();
     };
 
     return (
@@ -67,15 +76,25 @@ export const NewPost = () => {
                                     <CloseIcon />
                                 </button>
                             </div>
-
                             <textarea
                                 id="content"
                                 className="shadow-lg w-full px-12 py-4 mt-7 rounded-xl  bg-white text-black text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-gray-500 resize-none"
-                                value={postText}
+                                value={fields.content}
                                 onChange={handleTextChange}
                                 placeholder="What's on your mind?"
                             />
-
+                            <ul className="flex">
+                                {fields.images.map((image, idx) => (
+                                    <li key={idx}>
+                                        <Image
+                                            src={image}
+                                            height={100}
+                                            width={100}
+                                            alt=""
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
                             <div className="flex justify-between">
                                 <div className="relative flex flex-row gap-2 shadow-xl bg-slate-300  hover:bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] text-black rounded justify-center items-center px-2 py-1">
                                     <input
@@ -84,6 +103,7 @@ export const NewPost = () => {
                                         name="images"
                                         id="images"
                                         accept="image/jpeg,image/png,image/gif"
+                                        onChange={handleImagesChange}
                                         multiple
                                     />
                                     upload

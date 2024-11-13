@@ -10,9 +10,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password: string) => {
         const response = await fetch("/api/login", {
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             method: "POST",
             body: JSON.stringify({ email, password }),
         });
@@ -29,9 +27,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         dateOfBirth: string
     ) => {
         const response = await fetch("/api/register", {
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             method: "POST",
             body: JSON.stringify({
                 nickname,
@@ -42,23 +38,24 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                 dateOfBirth,
             }),
         });
-        const data = await response.json();
+        const data: User = await response.json();
         setUser(data);
     };
 
     const logout = async () => {
         await fetch("/api/logout");
         setUser(null);
+        setLoading(false);
     };
 
     useEffect(() => {
-        const login = async () => {
-            const response = await fetch("/api/auth");
+        const authenticate = async () => {
+            const response = await fetch("/api/profile");
             const data = await response.json();
             setUser(data);
             setLoading(false);
         };
-        login();
+        authenticate();
     }, []);
 
     return (

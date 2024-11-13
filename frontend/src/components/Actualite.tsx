@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 // import { Post } from "@/types/post";
 // import { QueryParams } from "@/types/query";
 
-import { NewPost } from "./newPost";
+import { NewPost } from "./NewPost";
 import PostComponent from "./PostComponent";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";

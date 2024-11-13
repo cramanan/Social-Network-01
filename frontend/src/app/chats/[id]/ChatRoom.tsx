@@ -60,16 +60,18 @@ export default function ChatRoom({ recipient }: { recipient: User }) {
                     return (
                         <li
                             key={idx}
-                            className={`flex flex-col w-fit ${isRecipient
+                            className={`flex flex-col w-fit ${
+                                isRecipient
                                     ? " self-end items-end"
                                     : " self-start"
-                                }`}
+                            }`}
                         >
                             <p
-                                className={`p-3 rounded-2xl ${isRecipient
+                                className={`p-3 rounded-2xl ${
+                                    isRecipient
                                         ? "bg-[#b88ee5] text-black"
                                         : "bg-[#4174e2] text-white"
-                                    }`}
+                                }`}
                             >
                                 {msg.content}
                             </p>

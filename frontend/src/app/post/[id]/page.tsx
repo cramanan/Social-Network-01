@@ -14,13 +14,12 @@ export default async function Page({ params }: { params: Params }) {
 
     return (
         <>
-            <HomeProfileLayout >
+            <HomeProfileLayout>
                 <div className="whitespace-pre-wrap">
                     {JSON.stringify(post, null, "\t")}
                 </div>
                 <CommentForm post={post} />
             </HomeProfileLayout>
         </>
-
     );
 }

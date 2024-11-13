@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
+	"Social-Network-01/api/websocket"
 )
 
 func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
@@ -20,39 +22,37 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	// Switch to WebSocket protocol
-	conn, err := server.WSUpgrader.Upgrade(writer, request, nil)
+	conn, err := server.WebSocket.Upgrader.Upgrade(writer, request, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
+	wconn := &websocket.SocketConn{Conn: conn, Mutex: sync.Mutex{}}
+
 	// Range over every online users
-	for _, userConn := range server.users {
+	for _, userConn := range server.WebSocket.Users {
 
 		// instantiate a socket message
-		ping := models.SocketMessage[models.OnlineUser]{
+		ping := types.SocketMessage[types.OnlineUser]{
 			Type: "ping",
-			Data: models.OnlineUser{User: &models.User{Id: sess.User.Id}, Online: true},
+			Data: types.OnlineUser{User: &types.User{Id: sess.User.Id}, Online: true},
 		}
 
 		userConn.WriteJSON(ping) // Write to online conn
 	}
 
-	server.Lock()                     //
-	server.users[sess.User.Id] = conn // Safely set user as online
-	server.Unlock()                   //
+	server.WebSocket.Add(sess.User.Id, wconn) // Safely set user as online
 
 	// Program deferred behaviour
 	defer func() {
-		server.Lock()                      //
-		delete(server.users, sess.User.Id) // Safely set user as offline
-		server.Unlock()                    //
+		server.WebSocket.Remove(sess.User.Id) // Safely set user as offline
 
 		// instantiate a socket message
-		for _, userConn := range server.users {
-			ping := models.SocketMessage[models.OnlineUser]{
+		for _, userConn := range server.WebSocket.Users {
+			ping := types.SocketMessage[types.OnlineUser]{
 				Type: "ping",
-				Data: models.OnlineUser{User: &models.User{Id: sess.User.Id}, Online: false},
+				Data: types.OnlineUser{User: &types.User{Id: sess.User.Id}, Online: false},
 			}
 
 			userConn.WriteJSON(ping) // Write to online conn
@@ -62,44 +62,48 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	// Keep connection alive
 	for {
 		// Read user message and unmarshal it into rawChat
-		var rawchat models.SocketMessage[models.ClientChat]
+		var rawchat types.SocketMessage[types.ClientChat]
 		err = conn.ReadJSON(&rawchat)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		// Retrieve contacted user
-		_, err = server.Storage.GetUser(request.Context(), rawchat.Data.RecipientId)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
+		switch rawchat.Type {
+		case "message":
 
-		// Prepare socket message
-		chat := models.SocketMessage[models.ServerChat]{
-			Type: "message",
-			Data: models.ServerChat{
-				SenderId:    sess.User.Id,
-				RecipientId: rawchat.Data.RecipientId,
-				Content:     rawchat.Data.Content,
-				Timestamp:   time.Now(),
-			},
-		}
+			// Retrieve contacted user
+			_, err = server.Storage.GetUser(request.Context(), rawchat.Data.RecipientId)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
 
-		// Store in db
-		err = server.Storage.StoreChat(request.Context(), chat.Data)
-		if err != nil {
-			log.Println(err)
-		}
+			// Prepare socket message
+			chat := types.SocketMessage[types.ServerChat]{
+				Type: "message",
+				Data: types.ServerChat{
+					SenderId:    sess.User.Id,
+					RecipientId: rawchat.Data.RecipientId,
+					Content:     rawchat.Data.Content,
+					Timestamp:   time.Now(),
+				},
+			}
 
-		// Check if the recipient is online
-		if recipient, ok := server.users[chat.Data.RecipientId]; ok {
-			recipient.WriteJSON(chat)
-		}
+			// Store in db
+			err = server.Storage.StoreChat(request.Context(), chat.Data)
+			if err != nil {
+				log.Println(err)
+			}
 
-		// Send message to connected user
-		conn.WriteJSON(chat)
+			// Check if the recipient is online
+			if recipient, ok := server.WebSocket.Users[chat.Data.RecipientId]; ok {
+				recipient.WriteJSON(chat)
+			}
+
+			// Send message to connected user
+			wconn.WriteJSON(chat)
+		}
 	}
 }
 

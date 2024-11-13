@@ -4,16 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"Social-Network-01/api/database"
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
 // Create a new group in the database.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request) (err error) {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
@@ -26,19 +27,30 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 			})
 	}
 
-	newGroup := new(models.Group)
-	err := json.NewDecoder(request.Body).Decode(newGroup)
+	newGroup := new(types.Group)
+	err = request.ParseMultipartForm(5 * (1 << 20))
 	if err != nil {
-		return writeJSON(writer, http.StatusUnprocessableEntity,
-			APIerror{
-				http.StatusUnprocessableEntity,
-				"Unprocessable Entity",
-				"Could not process register request",
-			})
+		return err
 	}
 
-	if newGroup.Name == "" ||
-		newGroup.Description == "" {
+	data := request.MultipartForm.Value["data"]
+	if len(data) != 1 {
+		return fmt.Errorf("no data field in multipart form")
+	}
+
+	err = json.Unmarshal([]byte(data[0]), newGroup)
+	if err != nil {
+		return err
+	}
+
+	files, err := MultiPartFiles(request)
+	if len(files) != 1 {
+		files = append(files, "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg")
+	}
+
+	newGroup.Image = files[0]
+
+	if newGroup.Name == "" || newGroup.Description == "" {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
 				http.StatusBadRequest,
@@ -47,12 +59,19 @@ func (server *API) CreateGroup(writer http.ResponseWriter, request *http.Request
 			})
 	}
 
-	group, err := server.Storage.NewGroup(ctx, newGroup)
+	err = server.Storage.NewGroup(ctx, newGroup)
+	if err == database.ErrConflict {
+		return writeJSON(writer, http.StatusConflict, APIerror{
+			http.StatusConflict,
+			"Conflict",
+			"This group already exists",
+		})
+	}
 	if err != nil {
 		return err
 	}
 
-	return writeJSON(writer, http.StatusOK, group)
+	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
 // Retrieve the group from the database using its name.

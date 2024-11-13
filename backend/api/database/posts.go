@@ -3,12 +3,10 @@ package database
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 
 	"github.com/gofrs/uuid"
 )
@@ -16,10 +14,10 @@ import (
 // Create a new posts in the database.
 //
 // `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/models/posts.go).
+// `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/types/posts.go).
 //
-// This method return a Post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostRequest) (err error) {
+// This method return a Post (see ./api/types/posts.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) CreatePost(ctx context.Context, req types.Post) (err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err
@@ -31,53 +29,29 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 		return err
 	}
 
-	marshalSelectedUsers, err := json.Marshal(req.SelectedUsers)
-	if err != nil {
-		return err
+	if req.GroupId == "" {
+		req.GroupId = "00000000"
 	}
 
-	if req.Status != models.ENUM_ALMOST_PRIVATE {
-		marshalSelectedUsers = nil
-	} else {
-		var exists bool
-		for _, userid := range req.SelectedUsers {
-			err = tx.QueryRowContext(ctx, `SELECT EXISTS(
-				SELECT 1 FROM users WHERE id = ?
-			);`, userid).Scan(&exists)
-			if err != nil {
-				return err
-			}
-
-			if !exists {
-				return fmt.Errorf("user with id: %s do not exist", userid)
-			}
-		}
-	}
-
-	_, err = tx.ExecContext(ctx, `
-		INSERT INTO posts VALUES(?, ?, COALESCE(?, "00000000"), ?, ?);
-		INSERT INTO posts_status VALUES(?, ?, ?);`,
-
+	_, err = tx.ExecContext(ctx, "INSERT INTO posts (id, user_id, group_id, content, timestamp) VALUES (?, ?, ?, ?, ?);",
 		id.String(),
 		req.UserId,
-		req.GroupName,
+		req.GroupId,
 		req.Content,
 		time.Now(),
-
-		id.String(),
-		req.Status,
-		marshalSelectedUsers,
 	)
 	if err != nil {
 		return err
 	}
 
+	stmt, err := tx.PrepareContext(ctx, "INSERT INTO posts_images (post_id, path) VALUES (?, ?);")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
 	for _, image := range req.Images {
-		_, err = tx.ExecContext(ctx, `
-		INSERT INTO posts_images VALUES(?, ?)`,
-			id.String(),
-			image,
-		)
+		_, err = stmt.Exec(id.String(), image)
 		if err != nil {
 			return err
 		}
@@ -91,15 +65,15 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req *models.PostReque
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `postId` is the corresponding id in the database and is usualy find in the request pathvalue.
 //
-// This method return a post (see ./api/models/posts.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *models.Post, err error) {
+// This method return a post (see ./api/types/posts.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *types.Post, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
 
-	post = new(models.Post)
+	post = new(types.Post)
 
 	err = tx.QueryRowContext(ctx, `
 	SELECT p.*, u.nickname
@@ -124,7 +98,7 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *mo
 	return
 }
 
-func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []models.Post, err error) {
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []types.Post, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -143,20 +117,51 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 		return
 	}
 
+	stmt, err := tx.PrepareContext(ctx, `
+	SELECT path
+	FROM posts_images
+	WHERE post_id = ?;`)
+	if err != nil {
+		return nil, err
+	}
+
 	for rows.Next() {
-		post := models.Post{}
-		err = rows.Scan(&post.Id, &post.UserId, &post.GroupId, &post.Content, &post.Timestamp, &post.Username)
+		var post types.Post
+		err = rows.Scan(
+			&post.Id,
+			&post.UserId,
+			&post.GroupId,
+			&post.Content,
+			&post.Timestamp,
+			&post.Username)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		post.Images = make([]string, 0) // TODO: restore image system
+		images, err := stmt.QueryContext(ctx, post.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		for images.Next() {
+			var path string
+			err = images.Scan(&path)
+			if err != nil {
+				return nil, err
+			}
+			post.Images = append(post.Images, path)
+		}
+
+		if post.Images == nil {
+			post.Images = make([]string, 0)
+		}
+
 		posts = append(posts, post)
 	}
 
 	if posts == nil {
-		posts = make([]models.Post, 0)
+		posts = make([]types.Post, 0)
 	}
 
 	return posts, tx.Commit()
@@ -180,10 +185,8 @@ func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) 
 		return err
 	}
 
-	var query string
-	if !exists {
-		query = "INSERT INTO likes_records VALUES(?, ?);"
-	} else {
+	var query string = "INSERT INTO likes_records (user_id, post_id) VALUES (?, ?);"
+	if exists {
 		query = "DELETE FROM likes_records WHERE user_id = ? AND post_id = ?;"
 	}
 
@@ -193,4 +196,73 @@ func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) 
 	}
 
 	return tx.Commit()
+}
+
+func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limit, offset int) (posts []types.Post, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.Query(`
+	SELECT p.*, u.nickname
+	FROM posts p JOIN users u
+	ON p.user_id = u.id
+	WHERE user_id = ?
+	LIMIT ? OFFSET ?;`,
+		userId, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := tx.PrepareContext(ctx, `
+	SELECT path
+	FROM posts_images
+	WHERE post_id = ?;`)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var post types.Post
+
+		err = rows.Scan(
+			&post.Id,
+			&post.UserId,
+			&post.GroupId,
+			&post.Content,
+			&post.Timestamp,
+			&post.Username)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		images, err := stmt.QueryContext(ctx, post.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		for images.Next() {
+			var path string
+			err = images.Scan(&path)
+			if err != nil {
+				return nil, err
+			}
+			post.Images = append(post.Images, path)
+		}
+
+		if post.Images == nil {
+			post.Images = make([]string, 0)
+		}
+
+		posts = append(posts, post)
+	}
+
+	if posts == nil {
+		posts = make([]types.Post, 0)
+	}
+
+	return posts, nil
 }

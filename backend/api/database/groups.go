@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"Social-Network-01/api/models"
+	"Social-Network-01/api/types"
 )
 
 const groupIdLength = 8
@@ -16,8 +16,8 @@ const groupIdLength = 8
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `groupName` is the corresponding name in the database and is usualy find in the request pathvalue.
 //
-// This method return a Group (see ./api/models/groups.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group *models.Group, err error) {
+// This method return a Group (see ./api/types/groups.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group *types.Group, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -25,8 +25,8 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group 
 	defer tx.Rollback()
 
 	row := tx.QueryRowContext(ctx, `SELECT * FROM groups WHERE id = ?`, groupId)
-	group = new(models.Group)
-	err = row.Scan(&group.Id, &group.Name, &group.Description, &group.Timestamp)
+	group = new(types.Group)
+	err = row.Scan(&group.Id, &group.Name, &group.Description, &group.Image, &group.Timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +39,8 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group 
 // `store` is find in the API structure and is the SQLite3 DB.
 // `ctx` is the context of the request. `group` is the corresponding group values (name...).
 //
-// This method return a Group (see ./api/models/groups.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) NewGroup(ctx context.Context, group *models.Group) (newgroup *models.Group, err error) {
+// This method return a Group (see ./api/types/groups.go) or usualy an SQL error (one is nil when the other isn't).
+func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -50,35 +50,31 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *models.Group) (n
 	var exists bool
 	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
-		SELECT 1 FROM groups WHERE name = $1
+		SELECT 1 FROM groups WHERE name = ?
 	);`, group.Name).Scan(&exists)
 	if err != nil {
-		return
+		return err
 	}
 	if exists {
-		return nil, ErrConflict
+		return ErrConflict
 	}
 
-	newgroup = new(models.Group)
-	newgroup.Id = generateB64(groupIdLength)
-	newgroup.Name = group.Name
-	newgroup.Description = group.Description
-	newgroup.Timestamp = time.Now().UTC()
+	group.Id = generateB64(groupIdLength)
+	group.Timestamp = time.Now().UTC()
 
 	_, err = store.ExecContext(ctx,
-		`INSERT INTO groups VALUES (?,?,?,?)`,
-		newgroup.Id,
-		newgroup.Name,
-		newgroup.Description,
-		newgroup.Timestamp)
+		`INSERT INTO groups (id, name, description, timestamp) VALUES (?, ?, ?, ?);`,
+		group.Id,
+		group.Name,
+		group.Description,
+		group.Timestamp)
 	if err != nil {
 		return
 	}
-
-	return newgroup, tx.Commit()
+	return tx.Commit()
 }
 
-func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (groups []*models.Group, err error) {
+func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (groups []*types.Group, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -91,8 +87,13 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 		limit, offset)
 
 	for rows.Next() {
-		group := new(models.Group)
-		err = rows.Scan(&group.Id, &group.Name, &group.Description, &group.Timestamp)
+		group := new(types.Group)
+		err = rows.Scan(
+			&group.Id,
+			&group.Name,
+			&group.Description,
+			&group.Image,
+			&group.Timestamp)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -102,7 +103,7 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 	}
 
 	if groups == nil {
-		groups = make([]*models.Group, 0)
+		groups = make([]*types.Group, 0)
 	}
 
 	return

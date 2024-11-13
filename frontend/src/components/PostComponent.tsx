@@ -12,28 +12,30 @@ import formatDate from "@/utils/formatDate";
 const PostComponent = ({ post }: { post: Post }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [ShowAllComment, setShowAllComment] = useState(false)
+    const [ShowAllComment, setShowAllComment] = useState(false);
     const [isOverflowing, setIsOverflowing] = useState(false);
-    const contentRef = useRef<HTMLAnchorElement>(null)
+    const contentRef = useRef<HTMLAnchorElement>(null);
 
     const handleLikeClick = () => setIsLiked(!isLiked);
-    const handleSeeMore = () => setIsExpanded(!isExpanded)
-    const handleShowAllComment = () => setShowAllComment(!ShowAllComment)
+    const handleSeeMore = () => setIsExpanded(!isExpanded);
+    const handleShowAllComment = () => setShowAllComment(!ShowAllComment);
 
     useEffect(() => {
         const checkOverflow = () => {
             if (contentRef.current) {
                 // Check if content is longer than the container height
-                const isOverflowing = contentRef.current.scrollHeight > contentRef.current.clientHeight;
+                const isOverflowing =
+                    contentRef.current.scrollHeight >
+                    contentRef.current.clientHeight;
                 setIsOverflowing(isOverflowing);
             }
         };
 
         checkOverflow();
-        window.addEventListener('resize', checkOverflow)
+        window.addEventListener("resize", checkOverflow);
 
-        return () => window.removeEventListener('resize', checkOverflow);
-    }, [post.content])
+        return () => window.removeEventListener("resize", checkOverflow);
+    }, [post.content]);
 
     return (
         <>
@@ -74,7 +76,11 @@ const PostComponent = ({ post }: { post: Post }) => {
                 <Link
                     ref={contentRef}
                     href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded ? "" : "h-[110px] line-clamp-5 overflow-hidden"}`}
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${
+                        isExpanded
+                            ? ""
+                            : "h-[110px] line-clamp-5 overflow-hidden"
+                    }`}
                 >
                     {post.content}
                 </Link>
@@ -113,13 +119,20 @@ const PostComponent = ({ post }: { post: Post }) => {
                     <CommentIcon />
                 </div>
 
-                <div className={`overflow-hidden mb-3 mt-1 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"}`}>
+                <div
+                    className={`overflow-hidden mb-3 mt-1 ml-5 mr-10 ${
+                        ShowAllComment ? "h-fit" : "max-h-[108px]"
+                    }`}
+                >
                     <Comment />
                     <Comment />
                 </div>
 
                 <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
-                    <button onClick={handleShowAllComment} className="cursor-pointer">
+                    <button
+                        onClick={handleShowAllComment}
+                        className="cursor-pointer"
+                    >
                         {ShowAllComment ? "Less comments" : "More comments"}
                     </button>
                 </div>
