@@ -4,16 +4,16 @@ import { Event } from "@/types/group";
 import { StrictOmit } from "@/utils/types";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 
-type EventFields = StrictOmit<Event, "id" | "going">;
+type EventFields = StrictOmit<Event, "id" | "groupId" | "going">;
 
 export default function NewEvent({ groupId }: { groupId: string }) {
-    const defaultState = { groupId, title: "", description: "", date: "" };
+    const defaultState = { title: "", description: "", date: "" };
 
     const [state, setState] = useState<EventFields>(defaultState);
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const response = await fetch("/api/create/event", {
+        const response = await fetch(`/api/group/${groupId}/events`, {
             method: "POST",
             body: JSON.stringify(state),
         });
@@ -25,6 +25,7 @@ export default function NewEvent({ groupId }: { groupId: string }) {
 
     return (
         <form onSubmit={onSubmit}>
+            <h1>New Event</h1>
             <label htmlFor="title">Title</label>
             <input
                 type="text"
