@@ -18,7 +18,6 @@ const (
 type SessionStore struct {
 	mx       sync.RWMutex
 	sessions map[string]*Session
-	timer    *time.Ticker
 }
 
 // generateB64 generate a random base 64 id of n length
@@ -42,9 +41,8 @@ func NewSessionStore() *SessionStore {
 // The timeoutCycle function initialize the expiration ticker and
 // asynchronously handle ticks to delete the Sessions
 func (store *SessionStore) timeoutCycle() {
-	store.timer = time.NewTicker(session_timeout)
 	go func() {
-		for range store.timer.C {
+		for range time.NewTicker(session_timeout).C {
 			store.mx.Lock()
 			for key, sess := range store.sessions {
 				if sess.Expires.Before(time.Now()) {

@@ -23,7 +23,11 @@ export default function Page() {
             <NewGroup />
             <div>
                 {groups.map((group, idx) => (
-                    <Link key={idx} href={`/group/${group.id}`}>
+                    <Link
+                        key={idx}
+                        href={`/group/${group.id}`}
+                        className="flex items-center gap-2"
+                    >
                         <Image
                             src={group.image}
                             alt=""

@@ -7,7 +7,22 @@ import (
 	"net/http"
 )
 
+func (server *API) RegisterUserToEvent(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	switch request.Method {
+	case http.MethodPost:
+		return server.Storage.RegisterUserToEvent(context.TODO(), sess.User.Id, request.PathValue("eventid"))
+	default:
+		return HTTPerror(http.StatusMethodNotAllowed)
+	}
+}
+
 func (server *API) Events(writer http.ResponseWriter, request *http.Request) (err error) {
+	groupId := request.PathValue("groupid")
 	switch request.Method {
 	case http.MethodPost:
 		var event types.Event
@@ -16,7 +31,7 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 			return err
 		}
 
-		event.GroupId = request.PathValue("groupid")
+		event.GroupId = groupId
 
 		if !event.Valid() {
 			return writeJSON(writer,
@@ -27,8 +42,13 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 		return server.Storage.CreateEvent(context.TODO(), event)
 
 	case http.MethodGet:
+		sess, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return err
+		}
+
 		limit, offset := parseRequestLimitAndOffset(request)
-		events, err := server.Storage.GetEvents(context.TODO(), request.PathValue("groupid"), limit, offset)
+		events, err := server.Storage.GetEvents(context.TODO(), sess.User.Id, groupId, limit, offset)
 		if err != nil {
 			return err
 		}

@@ -10,3 +10,9 @@ CREATE TABLE IF NOT EXISTS posts_images (
     post_id TEXT REFERENCES posts(id),
     path TEXT UNIQUE NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS likes_records(
+    user_id TEXT REFERENCES users(id),
+    post_id TEXT REFERENCES posts(id)
+);
+

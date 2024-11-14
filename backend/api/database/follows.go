@@ -62,7 +62,7 @@ func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, follow
 		query = "DELETE FROM follow_records WHERE user_id = ? AND follower_id = ?;"
 	}
 
-	_, err = store.ExecContext(ctx, query, userId, followerId)
+	_, err = tx.ExecContext(ctx, query, userId, followerId)
 	if err != nil {
 		return err
 	}

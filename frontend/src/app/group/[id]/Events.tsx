@@ -8,6 +8,13 @@ export default function Events({ groupId }: { groupId: string }) {
     const { limit, offset } = useQueryParams();
     const [events, setEvents] = useState<Event[]>([]);
 
+    const changeGoingState = (eventId: string) => async () => {
+        const response = await fetch(
+            `/api/group/${groupId}/events/${eventId}`,
+            { method: "POST" }
+        );
+    };
+
     useEffect(() => {
         const fetchEvents = async () => {
             const response = await fetch(
@@ -33,7 +40,7 @@ export default function Events({ groupId }: { groupId: string }) {
                         type="checkbox"
                         name="going"
                         defaultChecked={event.going}
-                        onChange={console.log}
+                        onChange={changeGoingState(event.id)}
                         id="going"
                     />
                 </li>
