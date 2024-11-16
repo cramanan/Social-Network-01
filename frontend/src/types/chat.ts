@@ -1,5 +1,5 @@
 export type SocketMessage<T = unknown> = {
-    type: "message" | "ping";
+    type: "message" | "ping" | "friend-request";
     data: T;
 };
 

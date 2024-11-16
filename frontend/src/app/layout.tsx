@@ -2,6 +2,7 @@ import AuthProvider from "@/providers/AuthProvider";
 import type { Metadata } from "next";
 import "./globals.css";
 import WebSocketProvider from "@/providers/WebSocketProvider";
+import NotificationLayout from "@/layouts/NotificationLayout";
 
 export const metadata: Metadata = {
     title: "Social Network",
@@ -17,7 +18,9 @@ export default function RootLayout({
         <html lang="en">
             <body>
                 <AuthProvider>
-                    <WebSocketProvider>{children}</WebSocketProvider>
+                    <WebSocketProvider>
+                        <NotificationLayout>{children}</NotificationLayout>
+                    </WebSocketProvider>
                 </AuthProvider>
             </body>
         </html>

@@ -22,8 +22,8 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS(
 		SELECT 1 FROM follow_records 
-		WHERE user_id = ? AND follower_id = ? AND accepted = TRUE
-	);`).Scan(&follows)
+		WHERE user_id = ? AND follower_id = ?
+	);`, userId, followerId).Scan(&follows)
 
 	if err != nil {
 		return false, err
@@ -46,27 +46,29 @@ func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, follow
 	}
 	defer tx.Rollback()
 
-	query := "INSERT INTO follow_records VALUES(?, ?, FALSE);"
-	var alreadyFollows bool
-
+	rowsExists := false
 	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
-		SELECT * FROM follow_records 
-		WHERE user_id = ? AND follower_id = ?
-	);`, userId, followerId).Scan(&alreadyFollows)
+		SELECT 1 
+		FROM users 
+		WHERE id = ?
+	) AND EXISTS (
+		SELECT 1 
+		FROM users 
+		WHERE id = ?
+	);`, userId, followerId).Scan(&rowsExists)
 	if err != nil {
 		return err
 	}
 
-	if alreadyFollows {
-		query = "DELETE FROM follow_records WHERE user_id = ? AND follower_id = ?;"
-	}
-
-	_, err = tx.ExecContext(ctx, query, userId, followerId)
+	_, err = tx.ExecContext(ctx, `
+	INSERT INTO follow_records (user_id, follower_id, accepted) 
+	VALUES (?, ?, (
+		SELECT NOT is_private FROM users WHERE id = ?
+	));`, userId, followerId, userId)
 	if err != nil {
 		return err
 	}
-
 	return tx.Commit()
 }
 

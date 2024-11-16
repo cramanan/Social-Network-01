@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"Social-Network-01/api/database"
+	"Social-Network-01/api/types"
 )
 
 // Perform the action of following one from another.
@@ -31,12 +32,33 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 		return fmt.Errorf("cannot follow yourself")
 	}
 
-	err = server.Storage.SendFriendRequest(ctx, request.PathValue("userid"), sess.User.Id)
+	userId := request.PathValue("userid")
+
+	follows, err := server.Storage.Follows(ctx, userId, sess.User.Id)
+	if err != nil {
+		return err
+	}
+	var methodToUse func(context.Context, string, string) error
+
+	if !follows {
+		methodToUse = server.Storage.SendFriendRequest
+		if conn, ok := server.WebSocket.Users[userId]; ok {
+			conn.WriteJSON(types.SocketMessage[string]{
+				Type: "friend-request",
+				Data: fmt.Sprintf("%s has sent you a friend request.", sess.User.Nickname),
+			})
+		}
+
+	} else {
+		methodToUse = server.Storage.UnfollowUser
+	}
+
+	err = methodToUse(ctx, userId, sess.User.Id)
 	if err != nil {
 		return err
 	}
 
-	return writeJSON(writer, http.StatusCreated, "Created")
+	return writeJSON(writer, http.StatusOK, "OK")
 }
 
 func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http.Request) (err error) {
