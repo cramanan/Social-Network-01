@@ -1,19 +1,8 @@
+import { User } from "@/types/user";
 import Image from "next/image";
 import React from "react";
 
-const ProfileBanner = ({
-    image,
-    id,
-    firstName,
-    lastName,
-    nickname,
-}: {
-    image: string;
-    id: string;
-    firstName: string;
-    lastName: string;
-    nickname: string;
-}) => {
+const ProfileBanner = ({ image, id, firstName, lastName }: User) => {
     return (
         <div className="flex flex-row items-center h-36">
             <Image

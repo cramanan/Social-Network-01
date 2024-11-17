@@ -1,7 +1,3 @@
-import ChatRoom from "./ChatRoom";
-import Image from "next/image";
-import { BackIcon } from "@/components/icons/BackIcon";
-import Link from "next/link";
 import { User } from "@/types/user";
 import { Params } from "@/types/query";
 import ChatBox from "@/components/ChatBox";
@@ -17,7 +13,7 @@ export default async function Page({ params }: { params: Params }) {
 
     return (
         <>
-            <ChatBox recipient={user} />
+            <ChatBox onClose={() => {}} recipient={user} />
             {/* <h1 className="flex justify-between font-bold p-2">
                 <Link href="/chats">
                     <BackIcon />

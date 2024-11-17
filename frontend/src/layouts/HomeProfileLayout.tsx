@@ -1,11 +1,10 @@
 "use client";
 
+import React from "react";
 import Header from "@/components/Header";
 import SideNavMenu from "@/components/SideNavMenu";
-import React, { useEffect } from "react";
 import Chat from "@/components/Chat";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import { useWebSocket } from "@/hooks/useWebSocket";
 interface Props {
     children: React.ReactNode;
 }

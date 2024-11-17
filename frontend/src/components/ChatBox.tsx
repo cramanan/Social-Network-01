@@ -3,14 +3,13 @@ import React, { useEffect, useState } from "react";
 import { BackIcon } from "./icons/BackIcon";
 import { SendIcon } from "./icons/SendIcon";
 import { EmoteIcon } from "./icons/EmoteIcon";
-import { OnlineUser, User } from "@/types/user";
+import { User } from "@/types/user";
 import Link from "next/link";
 import { ClientChat, ServerChat, SocketMessage } from "@/types/chat";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import useIsMobile from "@/hooks/useIsMobile";
 
 interface ChatBoxProps {
-    user: OnlineUser;
     onClose: () => void;
     recipient: User;
 }

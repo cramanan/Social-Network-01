@@ -103,7 +103,6 @@ const ChatList = () => {
 
             {selectedUser && (
                 <ChatBox
-                    user={selectedUser}
                     recipient={selectedUser}
                     onClose={handleCloseChatBox}
                 />

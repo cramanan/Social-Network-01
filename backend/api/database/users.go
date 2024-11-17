@@ -244,7 +244,7 @@ func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, 
 // `limit` and `offset` can be retrieve with the parseRequestLimitAndOffset method using the request.
 //
 // This method return an array of user (see ./api/types/users.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string, limit, offset int) (users []types.User, err error) {
+func (store *SQLite3Store) GetProfileFollowers(ctx context.Context, userId string, limit, offset int) (users []types.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err
@@ -252,10 +252,10 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 	defer tx.Rollback()
 
 	rows, err := store.QueryContext(ctx, `
-	SELECT u.*
+	SELECT u.id, u.nickname, u.image_path
 	FROM follow_records f 
 	JOIN users u 
-	ON f.user_id = u.id
+	ON f.follower_id = u.id
 	WHERE user_id = ? AND accepted = TRUE
 	LIMIT ? OFFSET ?;`,
 		userId, limit, offset)
@@ -268,19 +268,55 @@ func (store *SQLite3Store) GetFollowersOfUser(ctx context.Context, userId string
 		err = rows.Scan(
 			&user.Id,
 			&user.Nickname,
-			&user.Email,
-			&user.FirstName,
-			&user.LastName,
-			&user.DateOfBirth,
 			&user.ImagePath,
-			&user.AboutMe,
-			&user.IsPrivate,
-			&user.Timestamp,
 		)
 		if err != nil {
 			return nil, err
 		}
 		users = append(users, user)
+	}
+
+	if users == nil {
+		users = make([]types.User, 0)
+	}
+
+	return users, nil
+}
+
+func (store *SQLite3Store) GetProfileFollowing(ctx context.Context, userId string, limit, offset int) (users []types.User, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := store.QueryContext(ctx, `
+	SELECT u.id, u.nickname, u.image_path
+	FROM follow_records f 
+	JOIN users u 
+	ON f.user_id = u.id
+	WHERE follower_id = ? AND accepted = TRUE
+	LIMIT ? OFFSET ?;`,
+		userId, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		user := types.User{}
+		err = rows.Scan(
+			&user.Id,
+			&user.Nickname,
+			&user.ImagePath,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if users == nil {
+		users = make([]types.User, 0)
 	}
 
 	return users, nil

@@ -83,7 +83,7 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 // Retrieve all follower of a user from the database.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http.Request) error {
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
 
@@ -95,22 +95,41 @@ func (server *API) GetFollowersOfUser(writer http.ResponseWriter, request *http.
 		})
 	}
 
-	limit, offset := parseRequestLimitAndOffset(request)
-
-	user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
+	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
 	}
 
-	if user.IsPrivate {
-		return writeJSON(writer, http.StatusUnauthorized, APIerror{
-			http.StatusUnauthorized,
-			"Unauthorized",
-			"This account is private",
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	users, err := server.Storage.GetProfileFollowers(ctx, sess.User.Id, limit, offset)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, users)
+}
+
+func (server *API) GetProfileFollowing(writer http.ResponseWriter, request *http.Request) error {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
+			http.StatusMethodNotAllowed,
+			"Method Not Allowed",
+			"Only GET is allowed",
 		})
 	}
 
-	users, err := server.Storage.GetFollowersOfUser(ctx, request.PathValue("userid"), limit, offset)
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	users, err := server.Storage.GetProfileFollowing(ctx, sess.User.Id, limit, offset)
 	if err != nil {
 		return err
 	}

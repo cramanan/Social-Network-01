@@ -1,5 +1,4 @@
 import React from "react";
-import Users from "./Users";
 import SearchBar from "./SearchBar";
 
 const FindUser = () => {
@@ -17,13 +16,7 @@ const FindUser = () => {
 
                 <span>Suggestions</span>
 
-                <div className="flex flex-col gap-2 mx-5">
-                    {/* <Users />
-                    <Users />
-                    <Users />
-                    <Users />
-                    <Users /> */}
-                </div>
+                <div className="flex flex-col gap-2 mx-5"></div>
             </div>
         </>
     );

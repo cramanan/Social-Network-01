@@ -1,7 +1,6 @@
 import { Post } from "@/types/post";
 import { Params } from "@/types/query";
 import CommentForm from "./CommentForm";
-import Publication from "@/components/Publication";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 
 export default async function Page({ params }: { params: Params }) {

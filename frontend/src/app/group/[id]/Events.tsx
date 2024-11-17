@@ -9,7 +9,7 @@ export default function Events({ groupId }: { groupId: string }) {
     const [events, setEvents] = useState<Event[]>([]);
 
     const changeGoingState = (eventId: string) => async () => {
-        const response = await fetch(
+        /*const response =*/ await fetch(
             `/api/group/${groupId}/events/${eventId}`,
             { method: "POST" }
         );
