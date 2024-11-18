@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { BackIcon } from "./icons/BackIcon";
 import { SendIcon } from "./icons/SendIcon";
@@ -41,11 +42,11 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
 
     // Add event listener on mount
     useEffect(() => {
-        if (!websocket) return;
-
         const addMessage = (msg: MessageEvent) => {
             const message = JSON.parse(msg.data) as SocketMessage<ServerChat>;
             if (message.type !== "message") return;
+
+            console.log(message);
 
             setMessages((prev) => [...prev, message.data]);
         };
@@ -59,15 +60,17 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
 
     // if the socket is somehow null
     if (!websocket) return <>No socket</>;
+
     return (
         <>
             <div
                 id="chatBox"
-                className="flex flex-col w-full h-full relative xl:w-[343px] xl:rounded-[25px] xl:h-[642px] xl:translate-x-10 xl:bg-[#fbfbfb]"
+                className="flex flex-col w-full h-full relative xl:w-[343px] xl:rounded-[25px] xl:h-[642px] xl:bg-[#fbfbfb]"
             >
+                {/* {"xl:translate-x-10"} */}
                 <div className="flex flex-row w-full min-h-14 items-center justify-between border-b border-black px-3 xl:rounded-tl-[25px] xl:rounded-t-[25px] xl:bg-[#445ab3]/20 xl:w-[343px]">
                     {isMobile ? (
-                        <Link href={`/chats`} onClick={onClose}>
+                        <Link href="/chats" onClick={onClose}>
                             <BackIcon />
                         </Link>
                     ) : (
@@ -76,7 +79,7 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                         </button>
                     )}
                     <span>{recipient.nickname}</span>
-                    <span></span>
+                    <span />
                 </div>
 
                 <ul className="flex flex-col flex-grow px-3 py-2 overflow-scroll no-scrollbar">

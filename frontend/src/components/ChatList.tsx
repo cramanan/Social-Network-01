@@ -1,3 +1,5 @@
+"use client";
+
 import useQueryParams from "@/hooks/useQueryParams";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { SocketMessage } from "@/types/chat";
@@ -48,16 +50,11 @@ const ChatList = () => {
 
     // Add event listener
     useEffect(() => {
-        if (!websocket) return;
-
         websocket.socket.addEventListener("message", callback);
 
         // Remove when the component is unmounted
         return () => websocket.socket.removeEventListener("message", callback);
     }, [websocket, callback]);
-
-    // If the websocket somehow couldn't load
-    if (!websocket) return <>No socket</>;
 
     const handleUserSelect = (user: OnlineUser) => {
         setSelectedUser(user);

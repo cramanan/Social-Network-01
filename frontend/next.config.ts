@@ -1,6 +1,7 @@
 import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+    reactStrictMode: false,
     async rewrites() {
         return [
             {

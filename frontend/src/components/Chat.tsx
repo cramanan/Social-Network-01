@@ -9,125 +9,68 @@ import { ChatIcon } from "./icons/ChatIcon";
 import { FindUserIcon } from "./icons/FindUserIcon";
 
 const Chat = () => {
+    const [windows, setWindows] = useState([false, false, false]);
+    const handleClick = (i: number) => () => {
+        const next = [false, false, false];
+        if (!windows[i]) next[i] = true;
+        setWindows(next);
+    };
 
-  const useToggle = (initialState = false) => {
-    const [state, setState] = useState(initialState);
-    const toggle = () => setState((prev) => !prev);
-    return [state, toggle] as const;
-  };
+    const navItems = [
+        {
+            icon: <ChatIcon />,
+            label: "Chat list",
+        },
+        {
+            icon: <FindUserIcon />,
+            label: "FindUser list",
+        },
+        {
+            icon: <UserListIcon />,
+            label: "User list",
+        },
+    ];
 
-  const [isChatListOpen, toggleChatList] = useToggle(false);
-  const [isFindUserOpen, toggleFindUser] = useToggle(false);
-  const [isUserListOpen, toggleUserList] = useToggle(false);
+    const navBody = [ChatList, FindUser, UserList];
 
-  const handleChatIconClick = () => {
-    toggleChatList();
-    if (isFindUserOpen) toggleFindUser();
-    if (isUserListOpen) toggleUserList();
-  };
-
-  const handleFindUserIconClick = () => {
-    toggleFindUser();
-    if (isChatListOpen) toggleChatList();
-    if (isUserListOpen) toggleUserList();
-  };
-
-  const handleUserListIconClick = () => {
-    toggleUserList();
-    if (isChatListOpen) toggleChatList();
-    if (isFindUserOpen) toggleFindUser();
-  };
-
-  const navItems = [
-    {
-      icon: <ChatIcon />,
-      OnClick: handleChatIconClick,
-      label: "Chat list",
-      expanded: isChatListOpen,
-    },
-    {
-      icon: <FindUserIcon />,
-      OnClick: handleFindUserIconClick,
-      label: "FindUser list",
-      expanded: isFindUserOpen,
-    },
-    {
-      icon: <UserListIcon />,
-      OnClick: handleUserListIconClick,
-      label: "User list",
-      expanded: isUserListOpen,
-    },
-  ];
-
-  return (
-    <>
-      <nav
-        id="chat-nav"
-        className="w-72 h-12 flex bg-white bg-opacity-40 mr-3 rounded-b-3xl px-7"
-        aria-label="Chat Navigation"
-      >
-        <ul className="w-full flex flex-row justify-between items-center">
-          {navItems.map((items, index) => (
-            <li key={index}>
-              <button
-                onClick={items.OnClick}
-                aria-label={`Toggle ${items.label}`}
-                aria-expanded={items.expanded}
-              >
-                <span className="sr-only">{items.label}</span>
-                {items.icon}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div
-        id="chat-list"
-        aria-hidden={!isChatListOpen}
-        className={`
-        absolute top-32 right-[3.4rem] transition-all duration-300 ease-in-out
-        ${isChatListOpen
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 translate-y-5 pointer-events-none"
-          }
-      `}
-        aria-label="Chat list"
-      >
-        <ChatList />
-      </div>
-
-      <div
-        id="finduser-list"
-        aria-hidden={!isFindUserOpen}
-        className={`
-        absolute right-3 top-32 transition-all duration-300 ease-in-out
-        ${isFindUserOpen
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 translate-y-5 pointer-events-none"
-          }
-      `}
-        aria-label="Find user list"
-      >
-        <FindUser />
-      </div>
-
-      <div
-        id="user-list"
-        aria-hidden={!isUserListOpen}
-        className={`
-        absolute right-3 top-32 transition-all duration-300 ease-in-out
-        ${isUserListOpen
-            ? "opacity-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 translate-y-5 pointer-events-none"
-          }
-      `}
-        aria-label="User list"
-      >
-        <UserList />
-      </div>
-    </>
-  );
+    return (
+        <div>
+            <nav
+                id="chat-nav"
+                className="w-72 h-12 flex bg-white bg-opacity-40 mr-3 rounded-b-3xl px-7"
+                aria-label="Chat Navigation"
+            >
+                <ul className="w-full flex flex-row justify-between items-center">
+                    {navItems.map((items, index) => (
+                        <li key={index}>
+                            <button
+                                aria-label={`Toggle ${items.label}`}
+                                aria-expanded={windows[index]}
+                                onClick={handleClick(index)}
+                            >
+                                <span className="sr-only">{items.label}</span>
+                                {items.icon}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+            <ul className="pt-2">
+                {navBody.map((Component, idx) => (
+                    <li
+                        key={idx}
+                        className={`absolute transition-all duration-300 ease-in-out ${
+                            windows[idx]
+                                ? "opacity-100 translate-y-0 pointer-events-auto"
+                                : "opacity-0 translate-y-5 pointer-events-none"
+                        }`}
+                    >
+                        <Component />
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
 };
 
 export default Chat;

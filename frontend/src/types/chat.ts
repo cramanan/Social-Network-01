@@ -1,5 +1,7 @@
+export type SocketMessageType = "message" | "ping" | "friend-request";
+
 export type SocketMessage<T = unknown> = {
-    type: "message" | "ping" | "friend-request";
+    type: SocketMessageType;
     data: T;
 };
 

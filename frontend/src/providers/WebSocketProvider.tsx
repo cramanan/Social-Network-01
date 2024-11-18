@@ -1,17 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { PropsWithChildren, useEffect } from "react";
 import { webSocketContext } from "./WebSocketContext";
 import { ClientChat } from "@/types/chat";
-import { Children } from "@/utils/types";
 
-export default function WebSocketProvider({ children }: Children) {
+export default function WebSocketProvider({ children }: PropsWithChildren) {
     const socket = new WebSocket(
         `${process.env.NEXT_PUBLIC_API_URL}/api/socket`
     );
 
     const sendChat = (chat: ClientChat) => {
-        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        if (socket.readyState !== WebSocket.OPEN) return;
 
         socket.send(JSON.stringify({ type: "message", data: chat }));
     };
