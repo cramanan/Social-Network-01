@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { LikeIcon } from "./icons/LikeIcon";
 
 const Comment = () => {
+    const [isLiked, setIsLiked] = useState(false)
+
+    const handleLikeCLick = () => setIsLiked(!isLiked)
     return (
         <>
             <div
@@ -21,8 +24,8 @@ const Comment = () => {
                         </span>
                     </div>
                 </div>
-                <div className="mr-2">
-                    <LikeIcon />
+                <div onClick={handleLikeCLick} className="mr-2">
+                    <LikeIcon isLiked={isLiked} />
                 </div>
             </div>
         </>

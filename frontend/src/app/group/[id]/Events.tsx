@@ -8,13 +8,6 @@ export default function Events({ groupId }: { groupId: string }) {
     const { limit, offset } = useQueryParams();
     const [events, setEvents] = useState<Event[]>([]);
 
-    const changeGoingState = (eventId: string) => async () => {
-        /*const response =*/ await fetch(
-            `/api/group/${groupId}/events/${eventId}`,
-            { method: "POST" }
-        );
-    };
-
     useEffect(() => {
         const fetchEvents = async () => {
             const response = await fetch(
@@ -29,22 +22,24 @@ export default function Events({ groupId }: { groupId: string }) {
     }, [groupId, limit, offset]);
 
     return (
-        <ul>
-            {events.map((event, idx) => (
-                <li key={idx}>
-                    <h1>{event.title}</h1>
-                    <p>{event.description}</p>
-                    <div>{event.date}</div>
-                    <label htmlFor="going">Going</label>
-                    <input
-                        type="checkbox"
-                        name="going"
-                        defaultChecked={event.going}
-                        onChange={changeGoingState(event.id)}
-                        id="going"
-                    />
-                </li>
-            ))}
-        </ul>
+        <>
+            <ul className="flex flex-col gap-2">
+                {events.map((event, idx) => (
+                    <li key={idx}>
+                        <h3>{event.title}</h3>
+                        <p>{event.description}</p>
+                        <div>{event.date}</div>
+                        <label htmlFor="going">Going</label>
+                        <input
+                            type="checkbox"
+                            name="going"
+                            defaultChecked={event.going}
+                            onChange={console.log}
+                            id="going"
+                        />
+                    </li>
+                ))}
+            </ul>
+        </>
     );
 }

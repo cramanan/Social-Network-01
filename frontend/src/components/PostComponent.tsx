@@ -8,6 +8,7 @@ import { Post } from "@/types/post";
 import Image from "next/image";
 import Link from "next/link";
 import formatDate from "@/utils/formatDate";
+import { LikeIcon } from "./icons/LikeIcon";
 
 const PostComponent = ({ post }: { post: Post }) => {
     const [isLiked, setIsLiked] = useState(false);
@@ -39,13 +40,19 @@ const PostComponent = ({ post }: { post: Post }) => {
 
     return (
         <>
-            <div className="flex flex-col relative w-full bg-white/95 rounded-[30px]">
-                <div className="flex flex-row justify-between items-center mr-5">
-                    <div className="flex flex-row items-center ml-2 mt-2 gap-5">
-                        <div className="w-12 h-12 bg-[#af5f5f] rounded-[100px]"></div>
+            <div className="flex flex-col relative w-full bg-white/95 xl:rounded-[30px]">
+                <div className="flex flex-row justify-between items-center pr-5 mb-3">
+                    <div className="flex flex-row items-center ml-2 mt-2 gap-3">
+                        <Image
+                            src={"/"}
+                            width={48}
+                            height={48}
+                            alt=""
+                            className="flex justify-center items-center w-12 h-12 border border-black rounded-full"
+                        ></Image>
                         <div className="flex flex-col">
                             <Link
-                                href={`/user/${post.userId}`}
+                                href={`/profile`}
                                 className="text-black text-xl font-semibold font-['Inter']"
                             >
                                 {post.username}
@@ -59,18 +66,24 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
 
                 {post.images.length > 0 && (
-                    <div className="h-fit line-clamp-5 overflow-hidden text-black text-base font-normal font-['Inter'] leading-[22px] p-3">
+                    <p className="w-fit mx-5 mb-0">
                         {post.images.map((src, idx) => (
-                            <a href={src} key={idx} target="_blank">
+                            <a
+                                href={src}
+                                key={idx}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
                                 <Image
                                     src={src}
                                     width={100}
                                     height={100}
                                     alt=""
+                                    className="max-h-[100px] w-auto h-auto object-contain"
                                 />
                             </a>
                         ))}
-                    </div>
+                    </p>
                 )}
 
                 <Link
@@ -94,33 +107,15 @@ const PostComponent = ({ post }: { post: Post }) => {
                     </button>
                 )}
 
-                <div className="flex flex-row gap-5 ml-5">
-                    <svg
-                        className="cursor-pointer"
-                        onClick={handleLikeClick}
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill={isLiked ? "red" : "none"}
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <g id="heart">
-                            <path
-                                id="Icon"
-                                d="M19.5355 5.46436C21.4881 7.41698 21.4881 10.5828 19.5355 12.5354L12.7071 19.3639C12.3166 19.7544 11.6834 19.7544 11.2929 19.3639L4.46447 12.5354C2.51184 10.5828 2.51184 7.41698 4.46447 5.46436C6.0168 3.91202 7.89056 3.43671 9.78125 4.35927C10.5317 4.72543 11.5156 5.46436 12 6.42958C12.4844 5.46436 13.4683 4.72543 14.2187 4.35927C16.1094 3.43671 17.9832 3.91202 19.5355 5.46436Z"
-                                stroke="black"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </g>
-                    </svg>
-
+                <div className="flex flex-row gap-10 ml-5">
+                    <button onClick={handleLikeClick}>
+                        <LikeIcon isLiked={isLiked} />
+                    </button>
                     <CommentIcon />
                 </div>
 
                 <div
-                    className={`overflow-hidden mb-3 mt-1 ml-5 mr-10 ${
+                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${
                         ShowAllComment ? "h-fit" : "max-h-[108px]"
                     }`}
                 >
@@ -135,6 +130,22 @@ const PostComponent = ({ post }: { post: Post }) => {
                     >
                         {ShowAllComment ? "Less comments" : "More comments"}
                     </button>
+                </div>
+
+                <div className="h-[58px] pl-px pr-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2">
+                    <div className="w-full flex flex-row items-center gap-2">
+                        <div className="w-[44px] h-[40px] relative">emote</div>
+                        <input
+                            type="text"
+                            placeholder="Enter your comment"
+                            className="w-full h-[30px] text-black text-xl font-extralight font-['Inter'] bg-white/0"
+                        ></input>
+                    </div>
+                    <div className="self-stretch pl-[11px] pr-3 pt-[5px] bg-gradient-to-t from-[#e1d3eb] via-[#6f46c0] to-[#e0d3ea] rounded-[30px] justify-center items-center inline-flex">
+                        <button className="h-[25px] text-center text-black text-[15px] font-medium font-['Inter']">
+                            Send
+                        </button>
+                    </div>
                 </div>
             </div>
         </>

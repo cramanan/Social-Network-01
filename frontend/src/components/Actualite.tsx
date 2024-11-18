@@ -11,6 +11,7 @@ import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 import { Post } from "@/types/post";
 import useQueryParams from "@/hooks/useQueryParams";
+import { PostMedia } from "./PostMedia";
 // import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 // import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 
@@ -62,13 +63,24 @@ const Actualite = () => {
                 </div>
 
                 <section
-                    className="flex flex-col w-full gap-3 px-5 overflow-scroll no-scrollbar"
+                    className="flex flex-col w-full gap-3 overflow-scroll no-scrollbar xl:px-5"
                     aria-label="Posts"
                 >
-                    {posts.map((post, idx) => (
-                        <PostComponent post={post} key={idx} />
-                    ))}
+                    {posts.map((post, idx) =>
+                        post.images.length > 0 ? (
+                            <PostMedia key={idx} post={post} />
+                        ) : (
+                            <PostComponent key={idx} post={post} />
+                        )
+                    )}
                 </section>
+
+                {/* <section className="grid grid-cols-3 gap-5 overflow-scroll no-scrollbar">
+                    {posts.map((post, idx) => (
+                        post.images.length > 0 && <Media key={idx} {...post} />
+                    ))}
+                </section> */}
+
                 <div className="flex gap-5 p-2">
                     <button onClick={previous}>
                         <CloseSideMenuIcon />
