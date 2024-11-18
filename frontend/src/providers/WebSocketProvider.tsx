@@ -1,6 +1,6 @@
 "use client";
 
-import React, { PropsWithChildren, useEffect } from "react";
+import React, { PropsWithChildren } from "react";
 import { webSocketContext } from "./WebSocketContext";
 import { ClientChat } from "@/types/chat";
 

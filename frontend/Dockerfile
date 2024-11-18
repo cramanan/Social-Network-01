@@ -1,20 +1,20 @@
-FROM node:22-bookworm
+ARG NEXT_PUBLIC_API_URL=localhost:3001
 
-WORKDIR /app
-
+FROM node:23-alpine AS deps
 COPY package*.json ./
+RUN npm ci
 
-RUN npm install
+FROM node:23-alpine AS builder
+COPY . .
+COPY --from=deps ./node_modules ./node_modules
+RUN npm run build
 
-COPY src ./src
-COPY public ./public
-COPY next.config.mjs .
-COPY postcss.config.mjs .
-COPY tailwind.config.ts .
-COPY tsconfig.json .
+FROM node:23-alpine AS runner
+COPY --from=builder /next.config.ts ./
+COPY --from=builder /public ./public
+COPY --from=builder /node_modules ./node_modules
+COPY --from=builder /.next ./.next
 
 EXPOSE 3000
 
-RUN npm run build
-
-CMD ["npm", "run", "start"]
+CMD ["node_modules/.bin/next", "start"]
