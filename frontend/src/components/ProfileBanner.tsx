@@ -15,7 +15,7 @@ const ProfileBanner = ({
     nickname: string;
 }) => {
     return (
-        <div className="flex flex-row items-center h-36">
+        <div className="flex flex-row items-center h-20">
             <Image
                 width={144}
                 height={144}

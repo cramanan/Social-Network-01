@@ -11,7 +11,7 @@ const ProfilePost = ({ content, images, timestamp }: Post) => {
             <div className="w-[800px] h-[300px] p-4 bg-white rounded-l-[30px] flex flex-col justify-between">
                 <div className="flex flex-row gap-2">
                     {images.map((image, idx) => (
-                        <Image
+                        < Image
                             key={idx}
                             src={image}
                             width={100}

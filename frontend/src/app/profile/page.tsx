@@ -1,7 +1,8 @@
 "use client";
 
+import PostComponent from "@/components/PostComponent";
+import { PostMedia } from "@/components/PostMedia";
 import ProfileBanner from "@/components/ProfileBanner";
-import ProfilePost from "@/components/ProfilePost";
 import ProfileStats from "@/components/ProfileStats";
 import { useAuth } from "@/hooks/useAuth";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
@@ -29,15 +30,19 @@ export default function Profile() {
 
     return (
         <HomeProfileLayout>
-            <div className="flex flex-col justify-center items-center">
-                <div className="flex flex-col justify-center items-center my-3">
+            <div className="h-[calc(100vh-185px)] flex flex-col justify-center items-center xl:h-[calc(100vh-60px)]">
+                <div className="flex flex-col justify-center items-end my-3 mt-11">
                     <ProfileBanner {...user} />
                     <ProfileStats userId={user.id} />
                 </div>
 
-                <div className="flex flex-col gap-2 h-[calc(100vh-300px)] overflow-scroll no-scrollbar">
+                <div className="flex flex-col h-[calc(100vh-260px)] overflow-scroll no-scrollbar gap-2 pb-2 xl:w-[1000px]">
                     {posts.map((post, idx) => (
-                        <ProfilePost key={idx} {...post} />
+                        post.images.length > 0 ? (
+                            <PostMedia key={idx} post={post} />
+                        ) : (
+                            <PostComponent key={idx} post={post} />
+                        )
                     ))}
                 </div>
             </div>
