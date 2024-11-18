@@ -68,7 +68,7 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
             >
                 <div className="flex flex-row w-full min-h-14 items-center justify-between border-b border-black px-3 xl:rounded-tl-[25px] xl:rounded-t-[25px] xl:bg-[#445ab3]/20 xl:w-[343px]">
                     {isMobile ? (
-                        <Link href={`/chats`} onClick={onClose}>
+                        <Link href={`/chats`}>
                             <BackIcon />
                         </Link>
                     ) : (
@@ -88,18 +88,16 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                         return (
                             <li
                                 key={index}
-                                className={`flex flex-col w-fit ${
-                                    isRecipient
+                                className={`flex flex-col w-fit ${isRecipient
                                         ? " self-end items-end"
                                         : " self-start"
-                                }`}
+                                    }`}
                             >
                                 <p
-                                    className={`p-3 rounded-2xl ${
-                                        isRecipient
+                                    className={`p-3 rounded-2xl ${isRecipient
                                             ? "bg-[#b88ee5] text-black"
                                             : "bg-[#4174e2] text-white"
-                                    }`}
+                                        }`}
                                 >
                                     {msg.content}
                                 </p>

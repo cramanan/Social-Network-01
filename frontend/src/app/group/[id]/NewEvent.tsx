@@ -24,33 +24,35 @@ export default function NewEvent({ groupId }: { groupId: string }) {
         setState({ ...state, [key]: e.target.value });
 
     return (
-        <form onSubmit={onSubmit}>
-            <h1>New Event</h1>
-            <label htmlFor="title">Title</label>
-            <input
-                type="text"
-                name="title"
-                id="title"
-                value={state.title}
-                onChange={onChange("title")}
-            />
-            <label htmlFor="description">Description</label>
-            <input
-                type="text"
-                name="description"
-                id="description"
-                value={state.description}
-                onChange={onChange("description")}
-            />
-            <label htmlFor="date">Date</label>
-            <input
-                type="datetime-local"
-                name="date"
-                id="date"
-                value={state.date}
-                onChange={onChange("date")}
-            />
-            <button type="submit">Create Event</button>
-        </form>
+        <>
+            <form onSubmit={onSubmit} className="flex flex-col items-center py-3 border-b-2">
+                <h1 className="font-bold">New Event</h1>
+                <label htmlFor="title">Title</label>
+                <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    value={state.title}
+                    onChange={onChange("title")}
+                />
+                <label htmlFor="description">Description</label>
+                <input
+                    type="text"
+                    name="description"
+                    id="description"
+                    value={state.description}
+                    onChange={onChange("description")}
+                />
+                <label htmlFor="date">Date</label>
+                <input
+                    type="datetime-local"
+                    name="date"
+                    id="date"
+                    value={state.date}
+                    onChange={onChange("date")}
+                />
+                <button type="submit">Create Event</button>
+            </form>
+        </>
     );
 }
