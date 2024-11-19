@@ -1,6 +1,7 @@
 package database
 
 import (
+	"Social-Network-01/api/types"
 	"context"
 	"database/sql"
 )
@@ -114,4 +115,38 @@ func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId 
 	}
 
 	return tx.Commit()
+}
+
+func (store *SQLite3Store) GetFriendRequests(ctx context.Context, userId string) (users []types.User, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, `
+	SELECT u.nickname, u.image_path 
+	FROM follow_records f JOIN users u
+	ON f.follower_id = u.id
+	WHERE f.user_id = ? AND f.accepted = FALSE;`,
+		userId)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var user types.User
+		err = rows.Scan(&user.Nickname, &user.ImagePath)
+		if err != nil {
+			continue
+		}
+
+		users = append(users, user)
+	}
+
+	if users == nil {
+		users = make([]types.User, 0)
+	}
+
+	return users, err
 }

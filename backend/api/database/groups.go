@@ -62,7 +62,7 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (er
 	group.Id = generateB64(groupIdLength)
 	group.Timestamp = time.Now().UTC()
 
-	_, err = store.ExecContext(ctx,
+	_, err = tx.ExecContext(ctx,
 		`INSERT INTO groups (id, name, description, timestamp) VALUES (?, ?, ?, ?);`,
 		group.Id,
 		group.Name,

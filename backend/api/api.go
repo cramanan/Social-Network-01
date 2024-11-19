@@ -47,6 +47,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest))
 	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
 	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList))
+	router.Handle("/api/friend-requests", handleFunc(server.GetFriendRequests))
 	// router.Handle("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
 	// router.Handle("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))
 	router.Handle("/api/profile", handleFunc(server.Profile))
@@ -136,7 +137,7 @@ func handleFunc(fn handlerFunc) http.HandlerFunc {
 		// }
 
 		if err := fn(w, r); err != nil {
-			// log.Println(err)
+			log.Println(err)
 			writeJSON(w, http.StatusInternalServerError,
 				APIerror{
 					http.StatusInternalServerError,

@@ -1,7 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FriendInvite from "./FriendInvite";
+import { User } from "@/types/user";
 
 const FriendInviteList = () => {
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const response = await fetch("/api/friend-requests");
+            const data: User[] = await response.json();
+
+            setUsers(data);
+        };
+        fetchUsers();
+    }, []);
+
     return (
         <div
             id="friendInviteList"

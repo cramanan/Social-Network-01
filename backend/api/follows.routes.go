@@ -9,6 +9,23 @@ import (
 	"Social-Network-01/api/types"
 )
 
+func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.Request) (err error) {
+	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
+	defer cancel()
+
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	users, err := server.Storage.GetFriendRequests(ctx, sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, users)
+}
+
 // Perform the action of following one from another.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
