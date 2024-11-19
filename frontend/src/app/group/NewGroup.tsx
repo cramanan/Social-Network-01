@@ -31,7 +31,7 @@ export default function NewGroup() {
     return (
         <form
             onSubmit={onSubmit}
-            className="flex flex-row w-full items-center p-2 mb-5 gap-2 shadow-xl"
+            className="flex flex-row w-full items-center p-2 gap-2 shadow-xl"
         >
             <label htmlFor="images">
                 <Image

@@ -18,7 +18,7 @@ const MobileBottomNav = () => {
                         </li>
 
                         <li>
-                            <a href="/FriendList">
+                            <a href="/friendList">
                                 <span className="sr-only">UserList</span><UserListIcon />
                             </a>
                         </li>
