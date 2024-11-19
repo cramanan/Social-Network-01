@@ -323,5 +323,5 @@ func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.R
 		_, onlineUsers[idx].Online = server.WebSocket.Users[user.Id]
 	}
 
-	return nil
+	return writeJSON(writer, http.StatusOK, onlineUsers)
 }

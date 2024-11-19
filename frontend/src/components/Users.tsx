@@ -7,15 +7,20 @@ import useIsMobile from "@/hooks/useIsMobile";
 
 interface UserListProps {
     user: OnlineUser;
-    onUserSelect: (user: OnlineUser) => void;
+    onUserSelect?: (user: OnlineUser) => void;
+    showLastMessage: boolean
 }
 
-const Users = ({ user, onUserSelect }: UserListProps) => {
+const Users = ({ user, onUserSelect, showLastMessage = false }: UserListProps) => {
     const isMobile = useIsMobile();
 
     const handleUserClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        onUserSelect(user);
+        if (onUserSelect) {
+            e.preventDefault();
+            onUserSelect(user);
+        } else {
+            window.location.href = `/user/${user.id}`;
+        }
     };
     return (
         <>
@@ -34,12 +39,12 @@ const Users = ({ user, onUserSelect }: UserListProps) => {
                         ></Image>
                         <div className="flex flex-col">
                             <span>{user.nickname}</span>
-                            {/* {user.lastMessage && ( */}
-                            <span className="max-w-[240px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[110px]">
-                                last message message message message message
-                                message
-                            </span>
-                            {/* )} */}
+                            {showLastMessage && (
+                                <span className="max-w-[240px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[110px]">
+                                    last message message message message message
+                                    message
+                                </span>
+                            )}
                         </div>
                     </div>
                     <div className="mr-3">
@@ -61,12 +66,12 @@ const Users = ({ user, onUserSelect }: UserListProps) => {
                         ></Image>
                         <div className="flex flex-col">
                             <span>{user.nickname}</span>
-                            {/* {user.lastMessage && ( */}
-                            <span className="max-w-[240px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[110px]">
-                                last message message message message message
-                                message
-                            </span>
-                            {/* )} */}
+                            {showLastMessage && (
+                                <span className="max-w-[240px] text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis inline-block xl:max-w-[150px]">
+                                    last message message message message message
+                                    message
+                                </span>
+                            )}
                         </div>
                     </div>
                     <div className="mr-3">

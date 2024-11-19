@@ -52,7 +52,7 @@ const PostComponent = ({ post }: { post: Post }) => {
                         ></Image>
                         <div className="flex flex-col">
                             <Link
-                                href={`/profile`}
+                                href={`/user/${post.userId}`}
                                 className="text-black text-xl font-semibold font-['Inter']"
                             >
                                 {post.username}
@@ -89,11 +89,10 @@ const PostComponent = ({ post }: { post: Post }) => {
                 <Link
                     ref={contentRef}
                     href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${
-                        isExpanded
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
                             ? ""
                             : "h-[110px] line-clamp-5 overflow-hidden"
-                    }`}
+                        }`}
                 >
                     {post.content}
                 </Link>
@@ -115,9 +114,8 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
 
                 <div
-                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${
-                        ShowAllComment ? "h-fit" : "max-h-[108px]"
-                    }`}
+                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"
+                        }`}
                 >
                     <Comment />
                     <Comment />
