@@ -6,7 +6,7 @@ import { headers as requestHeaders } from "next/headers";
 export default async function Page() {
     const headers = await requestHeaders();
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/profile`,
+        `http://${process.env.NEXT_PUBLIC_API_URL}/api/profile`,
         { headers, cache: "no-cache" }
     );
 

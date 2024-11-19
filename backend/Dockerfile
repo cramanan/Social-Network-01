@@ -1,17 +1,15 @@
-FROM golang:1.23.2-bookworm
-
+FROM golang:1.23 AS builder
 WORKDIR /app
+COPY . .
+RUN go mod download
+RUN go build -o backend
 
-COPY api /app/api
-
-COPY go.mod go.sum main.go /app/
-
-RUN go mod download && go build -o backend
-
-# Run the migrations
-RUN ./backend up
+FROM debian:12 AS runner
+WORKDIR /app
+COPY --from=builder /app/backend ./backend
+COPY --from=builder /app/api/images ./api/images
+COPY --from=builder /app/api/db/ ./api/db/
 
 # Expose the port
 EXPOSE 3001
-
 CMD [ "./backend" ]

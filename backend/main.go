@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"Social-Network-01/api"
+
+	"github.com/golang-migrate/migrate"
 )
 
 func main() {
@@ -30,9 +32,9 @@ func main() {
 		err = api.ListenAndServe()
 	}
 
-	// if err == migrate.ErrNoChange {
-	// 	err = nil
-	// }
+	if err == migrate.ErrNoChange {
+		err = nil
+	}
 	if err != nil {
 		log.Fatalln(err)
 	}

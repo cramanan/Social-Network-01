@@ -6,7 +6,7 @@ export default async function Page({ params }: { params: Params }) {
     const { id } = await params;
 
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/user/${id}`
+        `http://${process.env.NEXT_PUBLIC_API_URL}/api/user/${id}`
     );
 
     const user: User = await response.json();

@@ -3,7 +3,7 @@ import FriendInvite from "./FriendInvite";
 import { User } from "@/types/user";
 
 const FriendInviteList = () => {
-    const [users, setUsers] = useState<User[]>([]);
+    const [, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {

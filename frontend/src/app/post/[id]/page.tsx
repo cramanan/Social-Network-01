@@ -6,7 +6,7 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 export default async function Page({ params }: { params: Params }) {
     const { id } = await params;
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/post/${id}`
+        `http://${process.env.NEXT_PUBLIC_API_URL}/api/post/${id}`
     );
 
     const post: Post = await response.json();

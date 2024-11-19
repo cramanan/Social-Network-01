@@ -7,6 +7,6 @@ type WebSocketContextType = {
 };
 
 export const webSocketContext = createContext<WebSocketContextType>({
-    socket: new WebSocket(`${process.env.NEXT_PUBLIC_API_URL}/api/socket`),
+    socket: new WebSocket(`ws://${process.env.NEXT_PUBLIC_API_URL}/api/socket`),
     sendChat: () => {},
 });

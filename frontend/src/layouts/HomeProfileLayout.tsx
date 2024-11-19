@@ -1,15 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import Header from "@/components/Header";
 import SideNavMenu from "@/components/SideNavMenu";
 import Chat from "@/components/Chat";
 import MobileBottomNav from "@/components/MobileBottomNav";
-interface Props {
-    children: React.ReactNode;
-}
 
-const HomeProfileLayout: React.FC<Props> = ({ children }) => {
+const HomeProfileLayout = ({ children }: PropsWithChildren) => {
     return (
         <>
             <Header />

@@ -1,12 +1,12 @@
 import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    reactStrictMode: false,
+    output: "standalone",
     async rewrites() {
         return [
             {
                 source: "/api/:path*",
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+                destination: `http://${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
             },
         ];
     },

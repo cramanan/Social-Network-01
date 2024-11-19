@@ -11,7 +11,7 @@ export default async function GroupPage({ params }: { params: Params }) {
     const { id } = await params;
 
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}`
+        `http://${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}`
     );
     const group: Group = await response.json();
 

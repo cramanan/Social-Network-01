@@ -6,7 +6,7 @@ import { ClientChat } from "@/types/chat";
 
 export default function WebSocketProvider({ children }: PropsWithChildren) {
     const socket = new WebSocket(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/socket`
+        `ws://${process.env.NEXT_PUBLIC_API_URL}/api/socket`
     );
 
     const sendChat = (chat: ClientChat) => {

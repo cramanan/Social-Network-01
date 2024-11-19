@@ -18,7 +18,7 @@ First you will need to setup the environment variables with a `.env.local` file 
 `frontend/.env.local`
 
 ```.env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=localhost:3001
 ```
 
 Install dependencies with:
