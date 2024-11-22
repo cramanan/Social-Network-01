@@ -8,6 +8,14 @@ CREATE TABLE IF NOT EXISTS groups(
 
 INSERT INTO groups (id, name, description, image, timestamp) VALUES ('00000000', 'Global', 'The Global Group', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg', date('now'));
 
+CREATE TABLE IF NOT EXISTS groups_record (
+    group_id TEXT NOT NULL REFERENCES groups(id)
+    user_id TEXT NOT NULL REFERENCES users(id)
+    accepted BOOLEAN NOT NULL DEFAULT FALSE
+
+    UNIQUE(group_id, user_id, accepted)
+);
+
 INSERT INTO groups (id, name, description, image, timestamp) VALUES ('0Qn9qZ0X', '0Qn9qZ0X', 'lorem ipsum dolor sit amet consectetur adipiscing elit venenatis ante', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg', date('now'));
 INSERT INTO groups (id, name, description, image, timestamp) VALUES ('kLj3IBfO', 'kLj3IBfO', 'lorem ipsum dolor sit amet consectetur adipiscing elit vel aliquam', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg', date('now'));
 INSERT INTO groups (id, name, description, image, timestamp) VALUES ('FIbsYEw0', 'FIbsYEw0', 'lorem ipsum dolor sit amet consectetur adipiscing elit velit tempor', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg', date('now'));

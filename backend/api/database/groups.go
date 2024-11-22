@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -107,4 +108,60 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 	}
 
 	return
+}
+
+func (store *SQLite3Store) AllowGroupInvite(ctx context.Context, hostId, guestId, groupId string) (boolean bool, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	err = tx.QueryRowContext(ctx, `
+	SELECT EXISTS (
+		SELECT 1 FROM groups_record
+		WHERE group_id = ? AND user_id = ?
+	) AND SELECT NOT EXISTS (
+		SELECT 1 FROM groups_record 
+		WHERE group_id = ? AND user_id = ?
+	);`,
+		groupId, hostId,
+		groupId, guestId,
+	).Scan(&boolean)
+
+	if err != nil {
+		return false, err
+	}
+
+	return boolean, tx.Commit()
+}
+
+func (store *SQLite3Store) InviteUserIntoGroup(ctx context.Context, userId, groupId string) (err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	exists := false
+	err = tx.QueryRowContext(ctx, `
+	SELECT EXISTS (
+		SELECT 1 FROM groups WHERE id = ?
+	) AND SELECT EXISTS (
+		SELECT 1 FROM users WHERE id = ? 
+	);`).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return fmt.Errorf("group or user does not exists")
+	}
+
+	_, err = tx.ExecContext(ctx, "INSERT INTO groups_record (group_id, user_id, accepted) VALUES (?, ?, FALSE);")
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

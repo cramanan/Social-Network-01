@@ -145,3 +145,26 @@ func (server *API) GetGroups(writer http.ResponseWriter, request *http.Request) 
 
 	return writeJSON(writer, http.StatusOK, groups)
 }
+
+func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	payload := new(struct {
+		GroupId string `json:"groupId"`
+		UserId  string `json:"userId"`
+	})
+
+	allowed, err := server.Storage.AllowGroupInvite(context.TODO(), sess.User.Id, payload.UserId, payload.GroupId)
+	if err != nil {
+		return err
+	}
+
+	if !allowed {
+		return fmt.Errorf("not allowed")
+	}
+
+	return server.Storage.InviteUserIntoGroup(context.TODO(), payload.UserId, payload.GroupId)
+}
