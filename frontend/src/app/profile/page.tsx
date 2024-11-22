@@ -37,12 +37,16 @@ export default function Profile() {
                 </div>
 
                 <div className="flex flex-col h-[calc(100vh-260px)] overflow-scroll no-scrollbar gap-2 pb-2 xl:w-[1000px]">
-                    {posts.map((post, idx) =>
-                        post.images.length > 0 ? (
-                            <PostMedia key={idx} post={post} />
-                        ) : (
-                            <PostComponent key={idx} post={post} />
+                    {posts.length > 0 ? (
+                        posts.map((post, idx) =>
+                            post.images.length > 0 ? (
+                                <PostMedia key={idx} post={post} />
+                            ) : (
+                                <PostComponent key={idx} post={post} />
+                            )
                         )
+                    ) : (
+                        <p className="text-3xl font-bold text-center mt-10">No posts found</p>
                     )}
                 </div>
             </div>

@@ -9,9 +9,10 @@ import Link from "next/link";
 import { ClientChat, ServerChat, SocketMessage } from "@/types/chat";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import useIsMobile from "@/hooks/useIsMobile";
+import Image from "next/image";
 
 interface ChatBoxProps {
-    onClose: () => void;
+    onClose?: () => void;
     recipient: User;
 }
 
@@ -78,8 +79,10 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                             <BackIcon />
                         </button>
                     )}
+
                     <span>{recipient.nickname}</span>
-                    <span />
+
+                    <Image src={recipient.image} alt="" width={40} height={40} className="w-9 h-9 border border-black rounded-full" />
                 </div>
 
                 <ul className="flex flex-col flex-grow px-3 py-2 overflow-scroll no-scrollbar">
@@ -90,18 +93,16 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                         return (
                             <li
                                 key={index}
-                                className={`flex flex-col w-fit ${
-                                    isRecipient
-                                        ? " self-end items-end"
-                                        : " self-start"
-                                }`}
+                                className={`flex flex-col w-fit ${isRecipient
+                                    ? " self-end items-end"
+                                    : " self-start"
+                                    }`}
                             >
                                 <p
-                                    className={`p-3 rounded-2xl ${
-                                        isRecipient
-                                            ? "bg-[#b88ee5] text-black"
-                                            : "bg-[#4174e2] text-white"
-                                    }`}
+                                    className={`p-3 rounded-2xl ${isRecipient
+                                        ? "bg-[#b88ee5] text-black"
+                                        : "bg-[#4174e2] text-white"
+                                        }`}
                                 >
                                     {msg.content}
                                 </p>

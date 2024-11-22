@@ -31,38 +31,40 @@ export default function NewGroup() {
     return (
         <form
             onSubmit={onSubmit}
-            className="flex flex-row w-full items-center p-2 gap-2 shadow-xl"
+            className="flex flex-col w-full items-center p-2 shadow-xl xl:flex-row xl:gap-2"
         >
-            <label htmlFor="images">
-                <Image
-                    src={formState.image}
-                    alt=""
-                    height={96}
-                    width={96}
-                    className="rounded-full object-cover"
-                    priority
-                />
-            </label>
-            <input
-                type="file"
-                name="images"
-                id="images"
-                onChange={handleFileUpload}
-                className="absolute hidden"
-            />
-
-            <div className="flex flex-col items-center">
-                <label htmlFor="name">Group Name</label>
+            <div className="w-full flex flex-row justify-evenly items-center xl:gap-2 xl:w-fit">
+                <label htmlFor="images">
+                    <Image
+                        src={formState.image}
+                        alt=""
+                        height={64}
+                        width={64}
+                        className="max-w-16 max-h-16 rounded-full object-cover"
+                        priority
+                    />
+                </label>
                 <input
-                    type="text"
-                    id="name"
-                    onChange={(e) =>
-                        setFormState({
-                            ...formState,
-                            name: e.target.value,
-                        })
-                    }
+                    type="file"
+                    name="images"
+                    id="images"
+                    onChange={handleFileUpload}
+                    className="absolute hidden"
                 />
+
+                <div className="flex flex-col items-center">
+                    <label htmlFor="name">Group Name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        onChange={(e) =>
+                            setFormState({
+                                ...formState,
+                                name: e.target.value,
+                            })
+                        }
+                    />
+                </div>
             </div>
 
             <div className="flex flex-col w-full">

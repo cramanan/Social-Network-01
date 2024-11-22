@@ -2,6 +2,7 @@ import { EditableUser } from "@/types/user";
 import React from "react";
 import UserInfos from "./UserInfos";
 import { headers as requestHeaders } from "next/headers";
+import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 
 export default async function Page() {
     const headers = await requestHeaders();
@@ -12,5 +13,11 @@ export default async function Page() {
 
     const data: EditableUser = await response.json();
 
-    return <UserInfos {...data} />;
+    return (
+        <>
+            <HomeProfileLayout>
+                <UserInfos {...data} />
+            </HomeProfileLayout>
+        </>
+    );
 }
