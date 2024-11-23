@@ -150,7 +150,8 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 
 	switch request.Method {
 	case http.MethodGet:
-		user, err := server.Storage.GetUser(ctx, request.PathValue("userid"))
+		userId := request.PathValue("userid")
+		user, err := server.Storage.GetUser(ctx, userId)
 		if err == sql.ErrNoRows {
 			return writeJSON(writer, http.StatusNotFound,
 				APIerror{
@@ -162,6 +163,24 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 		}
 		if err != nil {
 			return err
+		}
+
+		sess, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return err
+		}
+
+		if !user.IsPrivate || sess.User.Id == userId {
+			return writeJSON(writer, http.StatusOK, user)
+		}
+
+		follows, err := server.Storage.Follows(ctx, userId, sess.User.Id)
+		if !follows || err != nil {
+			return writeJSON(
+				writer,
+				http.StatusUnauthorized,
+				HTTPerror(http.StatusUnauthorized, "You are not allowed to access this ressource"),
+			)
 		}
 
 		return writeJSON(writer, http.StatusOK, user)

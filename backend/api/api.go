@@ -38,6 +38,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router := http.NewServeMux()
 
+	// TODO: Protect some routes
 	router.Handle("/api/register", handleFunc(server.Register))
 	router.Handle("/api/login", handleFunc(server.Login))
 

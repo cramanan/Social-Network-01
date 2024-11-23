@@ -1,16 +1,25 @@
+"use client";
+
 import FollowButton from "@/components/FollowButton";
 import ProfileStats from "@/components/ProfileStats";
-import { Params } from "@/types/query";
 import { User } from "@/types/user";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function Page({ params }: { params: Params }) {
-    const { id } = await params;
+export default function Page() {
+    const [user, setUser] = useState<User | null>();
+    const { id } = useParams();
+    console.log(id);
 
-    const resp = await fetch(
-        `http://${process.env.NEXT_PUBLIC_API_URL}/api/user/${id}`
-    );
-
-    const user: User = await resp.json();
+    useEffect(() => {
+        const fetchUser = async () => {
+            const response = await fetch(`/api/user/${id}`);
+            const user = await response.json();
+            setUser(user);
+        };
+        fetchUser();
+    }, []);
+    if (!user) return <></>;
 
     return (
         <>
