@@ -100,7 +100,7 @@ const ChatList = () => {
             )}
 
             {selectedUser && (
-                <div className="absolute right-0">
+                <div className="w-full h-full xl:w-fit xl:h-fit xl:absolute xl:right-0">
                     <ChatBox
                         recipient={selectedUser}
                         onClose={handleCloseChatBox}

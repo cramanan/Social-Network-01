@@ -68,17 +68,16 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                 id="chatBox"
                 className="flex flex-col w-full h-full relative xl:w-[343px] xl:rounded-[25px] xl:h-[642px] xl:bg-[#fbfbfb]"
             >
-                {/* {"xl:translate-x-10"} */}
                 <div className="flex flex-row w-full min-h-14 items-center justify-between border-b border-black px-3 xl:rounded-tl-[25px] xl:rounded-t-[25px] xl:bg-[#445ab3]/20 xl:w-[343px]">
-                    {isMobile ? (
+                    {/* {isMobile ? (
                         <Link href="/chats" onClick={onClose}>
                             <BackIcon />
                         </Link>
-                    ) : (
-                        <button onClick={onClose}>
-                            <BackIcon />
-                        </button>
-                    )}
+                    ) : ( */}
+                    <button onClick={onClose}>
+                        <BackIcon />
+                    </button>
+                    {/* )} */}
 
                     <span>{recipient.nickname}</span>
 
@@ -93,13 +92,13 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                         return (
                             <li
                                 key={index}
-                                className={`flex flex-col w-fit ${isRecipient
+                                className={`flex flex-col ${isRecipient
                                     ? " self-end items-end"
                                     : " self-start"
                                     }`}
                             >
                                 <p
-                                    className={`p-3 rounded-2xl ${isRecipient
+                                    className={`p-3 rounded-2xl w-fit ${isRecipient
                                         ? "bg-[#b88ee5] text-black"
                                         : "bg-[#4174e2] text-white"
                                         }`}

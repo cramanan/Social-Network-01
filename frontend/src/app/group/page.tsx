@@ -23,16 +23,19 @@ export default function Page() {
         }
     }
 
+    const handlersClick = [handleJoinedGroupsClick, handleAllGroupsClick]
 
     return (
         <>
             <HomeProfileLayout>
                 <div className="flex flex-col items-center w-screen h-[calc(100vh-185px)] xl:bg-white/25 z-10 xl:mt-3 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-70px)]">
                     <NewGroup />
-                    <ul className="flex flex-row w-full justify-evenly p-5">
-                        <li className="cursor-pointer" onClick={handleJoinedGroupsClick}>Joined groups</li>
-                        <li className="cursor-pointer" onClick={handleAllGroupsClick}>All groups</li>
+                    <ul className="flex flex-row w-full justify-evenly">
+                        {["Joined groups", "All groups"].map((name, idx) => (
+                            <li key={idx} className="w-1/2 text-center cursor-pointer p-3 hover:bg-black/10" onClick={handlersClick[idx]}>{name}</li>
+                        ))}
                     </ul>
+
                     {showJoinedGroups && (
                         <span>Joined Groups</span>
                     )}
@@ -40,8 +43,6 @@ export default function Page() {
                     {showAllGroups && (
                         <GroupList />
                     )}
-
-
                 </div>
             </HomeProfileLayout>
         </>
