@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ProfileCircle } from "./icons/ProfileCircle";
 import SearchBar from "./SearchBar";
 import MobileNav from "./MobileNav";
 import { useAuth } from "@/hooks/useAuth";
+import Image from "next/image";
 
 export default function Header() {
     const { user } = useAuth();
@@ -29,9 +29,9 @@ export default function Header() {
                         <SearchBar id="search-bar-header" />
                     </div>
 
-                    <a href="/profile" className="hidden items-center xl:flex xl:relative">
-                        <div className="flex items-center justify-center relative z-1 -mr-9 w-11 h-11 bg-white border rounded-full">
-                            <ProfileCircle />
+                    <Link href="/profile" className="hidden items-center xl:flex xl:relative">
+                        <div className="flex items-center justify-center relative z-10 -mr-9 w-11 h-11 bg-white border rounded-full">
+                            <Image src={user?.image ?? '/frontend/public/Default_pfp.jpg'} alt="" width={45} height={45} className="rounded-full"></Image>
                         </div>
                         <div className=" min-w-36 relative justify-end bg-white rounded-3xl bg-opacity-40">
                             <div className="flex flex-col items-center pl-5">
@@ -41,7 +41,7 @@ export default function Header() {
                                 <div className="text-xs">@{user?.nickname}</div>
                             </div>
                         </div>
-                    </a>
+                    </Link>
 
                     <MobileNav />
                 </div>

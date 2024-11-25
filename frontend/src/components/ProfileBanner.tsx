@@ -11,6 +11,7 @@ const ProfileBanner = ({ image, id, firstName, lastName }: User) => {
                 alt=""
                 src={image}
                 className="w-36 h-36 z-10 bg-white rounded-full -m-8"
+                priority
             />
             <div className="flex flex-col min-w-[28vw] h-16 bg-white rounded-r-[30px] justify-between py-1 pl-10">
                 <div className="text-black text-2xl font-semibold font-['Inter']">

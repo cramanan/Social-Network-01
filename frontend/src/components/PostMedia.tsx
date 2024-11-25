@@ -32,17 +32,19 @@ export const PostMedia = ({ post }: { post: Post }) => {
                 <div className="flex flex-col w-full pl-2">
                     <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-row justify-center items-center gap-2">
-                            <Image
-                                src={"/"}
-                                width={48}
-                                height={48}
-                                alt=""
-                                className="flex justify-center items-center w-12 h-12 border border-black rounded-full"
-                            ></Image>
+                            <Link href={`/user/${post.userId}`}>
+                                <Image
+                                    src={"/"}
+                                    width={48}
+                                    height={48}
+                                    alt=""
+                                    className="flex justify-center items-center w-12 h-12 border border-black rounded-full"
+                                ></Image>
+                            </Link>
 
                             <div className="flex flex-col">
                                 <Link
-                                    href={`/profile`}
+                                    href={`/user/${post.userId}`}
                                     className="text-black text-xl font-semibold font-['Inter']"
                                 >
                                     {post.username}

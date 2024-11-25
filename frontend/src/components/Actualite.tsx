@@ -12,6 +12,7 @@ import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 import { Post } from "@/types/post";
 import useQueryParams from "@/hooks/useQueryParams";
 import { PostMedia } from "./PostMedia";
+import Media from "./Media";
 // import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 // import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 
@@ -19,6 +20,7 @@ const Actualite = () => {
     const [currentFilter, setCurrentFilter] = useState("All");
     const navStyle =
         "text-black/50 text-xl font-extralight font-['Inter'] tracking-wide";
+    const activeFilter = "text-black text-xl font-bold font-['Inter'] tracking-wide";
 
     const [posts, setPosts] = useState<Post[]>([]);
 
@@ -41,7 +43,7 @@ const Actualite = () => {
                     >
                         <ul className="flex flex-row gap-10 m-4 mt-3 ">
                             {["All", "Publication", "Media"].map((filter) => (
-                                <li key={filter} className={navStyle}>
+                                <li key={filter} className={`${currentFilter === filter ? activeFilter : navStyle}`}>
                                     <a
                                         href={`#${filter}`}
                                         onClick={() => setCurrentFilter(filter)}
@@ -62,7 +64,7 @@ const Actualite = () => {
                     </nav>
                 </div>
 
-                <section
+                {currentFilter === "All" && <section
                     className="flex flex-col w-full gap-3 overflow-scroll no-scrollbar xl:px-5"
                     aria-label="Posts"
                 >
@@ -73,13 +75,21 @@ const Actualite = () => {
                             <PostComponent key={idx} post={post} />
                         )
                     )}
-                </section>
+                </section>}
 
-                {/* <section className="grid grid-cols-3 gap-5 overflow-scroll no-scrollbar">
+
+                {currentFilter === "Publication" && <section className="flex flex-col w-full gap-3 overflow-scroll no-scrollbar xl:px-5">
+                    {posts.map((post, idx) => (
+                        post.images.length === 0 && <PostComponent key={idx} post={post} />
+                    ))}
+                </section>}
+
+                {currentFilter === "Media" && <section className="flex flex-col gap-3 overflow-scroll no-scrollbar xl:grid xl:grid-cols-3 xl:gap-5">
                     {posts.map((post, idx) => (
                         post.images.length > 0 && <Media key={idx} {...post} />
                     ))}
-                </section> */}
+                </section>}
+
 
                 <div className="flex gap-5 p-2">
                     <button onClick={previous}>

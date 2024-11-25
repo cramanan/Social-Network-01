@@ -467,15 +467,15 @@ func (store *SQLite3Store) GetUserFriendList(ctx context.Context, userId string,
 		u.email,
 		u.first_name,
 		u.last_name,
-		u.date_of_birth
+		u.date_of_birth,
 		u.image_path,
 		u.about_me,
 		u.is_private,
 		u.timestamp
-	FROM users u 
-	JOIN followers_record f
+	FROM follow_records f 
+	JOIN users u
 	ON u.id = f.follower_id
-	WHERE u.id = ?;`, userId)
+	WHERE f.user_id = ?;`, userId)
 	if err != nil {
 		return nil, err
 	}

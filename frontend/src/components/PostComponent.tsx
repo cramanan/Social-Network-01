@@ -43,16 +43,19 @@ const PostComponent = ({ post }: { post: Post }) => {
             <div className="flex flex-col relative w-full bg-white/95 xl:rounded-[30px]">
                 <div className="flex flex-row justify-between items-center pr-5 mb-3">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-3">
-                        <Image
-                            src={"/"}
-                            width={48}
-                            height={48}
-                            alt=""
-                            className="flex justify-center items-center w-12 h-12 border border-black rounded-full"
-                        ></Image>
+                        <Link href={`/user/${post.userId}`}>
+                            <Image
+                                src={"/"}
+                                width={48}
+                                height={48}
+                                alt=""
+                                className="flex justify-center items-center w-12 h-12 border border-black rounded-full"
+                            ></Image>
+                        </Link>
+
                         <div className="flex flex-col">
                             <Link
-                                href={`/profile`}
+                                href={`/user/${post.userId}`}
                                 className="text-black text-xl font-semibold font-['Inter']"
                             >
                                 {post.username}
@@ -89,11 +92,10 @@ const PostComponent = ({ post }: { post: Post }) => {
                 <Link
                     ref={contentRef}
                     href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${
-                        isExpanded
-                            ? ""
-                            : "h-[110px] line-clamp-5 overflow-hidden"
-                    }`}
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
+                        ? ""
+                        : "h-[110px] line-clamp-5 overflow-hidden"
+                        }`}
                 >
                     {post.content}
                 </Link>
@@ -115,9 +117,8 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
 
                 <div
-                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${
-                        ShowAllComment ? "h-fit" : "max-h-[108px]"
-                    }`}
+                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"
+                        }`}
                 >
                     <Comment />
                     <Comment />

@@ -70,7 +70,7 @@ const ChatList = () => {
         <>
             {ShowUserList && (
                 <div
-                    className="relative flex flex-col w-full h-[calc(100vh-185px)] xl:w-60 xl:h-fit xl:rounded-3xl xl:py-3 xl:bg-white/40"
+                    className="relative flex flex-col w-full h-[calc(100vh-185px)] xl:w-72 xl:h-fit xl:rounded-3xl xl:py-3 xl:bg-white/40"
                     aria-label="Chat list"
                     role="region"
                 >
@@ -84,6 +84,7 @@ const ChatList = () => {
                                 key={index}
                                 user={user}
                                 onUserSelect={handleUserSelect}
+                                showLastMessage={true}
                             />
                         ))}
                     </div>
@@ -99,10 +100,12 @@ const ChatList = () => {
             )}
 
             {selectedUser && (
-                <ChatBox
-                    recipient={selectedUser}
-                    onClose={handleCloseChatBox}
-                />
+                <div className="absolute right-0">
+                    <ChatBox
+                        recipient={selectedUser}
+                        onClose={handleCloseChatBox}
+                    />
+                </div>
             )}
         </>
     );

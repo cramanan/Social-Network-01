@@ -31,7 +31,7 @@ const MobileNav = () => {
                     <li className="w-full flex justify-center border-b border-black p-2"><SearchBar id={"mobile-search-nav"} /></li>
 
                     <li className="border-b border-black p-2">
-                        <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
+                        <a href="/group" className="w-full flex flex-row items-center justify-center gap-5" >
                             <GroupsIcon />
                             <span className="font-bold text-white font-['Inter'] text-2xl">Group</span>
                         </a>
@@ -45,7 +45,7 @@ const MobileNav = () => {
                     </li>
 
                     <li className="border-b border-black p-2">
-                        <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
+                        <a href="/profile/settings" className="w-full flex flex-row items-center justify-center gap-5" >
                             <SettingIcon />
                             <span className="font-bold text-white font-['Inter'] text-2xl">Setting</span>
                         </a>

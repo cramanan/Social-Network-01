@@ -24,12 +24,15 @@ const FriendInviteList = () => {
                 Friend Request List
             </h2>
 
-            <div className="flex flex-col h-[75vh] items-center gap-3 mx-2 overflow-scroll no-scrollbar xl:max-h-[68vh] xl:gap-1">
-                <FriendInvite />
-                <FriendInvite />
-                <FriendInvite />
-                <FriendInvite />
-                <FriendInvite />
+            <div className="flex flex-col h-fit items-center gap-3 mx-2 overflow-scroll no-scrollbar xl:max-h-[68vh] xl:gap-1">
+                {users.length > 0 ? (
+                    users.map((user, idx) =>
+                        <FriendInvite key={idx} {...user} />
+                    )
+                ) : (
+                    <p className="text-center font-bold">No invite(s) found.</p>
+                )}
+
             </div>
         </div>
     );
