@@ -5,17 +5,17 @@ import React, { useEffect, useState } from "react";
 import Users from "./Users";
 
 export default function UserList() {
-    // const [users, setUsers] = useState<OnlineUser[]>([]);
+    const [users, setUsers] = useState<OnlineUser[]>([]);
 
-    // useEffect(() => {
-    //     const fetchUsers = async () => {
-    //         const response = await fetch("/api/friend-list");
-    //         const data: OnlineUser[] = await response.json();
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const response = await fetch("/api/friend-list");
+            const data: OnlineUser[] = await response.json();
 
-    //         setUsers(data);
-    //     };
-    //     fetchUsers();
-    // }, []);
+            setUsers(data);
+        };
+        fetchUsers();
+    }, []);
 
     return (
         <>
@@ -28,14 +28,19 @@ export default function UserList() {
                 </h2>
 
                 <div className="flex flex-col items-center gap-3 mx-5 overflow-scroll no-scrollbar xl:max-h-[65vh]">
-                    {/* {users.length > 0 ? (
+                    {users.length > 0 ? (
                         users.map((user, idx) => (
-                            <Users key={idx} user={user} showLastMessage={false} />
-                        )
-                        )) : (
-                        <p className="text-center font-bold">No follow(s) found.</p>
-                    )} */}
-
+                            <Users
+                                key={idx}
+                                user={user}
+                                showLastMessage={false}
+                            />
+                        ))
+                    ) : (
+                        <p className="text-center font-bold">
+                            No follow(s) found.
+                        </p>
+                    )}
                 </div>
             </div>
         </>

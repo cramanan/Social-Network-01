@@ -76,6 +76,7 @@ func (store *SQLite3Store) GetEvents(ctx context.Context, userId, groupId string
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var event types.Event

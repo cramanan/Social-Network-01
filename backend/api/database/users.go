@@ -124,7 +124,7 @@ func (store *SQLite3Store) GetUser(ctx context.Context, userId string) (user *ty
 	defer tx.Rollback()
 
 	user = new(types.User)
-	err = store.QueryRowContext(ctx, `SELECT 
+	err = tx.QueryRowContext(ctx, `SELECT 
 		id,
 		nickname,
 		email,
@@ -191,7 +191,7 @@ func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, 
 	}
 	defer tx.Rollback()
 
-	rows, err := store.QueryContext(ctx, `
+	rows, err := tx.QueryContext(ctx, `
 	WITH contacted AS (
 		SELECT DISTINCT m.recipient_id, u.nickname, u.image_path
 		FROM chats m JOIN users u
@@ -218,6 +218,7 @@ func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, 
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		user := new(types.User)
@@ -251,7 +252,7 @@ func (store *SQLite3Store) GetProfileFollowers(ctx context.Context, userId strin
 	}
 	defer tx.Rollback()
 
-	rows, err := store.QueryContext(ctx, `
+	rows, err := tx.QueryContext(ctx, `
 	SELECT u.id, u.nickname, u.image_path
 	FROM follow_records f 
 	JOIN users u 
@@ -262,6 +263,7 @@ func (store *SQLite3Store) GetProfileFollowers(ctx context.Context, userId strin
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		user := types.User{}
@@ -290,7 +292,7 @@ func (store *SQLite3Store) GetProfileFollowing(ctx context.Context, userId strin
 	}
 	defer tx.Rollback()
 
-	rows, err := store.QueryContext(ctx, `
+	rows, err := tx.QueryContext(ctx, `
 	SELECT u.id, u.nickname, u.image_path
 	FROM follow_records f 
 	JOIN users u 
@@ -301,6 +303,7 @@ func (store *SQLite3Store) GetProfileFollowing(ctx context.Context, userId strin
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		user := types.User{}
@@ -329,7 +332,7 @@ func (store *SQLite3Store) GetUserStats(ctx context.Context, userId string) (sta
 	}
 	defer tx.Rollback()
 
-	err = store.QueryRowContext(ctx, `SELECT
+	err = tx.QueryRowContext(ctx, `SELECT
 		(SELECT COUNT(*) FROM follow_records WHERE user_id = ? AND accepted = TRUE) AS followers,
 		(SELECT COUNT(*) FROM follow_records WHERE follower_id = ? AND accepted = TRUE) AS following,
 		(SELECT COUNT(*) FROM posts WHERE user_id = ?) AS posts,
@@ -353,23 +356,27 @@ func (store *SQLite3Store) UpdateUser(ctx context.Context, id string, value type
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		}
-	}()
+	defer tx.Rollback()
 
 	var original types.User
-	dummy := make([]byte, 0)
 	// Retrieve the original user
 	err = tx.QueryRow(`
-	SELECT *
-	FROM users
+	SELECT 
+		id,
+		nickname,
+		email,
+		first_name,
+		last_name,
+		date_of_birth,
+		image_path,
+		about_me,
+		is_private,
+		timestamp
+	FROM users u
 	WHERE id = ?;`, id).Scan(
 		&original.Id,
 		&original.Nickname,
 		&original.Email,
-		&dummy,
 		&original.FirstName,
 		&original.LastName,
 		&original.DateOfBirth,
@@ -459,6 +466,7 @@ func (store *SQLite3Store) GetUserFriendList(ctx context.Context, userId string,
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
 	SELECT 
@@ -479,6 +487,7 @@ func (store *SQLite3Store) GetUserFriendList(ctx context.Context, userId string,
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		user := new(types.User)

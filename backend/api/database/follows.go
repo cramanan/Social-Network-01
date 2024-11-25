@@ -131,7 +131,7 @@ func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId 
 	}
 	defer tx.Rollback()
 
-	_, err = store.ExecContext(ctx, `
+	_, err = tx.ExecContext(ctx, `
 	DELETE FROM follow_records
 	WHERE user_id = ? AND follower_id = ?;`,
 		userId, followerId)
@@ -158,6 +158,7 @@ func (store *SQLite3Store) GetFriendRequests(ctx context.Context, userId string)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var user types.User

@@ -3,7 +3,7 @@ import FriendInvite from "./FriendInvite";
 import { User } from "@/types/user";
 
 const FriendInviteList = () => {
-    const [, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -26,13 +26,12 @@ const FriendInviteList = () => {
 
             <div className="flex flex-col h-fit items-center gap-3 mx-2 overflow-scroll no-scrollbar xl:max-h-[68vh] xl:gap-1">
                 {users.length > 0 ? (
-                    users.map((user, idx) =>
+                    users.map((user, idx) => (
                         <FriendInvite key={idx} {...user} />
-                    )
+                    ))
                 ) : (
                     <p className="text-center font-bold">No invite(s) found.</p>
                 )}
-
             </div>
         </div>
     );

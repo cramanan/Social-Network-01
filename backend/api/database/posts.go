@@ -105,7 +105,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	}
 	defer tx.Rollback()
 
-	rows, err := store.QueryContext(ctx, `
+	rows, err := tx.QueryContext(ctx, `
 	SELECT p.*, u.nickname
 	FROM posts p JOIN users u
 	ON p.user_id = u.id
@@ -116,6 +116,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	stmt, err := tx.PrepareContext(ctx, `
 	SELECT path
@@ -124,6 +125,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, li
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 
 	for rows.Next() {
 		var post types.Post
@@ -175,7 +177,7 @@ func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) 
 	defer tx.Rollback()
 
 	var exists bool
-	err = store.QueryRowContext(ctx, `
+	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS(
 		SELECT * 
 		FROM likes_records 
@@ -190,7 +192,7 @@ func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) 
 		query = "DELETE FROM likes_records WHERE user_id = ? AND post_id = ?;"
 	}
 
-	_, err = store.ExecContext(ctx, query, userId, postId)
+	_, err = tx.ExecContext(ctx, query, userId, postId)
 	if err != nil {
 		return err
 	}

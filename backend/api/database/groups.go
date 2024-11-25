@@ -82,10 +82,14 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 	}
 	defer tx.Rollback()
 
-	rows, err := store.QueryContext(ctx, `
+	rows, err := tx.QueryContext(ctx, `
 	SELECT * FROM groups
 	LIMIT ? OFFSET ?;`,
 		limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
 	for rows.Next() {
 		group := new(types.Group)
