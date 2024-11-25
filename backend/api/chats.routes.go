@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
-	"sync"
 	"time"
 
 	"Social-Network-01/api/database"
@@ -28,11 +28,8 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	wconn := &websocket.SocketConn{Conn: conn, Mutex: sync.Mutex{}}
-
 	// Range over every online users
-	for _, userConn := range server.WebSocket.Users {
-
+	for _, userConn := range server.WebSocket.Users.Entries() {
 		// instantiate a socket message
 		ping := types.SocketMessage[types.OnlineUser]{
 			Type: "ping",
@@ -42,14 +39,14 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		userConn.WriteJSON(ping) // Write to online conn
 	}
 
-	server.WebSocket.AddUser(sess.User.Id, wconn) // Safely set user as online
+	server.WebSocket.Users.Add(sess.User.Id, conn) // Safely set user as online
 
 	// Program deferred behaviour
 	defer func() {
-		server.WebSocket.RemoveUser(sess.User.Id) // Safely set user as offline
+		server.WebSocket.Users.Remove(sess.User.Id) // Safely set user as offline
 
 		// instantiate a socket message
-		for _, userConn := range server.WebSocket.Users {
+		for _, userConn := range server.WebSocket.Users.Entries() {
 			ping := types.SocketMessage[types.OnlineUser]{
 				Type: "ping",
 				Data: types.OnlineUser{User: &types.User{Id: sess.User.Id}, Online: false},
@@ -97,12 +94,12 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 			}
 
 			// Check if the recipient is online
-			if recipient, ok := server.WebSocket.Users[chat.Data.RecipientId]; ok {
+			if recipient, ok := server.WebSocket.Users.Lookup(chat.Data.RecipientId); ok {
 				recipient.WriteJSON(chat)
 			}
 
 			// Send message to connected user
-			wconn.WriteJSON(chat)
+			conn.WriteJSON(chat)
 		}
 	}
 }
@@ -165,33 +162,26 @@ func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Reque
 		return
 	}
 
-	wconn := &websocket.SocketConn{Conn: conn}
-
-	server.WebSocket.Lock()
 	groupid := request.PathValue("groupid")
-	chatroom := server.WebSocket.ChatRooms[groupid]
-	chatroom.Lock()
-	if chatroom.Users == nil {
-		chatroom.Users = make(websocket.Userlist)
+	chatroom, ok := server.WebSocket.Chatrooms.Lookup(groupid)
+	if !ok {
+		chatroom = server.WebSocket.Chatrooms.Add(groupid, websocket.NewChatRoom())
 	}
 
-	chatroom.Users[sess.User.Id] = wconn
-	chatroom.Unlock()
-	server.WebSocket.Unlock()
+	chatroom.Add(sess.User.Id, conn)
+	defer chatroom.Remove(sess.User.Id)
 
-	defer func() {
-		server.WebSocket.Lock()
-		chatroom.Lock()
-		delete(chatroom.Users, sess.User.Id)
-		if len(chatroom.Users) == 0 {
-			delete(server.WebSocket.ChatRooms, groupid)
-		}
-		chatroom.Unlock()
-		server.WebSocket.Unlock()
-	}()
+	for k := range chatroom.Entries() {
+		fmt.Println(k)
+	}
 
-	var clientChat types.ClientChat
+	var value any
 	for {
-		conn.ReadJSON(clientChat)
+		err = conn.ReadJSON(value)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		log.Println(value)
 	}
 }

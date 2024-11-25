@@ -6,41 +6,60 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type SocketConn struct {
-	*websocket.Conn
-	sync.Mutex
+// mxmap is a concurrent-safe map implementation that associates keys of type K
+// with values of type V. It embeds a sync.Mutex to ensure that all operations
+// on the map are thread-safe, preventing race conditions when accessed by
+// multiple goroutines simultaneously.
+//
+// The map is initialized with a specified key-value type and provides a
+// simple interface for common map operations while ensuring safe concurrent
+// access.
+type mxmap[K comparable, V any] struct {
+	*sync.Mutex
+	entries map[K]V
 }
 
-type Userlist map[string]*SocketConn
+func (m mxmap[K, V]) Entries() map[K]V {
+	return m.entries
+}
 
-func (conn *SocketConn) WriteJSON(v any) (err error) {
-	conn.Lock()
-	err = conn.Conn.WriteJSON(v)
-	conn.Unlock()
-	return err
+func (m mxmap[K, V]) Lookup(key K) (value V, ok bool) {
+	m.Lock()
+	value, ok = m.entries[key]
+	m.Unlock()
+	return value, ok
+}
+
+func (m *mxmap[K, V]) Add(key K, value V) V {
+	m.Lock()
+	m.entries[key] = value
+	m.Unlock()
+	return value
+}
+
+func (m *mxmap[K, V]) Remove(key K) {
+	m.Lock()
+	delete(m.entries, key)
+	m.Unlock()
 }
 
 type WebSocket struct {
-	sync.Mutex
+	websocket.Upgrader
 
-	Upgrader  websocket.Upgrader
-	Users     Userlist
-	ChatRooms map[string]ChatRoom
+	Users     mxmap[string, *websocket.Conn]
+	Chatrooms mxmap[string, *ChatRoom]
 }
 
-func (socket *WebSocket) AddUser(id string, conn *SocketConn) {
-	socket.Lock()
-	socket.Users[id] = conn
-	socket.Unlock()
+type ChatRoom = mxmap[string, *websocket.Conn]
+
+func NewWebSocket() WebSocket {
+	return WebSocket{
+		Upgrader:  websocket.Upgrader{},
+		Users:     mxmap[string, *websocket.Conn]{Mutex: new(sync.Mutex), entries: make(map[string]*websocket.Conn)},
+		Chatrooms: mxmap[string, *ChatRoom]{Mutex: new(sync.Mutex), entries: make(map[string]*ChatRoom)},
+	}
 }
 
-func (socket *WebSocket) RemoveUser(id string) {
-	socket.Lock()
-	delete(socket.Users, id)
-	socket.Unlock()
-}
-
-type ChatRoom struct {
-	*sync.Mutex
-	Users Userlist
+func NewChatRoom() *ChatRoom {
+	return &mxmap[string, *websocket.Conn]{Mutex: new(sync.Mutex), entries: make(map[string]*websocket.Conn)}
 }

@@ -59,7 +59,7 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 
 	if !follows {
 		methodToUse = server.Storage.SendFriendRequest
-		if conn, ok := server.WebSocket.Users[userId]; ok {
+		if conn, ok := server.WebSocket.Users.Lookup(userId); ok {
 			conn.WriteJSON(types.SocketMessage[string]{
 				Type: "friend-request",
 				Data: fmt.Sprintf("%s has sent you a friend request.", sess.User.Nickname),

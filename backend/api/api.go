@@ -77,13 +77,13 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	// router.Handle("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
 	// router.Handle("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
+	server.WebSocket = websocket.NewWebSocket()
 	server.WebSocket.Upgrader = gorilla.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true // TODO: Check origin
 		},
 	}
 
-	server.WebSocket.Users = make(map[string]*websocket.SocketConn)
 	router.HandleFunc("/api/socket", server.Socket)
 	router.Handle("/api/online", handleFunc(server.GetOnlineUsers))
 

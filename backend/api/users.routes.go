@@ -316,7 +316,7 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 
 	for idx, user := range users {
 		onlineUsers[idx] = types.OnlineUser{User: user}
-		_, onlineUsers[idx].Online = server.WebSocket.Users[user.Id]
+		_, onlineUsers[idx].Online = server.WebSocket.Users.Lookup(user.Id)
 	}
 
 	return writeJSON(writer, http.StatusOK, onlineUsers)
@@ -339,7 +339,7 @@ func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.R
 
 	for idx, user := range users {
 		onlineUsers[idx] = types.OnlineUser{User: user}
-		_, onlineUsers[idx].Online = server.WebSocket.Users[user.Id]
+		_, onlineUsers[idx].Online = server.WebSocket.Users.Lookup(user.Id)
 	}
 
 	return writeJSON(writer, http.StatusOK, onlineUsers)

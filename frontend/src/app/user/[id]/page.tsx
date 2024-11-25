@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 export default function Page() {
     const [user, setUser] = useState<User | null>();
     const { id } = useParams();
-    console.log(id);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -31,7 +30,7 @@ export default function Page() {
                     <ProfileBanner {...user} />
                     <ProfileStats userId={user.id} />
                 </div>
-                <FollowButton userId={user.id} username={user.nickname} />
+                <FollowButton {...user} />
                 <div className="whitespace-pre-wrap">
                     {JSON.stringify(user, null, "\t")}
                 </div>

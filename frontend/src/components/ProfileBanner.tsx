@@ -2,7 +2,7 @@ import { User } from "@/types/user";
 import Image from "next/image";
 import React from "react";
 
-const ProfileBanner = ({ image, id, firstName, lastName }: User) => {
+const ProfileBanner = ({ id, nickname, image }: User) => {
     return (
         <div className="flex flex-row items-center h-20">
             <Image
@@ -15,7 +15,7 @@ const ProfileBanner = ({ image, id, firstName, lastName }: User) => {
             />
             <div className="flex flex-col min-w-[28vw] h-16 bg-white rounded-r-[30px] justify-between py-1 pl-10">
                 <div className="text-black text-2xl font-semibold font-['Inter']">
-                    {firstName} {lastName}
+                    {nickname}
                 </div>
                 <div className="text-black/70 text-base font-light font-['Inter']">
                     @{id}

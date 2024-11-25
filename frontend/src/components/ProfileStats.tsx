@@ -1,24 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-type UserStats = {
-    id: string;
-    numFollowers: number;
-    numFollowing: number;
-    numPosts: number;
-    numLikes: number;
-};
-
-const defaultStats = {
-    id: "",
-    numFollowers: 0,
-    numFollowing: 0,
-    numPosts: 0,
-    numLikes: 0,
-};
-
 const ProfileStats = ({ userId }: { userId: string }) => {
-    const [stats, setStats] = useState<UserStats>(defaultStats);
+    const defaultStats = {
+        id: userId,
+        numFollowers: 0,
+        numFollowing: 0,
+        numPosts: 0,
+        numLikes: 0,
+    } as const;
+
+    const [stats, setStats] = useState<typeof defaultStats>(defaultStats);
 
     useEffect(() => {
         fetch(`/api/user/${userId}/stats`)
