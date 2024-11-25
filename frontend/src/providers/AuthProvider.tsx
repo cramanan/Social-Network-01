@@ -9,13 +9,19 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     const login = async (email: string, password: string) => {
-        const response = await fetch("/api/login", {
-            headers: { "Content-Type": "application/json" },
-            method: "POST",
-            body: JSON.stringify({ email, password }),
-        });
-        const data = await response.json();
-        setUser(data);
+        try {
+            const response = await fetch("/api/login", {
+                headers: { "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({ email, password }),
+            });
+            const data: User = await response.json();
+            setUser(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const signup = async (
@@ -26,34 +32,50 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         lastName: string,
         dateOfBirth: string
     ) => {
-        const response = await fetch("/api/register", {
-            headers: { "Content-Type": "application/json" },
-            method: "POST",
-            body: JSON.stringify({
-                nickname,
-                email,
-                password,
-                firstName,
-                lastName,
-                dateOfBirth,
-            }),
-        });
-        const data: User = await response.json();
-        setUser(data);
+        try {
+            const response = await fetch("/api/register", {
+                headers: { "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({
+                    nickname,
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                    dateOfBirth,
+                }),
+            });
+            const data: User = await response.json();
+            setUser(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const logout = async () => {
-        await fetch("/api/logout");
-        setUser(null);
-        setLoading(false);
+        try {
+            await fetch("/api/logout");
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setUser(null);
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
         const authenticate = async () => {
-            const response = await fetch("/api/profile");
-            const data = await response.json();
-            setUser(data);
-            setLoading(false);
+            try {
+                const response = await fetch("/api/profile");
+                const data = await response.json();
+                setUser(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         };
         authenticate();
     }, []);

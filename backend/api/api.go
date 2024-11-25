@@ -57,15 +57,15 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing))
 
 	router.Handle("/api/groups", handleFunc(server.GetGroups))
+	router.Handle("/api/group/invite", handleFunc(server.InviteUserIntoGroup))
 	router.Handle("/api/group/{groupname}", handleFunc(server.Group))
 	router.Handle("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
 	router.Handle("/api/group/{groupid}/events", handleFunc(server.Events))
 	router.Handle("/api/group/{groupid}/events/{eventid}", handleFunc(server.RegisterUserToEvent))
-	router.Handle("/api/group/invite", handleFunc(server.InviteUserIntoGroup))
+	// router.Handle("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup))
+	router.Handle("/api/group/{groupid}/chatroom", handleFunc(server.JoinGroupChat))
 
 	router.Handle("/api/create/group", handleFunc(server.CreateGroup))
-
-	// router.Handle("/api/group/{groupname}/chats", handleFunc(server.GetChatFromGroup))
 
 	router.Handle("/api/post", handleFunc(server.CreatePost))
 	router.Handle("/api/post/{postid}", handleFunc(server.Post))

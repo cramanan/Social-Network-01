@@ -42,11 +42,11 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		userConn.WriteJSON(ping) // Write to online conn
 	}
 
-	server.WebSocket.Add(sess.User.Id, wconn) // Safely set user as online
+	server.WebSocket.AddUser(sess.User.Id, wconn) // Safely set user as online
 
 	// Program deferred behaviour
 	defer func() {
-		server.WebSocket.Remove(sess.User.Id) // Safely set user as offline
+		server.WebSocket.RemoveUser(sess.User.Id) // Safely set user as offline
 
 		// instantiate a socket message
 		for _, userConn := range server.WebSocket.Users {
@@ -153,49 +153,45 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 
 }
 
-// Retrieve all chats beetween 2 users from the database using their userIds.
-//
-// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
-	groupname := request.PathValue("groupname")
-
-	if request.Method != http.MethodGet {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
-	}
-
-	sessionUser, err := server.Sessions.GetSession(request)
-	if err != nil {
-		return writeJSON(writer, http.StatusNotFound,
-			APIerror{
-				http.StatusNotFound,
-				"Not found",
-				"User does not exist",
-			},
-		)
-	}
-	limit, offset := parseRequestLimitAndOffset(request)
-
-	chats, err := server.Storage.GetChats(ctx, groupname, sessionUser.User.Id, limit, offset)
-	if err == sql.ErrNoRows {
-		return writeJSON(writer, http.StatusNotFound,
-			APIerror{
-				http.StatusNotFound,
-				"Not found",
-				"Chat not found",
-			},
-		)
-	}
+func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
 	}
 
-	return writeJSON(writer, http.StatusOK, chats)
+	conn, err := server.WebSocket.Upgrader.Upgrade(writer, request, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	wconn := &websocket.SocketConn{Conn: conn}
+
+	server.WebSocket.Lock()
+	groupid := request.PathValue("groupid")
+	chatroom := server.WebSocket.ChatRooms[groupid]
+	chatroom.Lock()
+	if chatroom.Users == nil {
+		chatroom.Users = make(websocket.Userlist)
+	}
+
+	chatroom.Users[sess.User.Id] = wconn
+	chatroom.Unlock()
+	server.WebSocket.Unlock()
+
+	defer func() {
+		server.WebSocket.Lock()
+		chatroom.Lock()
+		delete(chatroom.Users, sess.User.Id)
+		if len(chatroom.Users) == 0 {
+			delete(server.WebSocket.ChatRooms, groupid)
+		}
+		chatroom.Unlock()
+		server.WebSocket.Unlock()
+	}()
+
+	var clientChat types.ClientChat
+	for {
+		conn.ReadJSON(clientChat)
+	}
 }
