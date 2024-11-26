@@ -1,12 +1,10 @@
 package api
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"os"
 
-	"Social-Network-01/api/database"
 	"Social-Network-01/api/types"
 )
 
@@ -18,9 +16,6 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 	if err != nil {
 		return err
 	}
-
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	err = request.ParseMultipartForm(5 * (1 << 20))
 	if err != nil {
@@ -76,7 +71,7 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 		req.Images[idx] = fmt.Sprintf("/%s", temp.Name())
 	}
 
-	err = server.Storage.CreatePost(ctx, req)
+	err = server.Storage.CreatePost(request.Context(), req)
 	if err != nil {
 		return err
 	}
@@ -85,8 +80,6 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 }
 
 func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err error) {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	// _, err = server.Sessions.GetSession(request)
 	// if err != nil {
@@ -95,7 +88,7 @@ func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err 
 
 	switch request.Method {
 	case http.MethodGet:
-		post, err := server.Storage.GetPost(ctx, request.PathValue("postid"))
+		post, err := server.Storage.GetPost(request.Context(), request.PathValue("postid"))
 		if err != nil {
 			return err
 		}
@@ -122,15 +115,12 @@ func (server *API) LikePost(writer http.ResponseWriter, request *http.Request) (
 			})
 	}
 
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
 	}
 
-	err = server.Storage.LikePost(ctx, sess.User.Id, request.PathValue("postid"))
+	err = server.Storage.LikePost(request.Context(), sess.User.Id, request.PathValue("postid"))
 	if err != nil {
 		return err
 	}
@@ -146,10 +136,7 @@ func (server *API) ProfilePosts(writer http.ResponseWriter, request *http.Reques
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
-	posts, err := server.Storage.GetUserPosts(ctx, sess.User.Id, limit, offset)
+	posts, err := server.Storage.GetUserPosts(request.Context(), sess.User.Id, limit, offset)
 	if err != nil {
 		return err
 	}

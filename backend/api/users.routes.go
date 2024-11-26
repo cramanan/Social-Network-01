@@ -16,8 +16,7 @@ import (
 // Perform the action of registering one user in the database.
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Register(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
+
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -62,7 +61,7 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 			})
 	}
 
-	user, err := server.Storage.RegisterUser(ctx, registerReq)
+	user, err := server.Storage.RegisterUser(request.Context(), registerReq)
 	if errors.Is(err, database.ErrConflict) {
 		return writeJSON(writer, http.StatusConflict,
 			APIerror{
@@ -123,10 +122,7 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 			})
 	}
 
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
-	user, err := server.Storage.LogUser(ctx, loginReq)
+	user, err := server.Storage.LogUser(request.Context(), loginReq)
 	if err != nil {
 		return writeJSON(writer, http.StatusBadRequest,
 			APIerror{
@@ -146,13 +142,11 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) User(writer http.ResponseWriter, request *http.Request) (err error) {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	switch request.Method {
 	case http.MethodGet:
 		userId := request.PathValue("userid")
-		user, err := server.Storage.GetUser(ctx, userId)
+		user, err := server.Storage.GetUser(request.Context(), userId)
 		if err == sql.ErrNoRows {
 			return writeJSON(writer, http.StatusNotFound,
 				APIerror{
@@ -175,7 +169,7 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 			return writeJSON(writer, http.StatusOK, user)
 		}
 
-		follows, err := server.Storage.Follows(ctx, userId, sess.User.Id)
+		follows, err := server.Storage.Follows(request.Context(), userId, sess.User.Id)
 		if !follows || err != nil {
 			return writeJSON(
 				writer,
@@ -197,8 +191,6 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 }
 
 func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (err error) {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
@@ -245,7 +237,7 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
 			user.ImagePath = ""
 		}
 
-		modified, err := server.Storage.UpdateUser(ctx, sess.User.Id, user)
+		modified, err := server.Storage.UpdateUser(request.Context(), sess.User.Id, user)
 		if err != nil {
 			return err
 		}
@@ -268,7 +260,7 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
 				})
 		}
 
-		err = server.Storage.DeleteUser(ctx, sess.User.Id)
+		err = server.Storage.DeleteUser(request.Context(), sess.User.Id)
 		if err != nil {
 			return err
 		}
@@ -286,10 +278,8 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
 }
 
 func (server *API) GetUserStats(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
-	stats, err := server.Storage.GetUserStats(ctx, request.PathValue("userid"))
+	stats, err := server.Storage.GetUserStats(request.Context(), request.PathValue("userid"))
 	if err != nil {
 		return err
 	}
@@ -298,8 +288,6 @@ func (server *API) GetUserStats(writer http.ResponseWriter, request *http.Reques
 }
 
 func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
@@ -308,7 +296,7 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	users, err := server.Storage.GetMessagedUsers(ctx, sess.User.Id, limit, offset)
+	users, err := server.Storage.GetMessagedUsers(request.Context(), sess.User.Id, limit, offset)
 	if err != nil {
 		return err
 	}

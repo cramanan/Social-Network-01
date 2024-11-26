@@ -3,15 +3,12 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/sqlite3"
 	"github.com/golang-migrate/migrate/source/file"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-const TransactionTimeout = 3 * time.Second
 
 // A custom UNIQUE CONSTRAINT error
 var ErrConflict = errors.New("Conflict")

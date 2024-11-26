@@ -4,7 +4,6 @@ import FollowButton from "@/components/FollowButton";
 import ProfileBanner from "@/components/ProfileBanner";
 import ProfileStats from "@/components/ProfileStats";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
-import { Params } from "@/types/query";
 import { User } from "@/types/user";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,7 +19,7 @@ export default function Page() {
             setUser(user);
         };
         fetchUser();
-    }, []);
+    }, [id]);
     if (!user) return <></>;
 
     return (

@@ -15,11 +15,6 @@ export default function Page() {
     const [content, setContent] = useState("");
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
-    const onMessage = (msg: MessageEvent) => {
-        const message = JSON.parse(msg.data) as ServerChat;
-        setMessages([...messages, message]);
-    };
-
     const onSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!user) return;
@@ -53,6 +48,11 @@ export default function Page() {
 
         fetchMessages();
 
+        const onMessage = (msg: MessageEvent) => {
+            const message = JSON.parse(msg.data) as ServerChat;
+            setMessages([...messages, message]);
+        };
+
         const newSocket = new WebSocket(
             `ws://${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}/chatroom`
         );
@@ -64,7 +64,7 @@ export default function Page() {
         return () => {
             newSocket.close();
         };
-    }, []);
+    }, [id, limit, offset, messages]);
 
     if (loading) return <>Loading</>;
 

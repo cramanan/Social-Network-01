@@ -24,12 +24,9 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 			})
 	}
 
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
 	groupid := request.PathValue("groupid")
 
-	group, err := server.Storage.GetGroup(ctx, groupid)
+	group, err := server.Storage.GetGroup(request.Context(), groupid)
 	if err == sql.ErrNoRows {
 		return writeJSON(writer, http.StatusNotFound,
 			APIerror{
@@ -56,12 +53,9 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 			})
 	}
 
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	posts, err := server.Storage.GetGroupPosts(ctx, request.PathValue("groupid"), limit, offset)
+	posts, err := server.Storage.GetGroupPosts(request.Context(), request.PathValue("groupid"), limit, offset)
 	if err != nil {
 		return err
 	}
@@ -70,14 +64,8 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 }
 
 func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (err error) {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
 	switch request.Method {
 	case http.MethodPost:
-		ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-		defer cancel()
-
 		if request.Method != http.MethodPost {
 			return writeJSON(writer, http.StatusMethodNotAllowed,
 				APIerror{
@@ -122,7 +110,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 				})
 		}
 
-		err = server.Storage.NewGroup(ctx, newGroup)
+		err = server.Storage.NewGroup(request.Context(), newGroup)
 		if err == database.ErrConflict {
 			return writeJSON(writer, http.StatusConflict, APIerror{
 				http.StatusConflict,
@@ -138,7 +126,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 
 	case http.MethodGet:
 		limit, offset := parseRequestLimitAndOffset(request)
-		groups, err := server.Storage.GetGroups(ctx, limit, offset)
+		groups, err := server.Storage.GetGroups(request.Context(), limit, offset)
 		if err != nil {
 			return err
 		}

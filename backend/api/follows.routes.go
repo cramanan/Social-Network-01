@@ -5,20 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
-	"Social-Network-01/api/database"
 	"Social-Network-01/api/types"
 )
 
 func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.Request) (err error) {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
-
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
 	}
 
-	users, err := server.Storage.GetFriendRequests(ctx, sess.User.Id)
+	users, err := server.Storage.GetFriendRequests(request.Context(), sess.User.Id)
 	if err != nil {
 		return err
 	}
@@ -30,8 +26,7 @@ func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.R
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
+
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
 			http.StatusMethodNotAllowed,
@@ -51,7 +46,7 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 
 	userId := request.PathValue("userid")
 
-	follows, err := server.Storage.Follows(ctx, userId, sess.User.Id)
+	follows, err := server.Storage.Follows(request.Context(), userId, sess.User.Id)
 	if err != nil {
 		return err
 	}
@@ -70,7 +65,7 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 		methodToUse = server.Storage.UnfollowUser
 	}
 
-	err = methodToUse(ctx, userId, sess.User.Id)
+	err = methodToUse(request.Context(), userId, sess.User.Id)
 	if err != nil {
 		return err
 	}
@@ -84,12 +79,25 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
+	followerId := request.PathValue("userid")
+
+	err = server.Storage.AcceptFriendRequest(request.Context(), sess.User.Id, followerId, true)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, http.StatusOK)
+}
+
+func (server *API) DeclineFriendRequest(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
 
 	followerId := request.PathValue("userid")
 
-	err = server.Storage.AcceptFriendRequest(ctx, sess.User.Id, followerId)
+	err = server.Storage.AcceptFriendRequest(request.Context(), sess.User.Id, followerId, false)
 	if err != nil {
 		return err
 	}
@@ -101,8 +109,6 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
@@ -119,7 +125,7 @@ func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	users, err := server.Storage.GetProfileFollowers(ctx, sess.User.Id, limit, offset)
+	users, err := server.Storage.GetProfileFollowers(request.Context(), sess.User.Id, limit, offset)
 	if err != nil {
 		return err
 	}
@@ -128,8 +134,6 @@ func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http
 }
 
 func (server *API) GetProfileFollowing(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
@@ -146,7 +150,7 @@ func (server *API) GetProfileFollowing(writer http.ResponseWriter, request *http
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	users, err := server.Storage.GetProfileFollowing(ctx, sess.User.Id, limit, offset)
+	users, err := server.Storage.GetProfileFollowing(request.Context(), sess.User.Id, limit, offset)
 	if err != nil {
 		return err
 	}

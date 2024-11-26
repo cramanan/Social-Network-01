@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"Social-Network-01/api/database"
 	"Social-Network-01/api/types"
 	"Social-Network-01/api/websocket"
 )
@@ -102,8 +101,6 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed,
 			APIerror{
@@ -126,7 +123,7 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	chats, err := server.Storage.GetChats(ctx, request.PathValue("userid"), sessionUser.User.Id, limit, offset)
+	chats, err := server.Storage.GetChats(request.Context(), request.PathValue("userid"), sessionUser.User.Id, limit, offset)
 	if err == sql.ErrNoRows {
 		return writeJSON(writer, http.StatusNotFound,
 			APIerror{

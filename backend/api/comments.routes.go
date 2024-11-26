@@ -1,14 +1,12 @@
 package api
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
 
-	"Social-Network-01/api/database"
 	"Social-Network-01/api/types"
 )
 
@@ -16,12 +14,10 @@ import (
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request *http.Request) error {
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 	if request.Method == http.MethodGet {
 
 		limit, offset := parseRequestLimitAndOffset(request)
-		comments, err := server.Storage.GetComments(ctx, request.PathValue("postid"), limit, offset)
+		comments, err := server.Storage.GetComments(request.Context(), request.PathValue("postid"), limit, offset)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return writeJSON(writer, http.StatusNotFound,
@@ -51,9 +47,6 @@ func (server *API) Comment(writer http.ResponseWriter, request *http.Request) (e
 	if err != nil {
 		return err
 	}
-
-	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
-	defer cancel()
 
 	switch request.Method {
 	case http.MethodPost:
@@ -105,7 +98,7 @@ func (server *API) Comment(writer http.ResponseWriter, request *http.Request) (e
 			Timestamp: time.Now(),
 		}
 
-		return server.Storage.CreateComment(ctx, comment)
+		return server.Storage.CreateComment(request.Context(), comment)
 
 	default:
 		return writeJSON(writer, http.StatusMethodNotAllowed, "Method not allowed")

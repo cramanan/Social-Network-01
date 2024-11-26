@@ -44,6 +44,8 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
 	router.Handle("/api/user/{userid}/send-request", handleFunc(server.SendFriendRequest))
 	router.Handle("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest))
+	router.Handle("/api/user/{userid}/decline-request", handleFunc(server.DeclineFriendRequest))
+
 	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
 	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList))
 	router.Handle("/api/friend-requests", handleFunc(server.GetFriendRequests))

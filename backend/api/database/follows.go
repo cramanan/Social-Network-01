@@ -98,7 +98,7 @@ func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, follow
 	return tx.Commit()
 }
 
-func (store *SQLite3Store) AcceptFriendRequest(ctx context.Context, userId, followerId string) error {
+func (store *SQLite3Store) AcceptFriendRequest(ctx context.Context, userId, followerId string, accept bool) error {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -107,9 +107,9 @@ func (store *SQLite3Store) AcceptFriendRequest(ctx context.Context, userId, foll
 
 	_, err = tx.ExecContext(ctx, `
 	UPDATE follow_records 
-	SET accepted = TRUE 
+	SET accepted = ? 
 	WHERE user_id = ? and follower_id = ?;`,
-		userId, followerId)
+		accept, userId, followerId)
 	if err != nil {
 		return err
 	}
