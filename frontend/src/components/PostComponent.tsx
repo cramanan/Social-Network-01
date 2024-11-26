@@ -1,25 +1,79 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import Comment from "./Comment";
+import React, {
+    ChangeEvent,
+    FormEvent,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import { BookmarkIcon } from "./icons/BookmarkIcon";
 import { CommentIcon } from "./icons/CommentIcon";
-import { Post } from "@/types/post";
+import { Comment as CommentType, Post } from "@/types/post";
 import Image from "next/image";
 import Link from "next/link";
 import formatDate from "@/utils/formatDate";
 import { LikeIcon } from "./icons/LikeIcon";
+import { cp } from "fs";
+import Comment from "./Comment";
+
+type CommentFields = Pick<CommentType, "content" | "image">;
+
+const defaultComment = {
+    content: "",
+    image: "",
+};
 
 const PostComponent = ({ post }: { post: Post }) => {
-    const [isLiked, setIsLiked] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [ShowAllComment, setShowAllComment] = useState(false);
     const [isOverflowing, setIsOverflowing] = useState(false);
     const contentRef = useRef<HTMLAnchorElement>(null);
-
-    const handleLikeClick = () => setIsLiked(!isLiked);
     const handleSeeMore = () => setIsExpanded(!isExpanded);
     const handleShowAllComment = () => setShowAllComment(!ShowAllComment);
+
+    const [newComment, setComment] = useState<CommentFields>(defaultComment);
+
+    const changeCommentContent = (e: ChangeEvent<HTMLInputElement>) =>
+        setComment({ ...newComment, content: e.target.value });
+    const changeCommentImages = (e: ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
+        setComment({
+            ...newComment,
+            image: URL.createObjectURL(e.target.files[0]),
+        });
+    };
+    const submitComment = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formdata = new FormData(e.currentTarget);
+        formdata.append(
+            "data",
+            JSON.stringify({ content: newComment.content })
+        );
+        console.log(formdata);
+        try {
+            const response = await fetch(`/api/post/${post.id}/comments/`, {
+                method: "POST",
+                body: formdata,
+            });
+            if (response.ok) setComment(defaultComment);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const [allComments, setAllComments] = useState<CommentType[]>([]);
+
+    useEffect(() => {
+        const fetchComments = async () => {
+            const response = await fetch(`/api/post/${post.id}/comments`);
+            const data: CommentType[] = await response.json();
+
+            setAllComments(data);
+        };
+
+        fetchComments();
+    }, []);
 
     useEffect(() => {
         const checkOverflow = () => {
@@ -92,10 +146,11 @@ const PostComponent = ({ post }: { post: Post }) => {
                 <Link
                     ref={contentRef}
                     href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
-                        ? ""
-                        : "h-[110px] line-clamp-5 overflow-hidden"
-                        }`}
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${
+                        isExpanded
+                            ? ""
+                            : "h-[110px] line-clamp-5 overflow-hidden"
+                    }`}
                 >
                     {post.content}
                 </Link>
@@ -110,18 +165,20 @@ const PostComponent = ({ post }: { post: Post }) => {
                 )}
 
                 <div className="flex flex-row gap-10 ml-5">
-                    <button onClick={handleLikeClick}>
-                        <LikeIcon isLiked={isLiked} />
+                    <button>
+                        <LikeIcon />
                     </button>
                     <CommentIcon />
                 </div>
 
                 <div
-                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"
-                        }`}
+                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${
+                        ShowAllComment ? "h-fit" : "max-h-[108px]"
+                    }`}
                 >
-                    <Comment />
-                    <Comment />
+                    {allComments.map((comment, idx) => (
+                        <Comment key={idx} {...comment} />
+                    ))}
                 </div>
 
                 <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
@@ -133,21 +190,48 @@ const PostComponent = ({ post }: { post: Post }) => {
                     </button>
                 </div>
 
-                <div className="h-[58px] pl-px pr-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2">
+                <form
+                    onSubmit={submitComment}
+                    className="pl-px pr-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2"
+                >
                     <div className="w-full flex flex-row items-center gap-2">
-                        <div className="w-[44px] h-[40px] relative">emote</div>
                         <input
-                            type="text"
-                            placeholder="Enter your comment"
-                            className="w-full h-[30px] text-black text-xl font-extralight font-['Inter'] bg-white/0"
-                        ></input>
+                            name="images"
+                            id="images"
+                            type="file"
+                            className="w-[44px] h-[40px] relative"
+                            accept="image/jpeg,image/png,image/gif"
+                            onChange={changeCommentImages}
+                        />
+                        <div className="w-full h-[30px] text-black text-xl font-extralight font-['Inter'] bg-white/0">
+                            <div>
+                                {newComment.image && (
+                                    <Image
+                                        src={newComment.image}
+                                        alt=""
+                                        width={40}
+                                        height={40}
+                                    />
+                                )}
+                            </div>
+                            <input
+                                value={newComment.content}
+                                type="text"
+                                placeholder="Enter your newComment"
+                                className="block"
+                                onChange={changeCommentContent}
+                            />
+                        </div>
                     </div>
                     <div className="self-stretch pl-[11px] pr-3 pt-[5px] bg-gradient-to-t from-[#e1d3eb] via-[#6f46c0] to-[#e0d3ea] rounded-[30px] justify-center items-center inline-flex">
-                        <button className="h-[25px] text-center text-black text-[15px] font-medium font-['Inter']">
+                        <button
+                            type="submit"
+                            className="h-[25px] text-center text-black text-[15px] font-medium font-['Inter']"
+                        >
                             Send
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </>
     );

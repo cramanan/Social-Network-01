@@ -23,9 +23,14 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
-	SELECT *
-	FROM comments
-	WHERE parent_id = ?
+	SELECT 
+		c.*, 
+		u.id, 
+		u.nickname, 
+		u.image_path
+	FROM comments c JOIN users u
+	ON c.user_id = u.id
+	WHERE post_id = ?
 	ORDER BY timestamp DESC
 	LIMIT ? OFFSET ?;`,
 		postId, limit, offset)
@@ -36,7 +41,16 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 
 	for rows.Next() {
 		comment := types.Comment{}
-		err := rows.Scan(&comment.UserId, &comment.PostId, &comment.Content, &comment.Image, &comment.Timestamp)
+		err := rows.Scan(
+			&comment.UserId,
+			&comment.PostId,
+			&comment.Content,
+			&comment.Image,
+			&comment.Timestamp,
+			&comment.UserId,
+			&comment.Username,
+			&comment.UserImage,
+		)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -45,15 +59,14 @@ func (store *SQLite3Store) GetComments(ctx context.Context, postId string, limit
 		comments = append(comments, comment)
 	}
 
-	err = rows.Err()
-	if err != nil {
-		return nil, err
+	if comments == nil {
+		comments = make([]types.Comment, 0)
 	}
 
 	return comments, nil
 }
 
-func (store *SQLite3Store) CreateComment(ctx context.Context, comment types.Comment) (err error) {
+func (store *SQLite3Store) CreateComment(ctx context.Context, comment *types.Comment) (err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err

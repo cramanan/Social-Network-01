@@ -7,3 +7,13 @@ export type Post = {
     images: string[];
     timestamp: string;
 };
+
+export type Comment = {
+    userImage: string;
+    username: string;
+    userId: string;
+    postId: string;
+    content: string;
+    image: string;
+    timestamp: string;
+};

@@ -75,7 +75,6 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 				})
 		}
 
-		newGroup := new(types.Group)
 		err = request.ParseMultipartForm(5 * (1 << 20))
 		if err != nil {
 			return err
@@ -86,7 +85,8 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 			return fmt.Errorf("no data field in multipart form")
 		}
 
-		err = json.Unmarshal([]byte(data[0]), newGroup)
+		newGroup := new(types.Group)
+		err = json.Unmarshal([]byte(data[0]), &newGroup)
 		if err != nil {
 			return err
 		}

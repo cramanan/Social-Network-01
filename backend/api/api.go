@@ -66,7 +66,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.Handle("/api/post", handleFunc(server.CreatePost))
 	router.Handle("/api/post/{postid}", handleFunc(server.Post))
-	router.Handle("/api/post/{postid}/comment", handleFunc(server.Comment))
+	router.Handle("/api/post/{postid}/comments", handleFunc(server.Comment))
 	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost))
 
 	server.WebSocket = websocket.NewWebSocket()

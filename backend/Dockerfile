@@ -7,7 +7,7 @@ RUN go build -o backend
 FROM builder AS development
 CMD ["go", "run", "main.go"]
 
-FROM debian:12 AS runner
+FROM debian:bookworm-slim AS runner
 WORKDIR /app
 COPY --from=builder /app/backend ./backend
 COPY --from=builder /app/api/images ./api/images

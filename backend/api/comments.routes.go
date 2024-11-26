@@ -1,46 +1,12 @@
 package api
 
 import (
+	"Social-Network-01/api/types"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
-	"time"
-
-	"Social-Network-01/api/types"
 )
-
-// Retrieve all comments of one post from the database.
-//
-// `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) GetAllCommentsFromOnePost(writer http.ResponseWriter, request *http.Request) error {
-	if request.Method == http.MethodGet {
-
-		limit, offset := parseRequestLimitAndOffset(request)
-		comments, err := server.Storage.GetComments(request.Context(), request.PathValue("postid"), limit, offset)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return writeJSON(writer, http.StatusNotFound,
-					APIerror{
-						http.StatusNotFound,
-						"Not found",
-						"Post not found",
-					},
-				)
-			}
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, comments)
-	}
-
-	return writeJSON(writer, http.StatusMethodNotAllowed,
-		APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Method not Allowed",
-		})
-}
 
 func (server *API) Comment(writer http.ResponseWriter, request *http.Request) (err error) {
 	sess, err := server.Sessions.GetSession(request)
@@ -49,53 +15,44 @@ func (server *API) Comment(writer http.ResponseWriter, request *http.Request) (e
 	}
 
 	switch request.Method {
+	case http.MethodGet:
+		limit, offset := parseRequestLimitAndOffset(request)
+		comments, err := server.Storage.GetComments(request.Context(), request.PathValue("postid"), limit, offset)
+		if err == sql.ErrNoRows {
+			return HTTPerror(http.StatusNotFound)
+		}
+		if err != nil {
+			return err
+		}
+
+		return writeJSON(writer, http.StatusOK, comments)
+
 	case http.MethodPost:
-		// Multipart form handling
-		err = request.ParseMultipartForm(5 * (1 << 20))
+		err = request.ParseMultipartForm(5 * (1 << 10))
 		if err != nil {
 			return err
 		}
 
-		contents, ok := request.MultipartForm.Value["content"]
-		if !ok || len(contents) <= 0 {
-			return fmt.Errorf("no content")
+		data := request.MultipartForm.Value["data"]
+		if len(data) != 1 {
+			return fmt.Errorf("no data field in multipart form")
 		}
 
-		postId, ok := request.MultipartForm.Value["postId"]
-		if !ok || len(postId) != 1 {
-			return fmt.Errorf("invalid number of post id")
-		}
-
-		images, ok := request.MultipartForm.File["images"]
-		if !ok || len(images) != 1 {
-			return fmt.Errorf("invalid number of images")
-		}
-
-		image := images[0]
-
-		file, err := image.Open()
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		temp, err := os.CreateTemp("api/images", fmt.Sprintf("*-%s", image.Filename))
-		if err != nil {
-			return err
-		}
-		defer temp.Close()
-
-		_, err = temp.ReadFrom(file)
+		comment := new(types.Comment)
+		comment.PostId = request.PathValue("postid")
+		err = json.Unmarshal([]byte(data[0]), comment)
 		if err != nil {
 			return err
 		}
 
-		comment := types.Comment{
-			UserId:    sess.User.Id,
-			PostId:    postId[0],
-			Content:   contents[0],
-			Image:     fmt.Sprintf("/%s", temp.Name()),
-			Timestamp: time.Now(),
+		files, err := MultiPartFiles(request)
+		if err != nil {
+			return err
+		}
+
+		comment.UserId = sess.User.Id
+		if len(files) >= 1 {
+			comment.Image = files[0]
 		}
 
 		return server.Storage.CreateComment(request.Context(), comment)
