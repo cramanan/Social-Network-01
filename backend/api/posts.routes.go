@@ -26,22 +26,13 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 
 	content, ok := request.MultipartForm.Value["content"]
 	if !ok || len(content) < 1 {
-		return writeJSON(writer, http.StatusBadRequest,
-			APIerror{
-				http.StatusBadRequest,
-				"Bad Request",
-				"No content in request",
-			})
+		return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "No content in request"))
 	}
 
 	req.Content = content[0]
 	if req.Content == "" {
 		return writeJSON(writer, http.StatusBadRequest,
-			APIerror{
-				http.StatusBadRequest,
-				"Bad Request",
-				"Content is empty",
-			})
+			HTTPerror(http.StatusBadRequest, "Content is empty"))
 	}
 
 	req.UserId = sess.User.Id
@@ -79,40 +70,28 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
 	return writeJSON(writer, http.StatusCreated, "Created")
 }
 
-func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err error) {
-
+func (server *API) GetPostById(writer http.ResponseWriter, request *http.Request) (err error) {
+	// For visibility:
 	// _, err = server.Sessions.GetSession(request)
 	// if err != nil {
 	// 	return err
 	// }
 
-	switch request.Method {
-	case http.MethodGet:
-		post, err := server.Storage.GetPost(request.Context(), request.PathValue("postid"))
-		if err != nil {
-			return err
-		}
-
-		return writeJSON(writer, http.StatusOK, post)
-
-	default:
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
+
+	post, err := server.Storage.GetPost(request.Context(), request.PathValue("postid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, post)
 }
 
 func (server *API) LikePost(writer http.ResponseWriter, request *http.Request) (err error) {
 	if request.Method != http.MethodPost {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	sess, err := server.Sessions.GetSession(request)

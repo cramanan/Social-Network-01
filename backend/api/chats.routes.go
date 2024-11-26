@@ -102,36 +102,19 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method != http.MethodGet {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	sessionUser, err := server.Sessions.GetSession(request)
 	if err != nil {
-		return writeJSON(writer, http.StatusNotFound,
-			APIerror{
-				http.StatusNotFound,
-				"Not found",
-				"User does not exist",
-			},
-		)
+		return writeJSON(writer, http.StatusNotFound, HTTPerror(http.StatusMethodNotAllowed, "User does not exist"))
 	}
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
 	chats, err := server.Storage.GetChats(request.Context(), request.PathValue("userid"), sessionUser.User.Id, limit, offset)
 	if err == sql.ErrNoRows {
-		return writeJSON(writer, http.StatusNotFound,
-			APIerror{
-				http.StatusNotFound,
-				"Not found",
-				"Chat not found",
-			},
-		)
+		return writeJSON(writer, http.StatusNotFound, HTTPerror(http.StatusNotFound, "Chat not found"))
 	}
 	if err != nil {
 		return err

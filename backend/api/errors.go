@@ -3,12 +3,12 @@ package api
 import "net/http"
 
 type APIerror struct {
-	Status   int    `json:"status"`
-	ErrorMsg string `json:"error"`
-	Message  string `json:"message"`
+	Status     int    `json:"status"`
+	StatusText string `json:"statusText"`
+	Message    string `json:"message"`
 }
 
-func (err APIerror) Error() string { return err.ErrorMsg }
+func (err APIerror) Error() string { return err.StatusText }
 
 func HTTPerror(status int, message ...string) (err APIerror) {
 	if message == nil {
@@ -16,8 +16,8 @@ func HTTPerror(status int, message ...string) (err APIerror) {
 	}
 
 	return APIerror{
-		Status:   status,
-		ErrorMsg: http.StatusText(status),
-		Message:  message[0],
+		Status:     status,
+		StatusText: http.StatusText(status),
+		Message:    message[0],
 	}
 }

@@ -26,13 +26,8 @@ func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.R
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.Request) error {
-
 	if request.Method != http.MethodPost {
-		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Only POST is allowed",
-		})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	sess, err := server.Sessions.GetSession(request)
@@ -111,11 +106,7 @@ func (server *API) DeclineFriendRequest(writer http.ResponseWriter, request *htt
 func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http.Request) error {
 
 	if request.Method != http.MethodGet {
-		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Only GET is allowed",
-		})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	sess, err := server.Sessions.GetSession(request)
@@ -134,13 +125,8 @@ func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http
 }
 
 func (server *API) GetProfileFollowing(writer http.ResponseWriter, request *http.Request) error {
-
 	if request.Method != http.MethodGet {
-		return writeJSON(writer, http.StatusMethodNotAllowed, APIerror{
-			http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Only GET is allowed",
-		})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	sess, err := server.Sessions.GetSession(request)

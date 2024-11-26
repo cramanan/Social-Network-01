@@ -18,23 +18,13 @@ import (
 func (server *API) Register(writer http.ResponseWriter, request *http.Request) error {
 
 	if request.Method != http.MethodPost {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not allowed: Only POST is supported",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	registerReq := new(types.RegisterRequest)
 	err := json.NewDecoder(request.Body).Decode(registerReq)
 	if err != nil {
-		return writeJSON(writer, http.StatusUnprocessableEntity,
-			APIerror{
-				http.StatusUnprocessableEntity,
-				"Unprocessable Entity",
-				"Could not process register request",
-			})
+		return writeJSON(writer, http.StatusUnprocessableEntity, HTTPerror(http.StatusUnprocessableEntity))
 	}
 
 	if registerReq.Nickname == "" ||
@@ -44,31 +34,16 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 		registerReq.LastName == "" ||
 		registerReq.DateOfBirth == "" {
 
-		return writeJSON(writer, http.StatusUnauthorized,
-			APIerror{
-				http.StatusUnauthorized,
-				"Unauthorized",
-				"All fields are required",
-			})
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusBadRequest, "All fields are required"))
 	}
 
 	if _, err = mail.ParseAddress(registerReq.Email); err != nil {
-		return writeJSON(writer, http.StatusBadRequest,
-			APIerror{
-				http.StatusBadRequest,
-				"Bad Request",
-				"Invalid Email address",
-			})
+		return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "Invalid Email address"))
 	}
 
 	user, err := server.Storage.RegisterUser(request.Context(), registerReq)
 	if errors.Is(err, database.ErrConflict) {
-		return writeJSON(writer, http.StatusConflict,
-			APIerror{
-				http.StatusConflict,
-				"Conflict",
-				"Email address is already taken",
-			})
+		return writeJSON(writer, http.StatusConflict, HTTPerror(http.StatusConflict, "Email address is already taken"))
 	}
 	if err != nil {
 		return err
@@ -85,51 +60,26 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err error) {
 	if request.Method != http.MethodPost {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not allowed: Only POST is supported",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	loginReq := new(types.LoginRequest)
 
 	if err := json.NewDecoder(request.Body).Decode(loginReq); err != nil {
-		return writeJSON(writer, http.StatusUnprocessableEntity,
-			APIerror{
-				http.StatusUnprocessableEntity,
-				"Unprocessable Entity",
-				"Could not process login request",
-			})
+		return writeJSON(writer, http.StatusUnprocessableEntity, HTTPerror(http.StatusUnprocessableEntity))
 	}
 
 	if loginReq.Email == "" || loginReq.Password == "" {
-		return writeJSON(writer, http.StatusBadRequest,
-			APIerror{
-				http.StatusUnauthorized,
-				"Unauthorized",
-				"Email and password are required",
-			})
+		return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusUnauthorized, "Email and password are required"))
 	}
 
 	if _, err = mail.ParseAddress(loginReq.Email); err != nil {
-		return writeJSON(writer, http.StatusBadRequest,
-			APIerror{
-				http.StatusBadRequest,
-				"Bad Request",
-				"Invalid Email address",
-			})
+		return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "Invalid Email address"))
 	}
 
 	user, err := server.Storage.LogUser(request.Context(), loginReq)
 	if err != nil {
-		return writeJSON(writer, http.StatusBadRequest,
-			APIerror{
-				http.StatusBadRequest,
-				"Bad Request",
-				"Invalid Email or Password",
-			})
+		return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "Invalid Email or Password"))
 	}
 
 	session := server.Sessions.NewSession(writer, request)
@@ -142,19 +92,12 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) User(writer http.ResponseWriter, request *http.Request) (err error) {
-
 	switch request.Method {
 	case http.MethodGet:
 		userId := request.PathValue("userid")
 		user, err := server.Storage.GetUser(request.Context(), userId)
 		if err == sql.ErrNoRows {
-			return writeJSON(writer, http.StatusNotFound,
-				APIerror{
-					http.StatusNotFound,
-					"Not found",
-					"User not found",
-				},
-			)
+			return writeJSON(writer, http.StatusNotFound, HTTPerror(http.StatusNotFound, "User not found"))
 		}
 		if err != nil {
 			return err
@@ -181,17 +124,11 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 		return writeJSON(writer, http.StatusOK, user)
 
 	default:
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 }
 
 func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (err error) {
-
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
@@ -201,7 +138,7 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
 	case http.MethodGet:
 		s, err := server.Sessions.GetSession(request)
 		if err != nil {
-			return writeJSON(writer, http.StatusUnauthorized, "You are unauthorized to access this ressource.")
+			return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized, "You are unauthorized to access this ressource."))
 		}
 
 		return writeJSON(writer, http.StatusOK, s.User)
@@ -252,12 +189,7 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
 		}
 
 		if sess.User.Id != request.PathValue("userid") {
-			return writeJSON(writer, http.StatusUnauthorized,
-				APIerror{
-					http.StatusUnauthorized,
-					"Unauthorized",
-					"You are not authorized to perform this action.",
-				})
+			return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized, "You are not authorized to perform this action."))
 		}
 
 		err = server.Storage.DeleteUser(request.Context(), sess.User.Id)
@@ -268,27 +200,19 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
 		return writeJSON(writer, http.StatusNoContent, "")
 
 	default:
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 }
 
 func (server *API) GetUserStats(writer http.ResponseWriter, request *http.Request) error {
-
 	stats, err := server.Storage.GetUserStats(request.Context(), request.PathValue("userid"))
 	if err != nil {
 		return err
 	}
-
 	return writeJSON(writer, http.StatusOK, stats)
 }
 
 func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Request) error {
-
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err

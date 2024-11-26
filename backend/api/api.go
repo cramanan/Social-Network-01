@@ -65,7 +65,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/group/{groupid}/chatroom", http.HandlerFunc(server.JoinGroupChat))
 
 	router.Handle("/api/post", handleFunc(server.CreatePost))
-	router.Handle("/api/post/{postid}", handleFunc(server.Post))
+	router.Handle("/api/post/{postid}", handleFunc(server.GetPostById))
 	router.Handle("/api/post/{postid}/comments", handleFunc(server.Comment))
 	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost))
 
@@ -144,23 +144,12 @@ func (server *API) Protected(fn handlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := server.Sessions.GetSession(r)
 		if err != nil {
-			log.Println(err)
-			writeJSON(w, http.StatusUnauthorized,
-				APIerror{
-					http.StatusUnauthorized,
-					"Unauthorized",
-					"You are not authorized to access this ressource",
-				})
+			writeJSON(w, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized, "You are not authorized to access this ressource"))
 			return
 		}
 		if err := fn(w, r); err != nil {
 			log.Println(err)
-			writeJSON(w, http.StatusInternalServerError,
-				APIerror{
-					http.StatusInternalServerError,
-					"Internal Server Error",
-					err.Error(),
-				})
+			writeJSON(w, http.StatusInternalServerError, HTTPerror(http.StatusInternalServerError))
 		}
 	})
 }

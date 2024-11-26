@@ -16,25 +16,14 @@ import (
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
 func (server *API) Group(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method != http.MethodGet {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	groupid := request.PathValue("groupid")
 
 	group, err := server.Storage.GetGroup(request.Context(), groupid)
 	if err == sql.ErrNoRows {
-		return writeJSON(writer, http.StatusNotFound,
-			APIerror{
-				http.StatusNotFound,
-				"Not found",
-				"Chat not found",
-			},
-		)
+		return writeJSON(writer, http.StatusNotFound, HTTPerror(http.StatusNotFound))
 	}
 	if err != nil {
 		return err
@@ -45,12 +34,7 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 
 func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Request) (err error) {
 	if request.Method != http.MethodGet {
-		return writeJSON(writer, http.StatusMethodNotAllowed,
-			APIerror{
-				http.StatusMethodNotAllowed,
-				"Method Not Allowed",
-				"Method not Allowed",
-			})
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	limit, offset := parseRequestLimitAndOffset(request)
@@ -67,12 +51,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 	switch request.Method {
 	case http.MethodPost:
 		if request.Method != http.MethodPost {
-			return writeJSON(writer, http.StatusMethodNotAllowed,
-				APIerror{
-					http.StatusMethodNotAllowed,
-					"Method Not Allowed",
-					"Method not Allowed",
-				})
+			return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 		}
 
 		err = request.ParseMultipartForm(5 * (1 << 20))
@@ -102,21 +81,12 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 		newGroup.Image = files[0]
 
 		if newGroup.Name == "" || newGroup.Description == "" {
-			return writeJSON(writer, http.StatusBadRequest,
-				APIerror{
-					http.StatusBadRequest,
-					"Bad Request",
-					"All fields are required",
-				})
+			return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "All fields are required"))
 		}
 
 		err = server.Storage.NewGroup(request.Context(), newGroup)
 		if err == database.ErrConflict {
-			return writeJSON(writer, http.StatusConflict, APIerror{
-				http.StatusConflict,
-				"Conflict",
-				"This group already exists",
-			})
+			return writeJSON(writer, http.StatusConflict, HTTPerror(http.StatusConflict, "This group already exists"))
 		}
 		if err != nil {
 			return err
@@ -133,7 +103,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 		return writeJSON(writer, http.StatusOK, groups)
 
 	default:
-		return HTTPerror(http.StatusMethodNotAllowed)
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 }
 
@@ -154,7 +124,7 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 	}
 
 	if !allowed {
-		return fmt.Errorf("not allowed")
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
 	return server.Storage.InviteUserIntoGroup(context.TODO(), payload.UserId, payload.GroupId)
