@@ -10,8 +10,6 @@ import (
 
 	"Social-Network-01/api/database"
 	"Social-Network-01/api/websocket"
-
-	gorilla "github.com/gorilla/websocket"
 )
 
 // The API struct inherits from Golang's native http.Server and has built-in:
@@ -49,42 +47,29 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
 	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList))
 	router.Handle("/api/friend-requests", handleFunc(server.GetFriendRequests))
-	// router.Handle("/api/user/{userid}/followers", handleFunc(server.GetFollowersOfUser))
-	// router.Handle("/api/user/{userid}/posts", handleFunc(server.AllPostsFromOneUser))
+
 	router.Handle("/api/profile", handleFunc(server.Profile))
 	router.Handle("/api/profile/posts", handleFunc(server.ProfilePosts))
 	router.Handle("/api/profile/followers", handleFunc(server.GetProfileFollowers))
 	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing))
 
-	router.Handle("/api/groups", handleFunc(server.GetGroups))
+	router.Handle("/api/groups", handleFunc(server.Groups))
 	router.Handle("/api/group/invite", handleFunc(server.InviteUserIntoGroup))
-	router.Handle("/api/group/{groupname}", handleFunc(server.Group))
+	router.Handle("/api/group/{groupid}", handleFunc(server.Group))
 	router.Handle("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
 	router.Handle("/api/group/{groupid}/events", handleFunc(server.Events))
 	router.Handle("/api/group/{groupid}/events/{eventid}", handleFunc(server.RegisterUserToEvent))
-	// router.Handle("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup))
-	router.Handle("/api/group/{groupid}/chatroom", handleFunc(server.JoinGroupChat))
-
-	router.Handle("/api/create/group", handleFunc(server.CreateGroup))
+	router.Handle("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup))
+	router.Handle("/api/group/{groupid}/chatroom", http.HandlerFunc(server.JoinGroupChat))
 
 	router.Handle("/api/post", handleFunc(server.CreatePost))
 	router.Handle("/api/post/{postid}", handleFunc(server.Post))
 	router.Handle("/api/post/{postid}/comment", handleFunc(server.Comment))
 	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost))
-	// router.Handle("/api/post/{postid}/comments", handleFunc(server.GetAllCommentsFromOnePost))
-
-	// router.Handle("/api/posts/follows/{userid}", handleFunc(server.GetAllPostsFromOneUsersFollows))
-	// router.Handle("/api/posts/likes/{userid}", handleFunc(server.GetAllPostsFromOneUsersLikes))
-	// router.Handle("/api/chats/{userid}", handleFunc(server.GetChatFrom2Userid))
 
 	server.WebSocket = websocket.NewWebSocket()
-	server.WebSocket.Upgrader = gorilla.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true // TODO: Check origin
-		},
-	}
 
-	router.HandleFunc("/api/socket", server.Socket)
+	router.Handle("/api/socket", http.HandlerFunc(server.Socket))
 	router.Handle("/api/online", handleFunc(server.GetOnlineUsers))
 
 	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))

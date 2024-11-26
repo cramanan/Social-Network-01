@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -22,7 +21,7 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	// Switch to WebSocket protocol
-	conn, err := server.WebSocket.Upgrader.Upgrade(writer, request, nil)
+	conn, err := server.WebSocket.Upgrade(writer, request, nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -62,7 +61,6 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		var rawchat types.SocketMessage[types.ClientChat]
 		err = conn.ReadJSON(&rawchat)
 		if err != nil {
-			log.Println(err)
 			return
 		}
 
@@ -72,7 +70,6 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 			// Retrieve contacted user
 			_, err = server.Storage.GetUser(request.Context(), rawchat.Data.RecipientId)
 			if err != nil {
-				log.Println(err)
 				continue
 			}
 
@@ -97,9 +94,6 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 			if recipient, ok := server.WebSocket.Users.Lookup(chat.Data.RecipientId); ok {
 				recipient.WriteJSON(chat)
 			}
-
-			// Send message to connected user
-			conn.WriteJSON(chat)
 		}
 	}
 }
@@ -150,13 +144,29 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 
 }
 
-func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Request) error {
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	switch request.Method {
+	case http.MethodGet:
+		chats, err := server.Storage.GetChatsFromGroup(context.TODO(), request.PathValue("groupid"), limit, offset)
+		if err != nil {
+			return err
+		}
+		return writeJSON(writer, http.StatusOK, chats)
+
+	default:
+		return HTTPerror(http.StatusMethodNotAllowed)
+	}
+}
+
+func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Request) {
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
-		return err
+		return
 	}
 
-	conn, err := server.WebSocket.Upgrader.Upgrade(writer, request, nil)
+	conn, err := server.WebSocket.Upgrade(writer, request, nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -166,22 +176,31 @@ func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Reque
 	chatroom, ok := server.WebSocket.Chatrooms.Lookup(groupid)
 	if !ok {
 		chatroom = server.WebSocket.Chatrooms.Add(groupid, websocket.NewChatRoom())
+		log.Printf("Chatroom for %s created", groupid)
 	}
 
 	chatroom.Add(sess.User.Id, conn)
 	defer chatroom.Remove(sess.User.Id)
 
-	for k := range chatroom.Entries() {
-		fmt.Println(k)
-	}
+	var message types.ServerChat
+	var userConn *websocket.MxConn
 
-	var value any
 	for {
-		err = conn.ReadJSON(value)
-		if err != nil {
-			log.Println(err)
-			return err
+		err = conn.ReadJSON(&message)
+		if err != nil || message.Content == "" {
+			return
 		}
-		log.Println(value)
+
+		message.SenderId = sess.User.Id
+		message.RecipientId = groupid // use groupid for storage
+		message.Timestamp = time.Now()
+		server.Storage.StoreGroupChat(request.Context(), message)
+
+		for message.RecipientId, userConn = range chatroom.Entries() { // then use user id for broadcast
+			if message.RecipientId != message.SenderId {
+				userConn.WriteJSON(message)
+			}
+		}
+		message.Content = ""
 	}
 }

@@ -10,4 +10,4 @@ export type ClientChat = {
     content: string;
 };
 
-export type ServerChat = ClientChat & { timestamp: string };
+export type ServerChat = ClientChat & { senderid: string; timestamp: string };

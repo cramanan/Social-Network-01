@@ -80,3 +80,67 @@ func (store *SQLite3Store) GetChats(ctx context.Context, senderId, recipientId s
 
 	return chats, nil
 }
+
+func (store *SQLite3Store) GetChatsFromGroup(ctx context.Context, groupId string, limit, offset int) (chats []types.ServerChat, err error) {
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, `
+	SELECT * 
+	FROM group_chats 
+	WHERE group_id = ?
+	LIMIT ? OFFSET ?;`,
+		groupId,
+		limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var chat types.ServerChat
+		err = rows.Scan(
+			&chat.SenderId,
+			&chat.RecipientId,
+			&chat.Content,
+			&chat.Timestamp,
+		)
+		if err != nil {
+			continue
+		}
+
+		chats = append(chats, chat)
+	}
+
+	if chats == nil {
+		chats = make([]types.ServerChat, 0)
+	}
+
+	return chats, tx.Commit()
+}
+
+func (store *SQLite3Store) StoreGroupChat(ctx context.Context, chat types.ServerChat) (err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.ExecContext(ctx,
+		"INSERT INTO group_chats (sender_id, group_id, content, timestamp) VALUES (?, ?, ?, ?)",
+		chat.SenderId,
+		chat.RecipientId,
+		chat.Content,
+		chat.Timestamp,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+
+	return
+}

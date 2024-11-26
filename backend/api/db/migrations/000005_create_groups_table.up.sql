@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS groups(
 INSERT INTO groups (id, name, description, image, timestamp) VALUES ('00000000', 'Global', 'The Global Group', 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg', date('now'));
 
 CREATE TABLE IF NOT EXISTS groups_record (
-    group_id TEXT NOT NULL REFERENCES groups(id)
-    user_id TEXT NOT NULL REFERENCES users(id)
-    accepted BOOLEAN NOT NULL DEFAULT FALSE
+    group_id TEXT NOT NULL REFERENCES groups(id),
+    user_id TEXT NOT NULL REFERENCES users(id),
+    accepted BOOLEAN NOT NULL DEFAULT FALSE,
 
     UNIQUE(group_id, user_id, accepted)
 );

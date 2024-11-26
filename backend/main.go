@@ -15,7 +15,7 @@ func main() {
 		os.Args = append(os.Args, "serve")
 	}
 
-	api, err := api.NewAPI(":3001", "api/db/db.sqlite3?cache=shared&mode=rwc")
+	api, err := api.NewAPI(":3001", "api/db/db.sqlite3")
 	if err != nil {
 		log.Fatalln(err)
 	}

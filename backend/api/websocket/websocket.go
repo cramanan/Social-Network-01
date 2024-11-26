@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"net/http"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -43,23 +44,46 @@ func (m *mxmap[K, V]) Remove(key K) {
 	m.Unlock()
 }
 
-type WebSocket struct {
-	websocket.Upgrader
+type MxConn struct {
+	*sync.Mutex
+	conn *websocket.Conn
+}
 
-	Users     mxmap[string, *websocket.Conn]
+func (conn *MxConn) WriteJSON(v any) (err error) {
+	conn.Lock()
+	err = conn.conn.WriteJSON(v)
+	conn.Unlock()
+	return err
+}
+
+func (conn *MxConn) ReadJSON(v any) (err error) {
+	return conn.conn.ReadJSON(v)
+}
+
+type WebSocket struct {
+	upgrader websocket.Upgrader
+
+	Users     mxmap[string, *MxConn]
 	Chatrooms mxmap[string, *ChatRoom]
 }
 
-type ChatRoom = mxmap[string, *websocket.Conn]
+func (ws *WebSocket) Upgrade(w http.ResponseWriter, r *http.Request, responseHeader http.Header) (*MxConn, error) {
+	conn, err := ws.upgrader.Upgrade(w, r, responseHeader)
+	return &MxConn{Mutex: new(sync.Mutex), conn: conn}, err
+}
+
+type ChatRoom = mxmap[string, *MxConn]
 
 func NewWebSocket() WebSocket {
 	return WebSocket{
-		Upgrader:  websocket.Upgrader{},
-		Users:     mxmap[string, *websocket.Conn]{Mutex: new(sync.Mutex), entries: make(map[string]*websocket.Conn)},
+		upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool { return true },
+		},
+		Users:     mxmap[string, *MxConn]{Mutex: new(sync.Mutex), entries: make(map[string]*MxConn)},
 		Chatrooms: mxmap[string, *ChatRoom]{Mutex: new(sync.Mutex), entries: make(map[string]*ChatRoom)},
 	}
 }
 
 func NewChatRoom() *ChatRoom {
-	return &mxmap[string, *websocket.Conn]{Mutex: new(sync.Mutex), entries: make(map[string]*websocket.Conn)}
+	return &mxmap[string, *MxConn]{Mutex: new(sync.Mutex), entries: make(map[string]*MxConn)}
 }

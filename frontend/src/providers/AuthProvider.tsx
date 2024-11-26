@@ -9,12 +9,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     const login = async (email: string, password: string) => {
+        setLoading(true);
         try {
             const response = await fetch("/api/login", {
                 headers: { "Content-Type": "application/json" },
                 method: "POST",
                 body: JSON.stringify({ email, password }),
             });
+            if (!response.ok) throw new Error("Signup failed");
             const data: User = await response.json();
             setUser(data);
         } catch (error) {
@@ -32,6 +34,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         lastName: string,
         dateOfBirth: string
     ) => {
+        setLoading(true);
         try {
             const response = await fetch("/api/register", {
                 headers: { "Content-Type": "application/json" },
@@ -45,6 +48,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                     dateOfBirth,
                 }),
             });
+            if (!response.ok) throw new Error("Signup failed");
             const data: User = await response.json();
             setUser(data);
         } catch (error) {
@@ -55,6 +59,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = async () => {
+        setLoading(true);
         try {
             await fetch("/api/logout");
         } catch (error) {

@@ -125,6 +125,7 @@ func (server *API) Login(writer http.ResponseWriter, request *http.Request) (err
 
 	ctx, cancel := context.WithTimeout(request.Context(), database.TransactionTimeout)
 	defer cancel()
+
 	user, err := server.Storage.LogUser(ctx, loginReq)
 	if err != nil {
 		return writeJSON(writer, http.StatusBadRequest,

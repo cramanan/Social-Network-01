@@ -25,7 +25,7 @@ export default function NewGroup() {
         e.preventDefault();
         const body = new FormData(e.currentTarget);
         body.append("data", JSON.stringify(formState));
-        fetch("/api/create/group", { method: "POST", body });
+        fetch("/api/groups", { method: "POST", body });
     };
 
     return (
