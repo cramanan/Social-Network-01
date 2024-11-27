@@ -114,11 +114,11 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 
 		follows, err := server.Storage.Follows(request.Context(), userId, sess.User.Id)
 		if !follows || err != nil {
-			return writeJSON(
-				writer,
-				http.StatusUnauthorized,
-				HTTPerror(http.StatusUnauthorized, "You are not allowed to access this ressource"),
-			)
+			user.Email = ""
+			user.FirstName = ""
+			user.LastName = ""
+			user.AboutMe = nil
+			return writeJSON(writer, http.StatusUnauthorized, user)
 		}
 
 		return writeJSON(writer, http.StatusOK, user)

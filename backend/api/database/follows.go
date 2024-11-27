@@ -150,7 +150,7 @@ func (store *SQLite3Store) GetFriendRequests(ctx context.Context, userId string)
 	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
-	SELECT u.nickname, u.image_path 
+	SELECT u.id, u.nickname, u.image_path 
 	FROM follow_records f JOIN users u
 	ON f.follower_id = u.id
 	WHERE f.user_id = ? AND f.accepted = FALSE;`,
@@ -162,7 +162,7 @@ func (store *SQLite3Store) GetFriendRequests(ctx context.Context, userId string)
 
 	for rows.Next() {
 		var user types.User
-		err = rows.Scan(&user.Nickname, &user.ImagePath)
+		err = rows.Scan(&user.Id, &user.Nickname, &user.ImagePath)
 		if err != nil {
 			continue
 		}

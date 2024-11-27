@@ -31,14 +31,20 @@ const MobileNav = () => {
                     <li className="w-full flex justify-center border-b border-black p-2"><SearchBar id={"mobile-search-nav"} /></li>
 
                     <li className="border-b border-black p-2">
-                        <a href="/group" className="w-full flex flex-row items-center justify-center gap-5" >
+                        <a href="/profile" className="w-full flex flex-row items-center justify-center gap-5">
+                            <span className="font-bold text-white font-['Inter'] text-2xl">Profile</span>
+                        </a>
+                    </li>
+
+                    <li className="border-b border-black p-2">
+                        <a href="/group" className="w-full flex flex-row items-center justify-center gap-5">
                             <GroupsIcon />
                             <span className="font-bold text-white font-['Inter'] text-2xl">Group</span>
                         </a>
                     </li>
 
                     <li className="border-b border-black p-2">
-                        <a href="" className="w-full flex flex-row items-center justify-center gap-5" >
+                        <a href="" className="w-full flex flex-row items-center justify-center gap-5">
                             <BookmarkMenuIcon />
                             <span className="font-bold text-white font-['Inter'] text-2xl">Bookmark</span>
                         </a>
