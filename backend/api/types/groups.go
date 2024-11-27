@@ -5,6 +5,7 @@ import "time"
 type Group struct {
 	Id          string    `json:"id"`
 	Name        string    `json:"name"`
+	Owner       string    `json:"owner"`
 	Description string    `json:"description"`
 	Image       string    `json:"image"`
 	Timestamp   time.Time `json:"timestamp"`

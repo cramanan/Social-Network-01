@@ -25,9 +25,17 @@ func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group 
 	}
 	defer tx.Rollback()
 
-	row := tx.QueryRowContext(ctx, `SELECT * FROM groups WHERE id = ?`, groupId)
 	group = new(types.Group)
-	err = row.Scan(&group.Id, &group.Name, &group.Description, &group.Image, &group.Timestamp)
+	err = tx.QueryRowContext(ctx, `
+	SELECT * 
+	FROM groups 
+	WHERE id = ?`, groupId).Scan(
+		&group.Id,
+		&group.Name,
+		&group.Owner,
+		&group.Description,
+		&group.Image,
+		&group.Timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -63,10 +71,12 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (er
 	group.Id = generateB64(groupIdLength)
 	group.Timestamp = time.Now().UTC()
 
-	_, err = tx.ExecContext(ctx,
-		`INSERT INTO groups (id, name, description, timestamp) VALUES (?, ?, ?, ?);`,
+	_, err = tx.ExecContext(ctx, `
+	INSERT INTO groups (id, name, owner, description, timestamp)
+	VALUES (?, ?, ?, ?, ?);`,
 		group.Id,
 		group.Name,
+		group.Owner,
 		group.Description,
 		group.Timestamp)
 	if err != nil {
@@ -96,6 +106,7 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 		err = rows.Scan(
 			&group.Id,
 			&group.Name,
+			&group.Owner,
 			&group.Description,
 			&group.Image,
 			&group.Timestamp)
@@ -125,7 +136,7 @@ func (store *SQLite3Store) AllowGroupInvite(ctx context.Context, hostId, guestId
 	SELECT EXISTS (
 		SELECT 1 FROM groups_record
 		WHERE group_id = ? AND user_id = ?
-	) AND SELECT NOT EXISTS (
+	) AND NOT EXISTS (
 		SELECT 1 FROM groups_record 
 		WHERE group_id = ? AND user_id = ?
 	);`,
@@ -140,7 +151,33 @@ func (store *SQLite3Store) AllowGroupInvite(ctx context.Context, hostId, guestId
 	return boolean, tx.Commit()
 }
 
-func (store *SQLite3Store) InviteUserIntoGroup(ctx context.Context, userId, groupId string) (err error) {
+func (store *SQLite3Store) AllowGroupRequest(ctx context.Context, groupId, userId string) (boolean bool, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	err = tx.QueryRowContext(ctx, `
+	SELECT NOT EXISTS (
+		SELECT 1 FROM groups_record 
+		WHERE group_id = ? AND user_id = ?
+	) AND NOT EXISTS (
+		SELECT 1 FROM groups
+		WHERE id = ? AND owner = ?
+	);`,
+		groupId, userId,
+		groupId, userId,
+	).Scan(&boolean)
+
+	if err != nil {
+		return false, err
+	}
+
+	return boolean, tx.Commit()
+}
+
+func (store *SQLite3Store) UserJoinGroup(ctx context.Context, userId, groupId string, isRequest bool) (err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return
@@ -151,9 +188,9 @@ func (store *SQLite3Store) InviteUserIntoGroup(ctx context.Context, userId, grou
 	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM groups WHERE id = ?
-	) AND SELECT EXISTS (
+	) AND EXISTS (
 		SELECT 1 FROM users WHERE id = ? 
-	);`).Scan(&exists)
+	);`, groupId, userId).Scan(&exists)
 	if err != nil {
 		return err
 	}
@@ -162,7 +199,9 @@ func (store *SQLite3Store) InviteUserIntoGroup(ctx context.Context, userId, grou
 		return fmt.Errorf("group or user does not exists")
 	}
 
-	_, err = tx.ExecContext(ctx, "INSERT INTO groups_record (group_id, user_id, accepted) VALUES (?, ?, FALSE);")
+	_, err = tx.ExecContext(ctx, `
+	INSERT INTO groups_record (group_id, user_id, is_request, accepted)
+	VALUES (?, ?, ?, FALSE);`, groupId, userId, isRequest)
 	if err != nil {
 		return err
 	}

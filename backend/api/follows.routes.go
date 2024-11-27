@@ -76,7 +76,7 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 
 	followerId := request.PathValue("userid")
 
-	err = server.Storage.AcceptFriendRequest(request.Context(), sess.User.Id, followerId, true)
+	err = server.Storage.AcceptFriendRequest(request.Context(), sess.User.Id, followerId)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (server *API) DeclineFriendRequest(writer http.ResponseWriter, request *htt
 
 	followerId := request.PathValue("userid")
 
-	err = server.Storage.AcceptFriendRequest(request.Context(), sess.User.Id, followerId, false)
+	err = server.Storage.UnfollowUser(request.Context(), sess.User.Id, followerId)
 	if err != nil {
 		return err
 	}

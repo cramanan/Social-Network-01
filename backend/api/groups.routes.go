@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -48,12 +47,13 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 }
 
 func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
 	switch request.Method {
 	case http.MethodPost:
-		if request.Method != http.MethodPost {
-			return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
-		}
-
 		err = request.ParseMultipartForm(5 * (1 << 20))
 		if err != nil {
 			return err
@@ -79,6 +79,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 		}
 
 		newGroup.Image = files[0]
+		newGroup.Owner = sess.User.Id
 
 		if newGroup.Name == "" || newGroup.Description == "" {
 			return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "All fields are required"))
@@ -108,6 +109,10 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 }
 
 func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodPost {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
+
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
@@ -118,14 +123,38 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 		UserId  string `json:"userId"`
 	})
 
-	allowed, err := server.Storage.AllowGroupInvite(context.TODO(), sess.User.Id, payload.UserId, payload.GroupId)
+	allowed, err := server.Storage.AllowGroupInvite(request.Context(), sess.User.Id, payload.UserId, payload.GroupId)
 	if err != nil {
 		return err
 	}
 
 	if !allowed {
-		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
 	}
 
-	return server.Storage.InviteUserIntoGroup(context.TODO(), payload.UserId, payload.GroupId)
+	return server.Storage.UserJoinGroup(request.Context(), payload.UserId, payload.GroupId, false)
+}
+
+func (server *API) RequestGroup(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	groupid := request.PathValue("groupid")
+	allowed, err := server.Storage.AllowGroupRequest(request.Context(), groupid, sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	if !allowed {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
+	}
+
+	err = server.Storage.UserJoinGroup(request.Context(), sess.User.Id, groupid, true)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
 }
