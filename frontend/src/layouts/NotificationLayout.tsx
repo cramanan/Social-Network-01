@@ -21,6 +21,7 @@ export default function NotificationLayout({ children }: PropsWithChildren) {
                 type: message.type,
                 message: "",
             };
+
             switch (message.type) {
                 case "message":
                     toast.message = "New Message";
@@ -39,7 +40,7 @@ export default function NotificationLayout({ children }: PropsWithChildren) {
             setToasts((prevToasts) => [...prevToasts, toast]);
             setTimeout(
                 () => setToasts((prev) => prev.filter((t) => t !== toast)),
-                1000
+                3000
             );
         } catch (error) {
             console.error(error);
@@ -53,12 +54,15 @@ export default function NotificationLayout({ children }: PropsWithChildren) {
     return (
         <>
             <div className="fixed">
-                {toasts.map((toast, idx) => (
-                    <div key={idx} className="bg-white">
-                        <h1>Notification</h1>
-                        <p>{toast.message}</p>
-                    </div>
-                ))}
+                {toasts.map(({}, idx) => {
+                    const { message } = toasts[toasts.length - 1 - idx];
+                    return (
+                        <div key={idx} className="bg-white m-2 p-3 rounded-3xl">
+                            <h1>Notification</h1>
+                            <p>{message}</p>
+                        </div>
+                    );
+                })}
             </div>
             {children}
         </>

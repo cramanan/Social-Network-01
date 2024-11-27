@@ -1,19 +1,36 @@
+"use client";
+
 import { User } from "@/types/user";
-import { Params } from "@/types/query";
 import ChatBox from "@/components/ChatBox";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-export default async function Page({ params }: { params: Params }) {
-    const { id } = await params;
+export default function Page() {
+    const { id } = useParams();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const response = await fetch(
-        `http://${process.env.NEXT_PUBLIC_API_URL}/api/user/${id}`
-    );
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch(`/api/user/${id}`);
 
-    const user: User = await response.json();
+                const data: User = await response.json();
+                setUser(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    return (
-        <>
-            <ChatBox recipient={user} />
-        </>
-    );
+        fetchUser();
+    }, [id]);
+
+    if (loading) return <>Loading</>;
+
+    if (!user) return <>Could not retrieve user</>;
+
+    return <ChatBox recipient={user} />;
 }

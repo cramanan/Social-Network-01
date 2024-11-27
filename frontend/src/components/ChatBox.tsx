@@ -82,7 +82,13 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
 
                     <span>{recipient.nickname}</span>
 
-                    <Image src={recipient.image} alt="" width={40} height={40} className="w-9 h-9 border border-black rounded-full" />
+                    <Image
+                        src={recipient.image}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="w-9 h-9 border border-black rounded-full"
+                    />
                 </div>
 
                 <ul className="flex flex-col flex-grow px-3 py-2 overflow-scroll no-scrollbar">
@@ -93,16 +99,18 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                         return (
                             <li
                                 key={index}
-                                className={`flex flex-col w-fit ${isRecipient
-                                    ? " self-end items-end"
-                                    : " self-start"
-                                    }`}
+                                className={`flex flex-col w-fit ${
+                                    isRecipient
+                                        ? " self-end items-end"
+                                        : " self-start"
+                                }`}
                             >
                                 <p
-                                    className={`p-3 rounded-2xl ${isRecipient
-                                        ? "bg-[#b88ee5] text-black"
-                                        : "bg-[#4174e2] text-white"
-                                        }`}
+                                    className={`p-3 rounded-2xl ${
+                                        isRecipient
+                                            ? "bg-[#b88ee5] text-black"
+                                            : "bg-[#4174e2] text-white"
+                                    }`}
                                 >
                                     {msg.content}
                                 </p>
