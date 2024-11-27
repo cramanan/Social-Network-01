@@ -34,7 +34,7 @@ export const PostMedia = ({ post }: { post: Post }) => {
                         <div className="flex flex-row justify-center items-center gap-2">
                             <Link href={`/user/${post.userId}`}>
                                 <Image
-                                    src={"/"}
+                                    src={`${post.pfp ? ("/") : ("/Default_pfp.jpg")}`}
                                     width={48}
                                     height={48}
                                     alt=""

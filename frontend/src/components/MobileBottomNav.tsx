@@ -4,8 +4,23 @@ import { HomeIcon } from "./icons/HomeIcon"
 import { FindUserIcon } from "./icons/FindUserIcon"
 import { UserListIcon } from "./icons/UserListIcon"
 import ChatIcon from "./icons/ChatIcon"
+import ChatList from "./ChatList"
+import { useState } from "react"
+import UserList from "./UserList"
 
 const MobileBottomNav = () => {
+    const [showChatList, setShowChatList] = useState(false)
+    const [showFriendList, setShowFriendList] = useState(false)
+
+    const handleChatListClick = () => {
+        setShowChatList(!showChatList)
+        setShowFriendList(false)
+    }
+    const handleFriendListClick = () => {
+        setShowFriendList(!showFriendList)
+        setShowChatList(false)
+    }
+
     return (
         <>
             <div className="relative w-full h-full z-60">
@@ -18,9 +33,9 @@ const MobileBottomNav = () => {
                         </li>
 
                         <li>
-                            <a href="/friendList">
-                                <span className="sr-only">UserList</span><UserListIcon />
-                            </a>
+                            <button onClick={handleFriendListClick}>
+                                <span className="sr-only">FriendList</span><UserListIcon />
+                            </button>
                         </li>
 
                         <li>
@@ -30,12 +45,27 @@ const MobileBottomNav = () => {
                         </li>
 
                         <li>
-                            <a href="/chats">
+                            {/* <a href="/chats">
                                 <span className="sr-only">Chat</span><ChatIcon />
-                            </a>
+                            </a> */}
+                            <button onClick={handleChatListClick}>
+                                <span className="sr-only">Chat</span><ChatIcon />
+                            </button>
                         </li>
                     </ul>
                 </nav>
+
+                <div className={`w-full h-[calc(100vh-64px)] fixed bottom-16 right-0 border-gradient-test duration-300 ease-in-out z-50 
+                    ${showChatList ? "translate-x-0" : "translate-x-full"}
+                    `}>
+                    <ChatList />
+                </div>
+
+                <div className={`w-full h-[calc(100vh-64px)] fixed bottom-16 right-0 border-gradient-test duration-300 ease-in-out z-50 
+                    ${showFriendList ? "translate-x-0" : "translate-x-full"}
+                    `}>
+                    <UserList />
+                </div>
             </div>
         </>
     )

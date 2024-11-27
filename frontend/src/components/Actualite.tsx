@@ -1,10 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
-// import { Post } from "@/types/post";
-// import { QueryParams } from "@/types/query";
-
 import { NewPost } from "./NewPost";
 import PostComponent from "./PostComponent";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
@@ -13,8 +9,6 @@ import { Post } from "@/types/post";
 import useQueryParams from "@/hooks/useQueryParams";
 import { PostMedia } from "./PostMedia";
 import Media from "./Media";
-// import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
-// import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 
 const Actualite = () => {
     const [currentFilter, setCurrentFilter] = useState("All");
@@ -43,7 +37,7 @@ const Actualite = () => {
                     >
                         <ul className="flex flex-row gap-10 m-4 mt-3 ">
                             {["All", "Publication", "Media"].map((filter) => (
-                                <li key={filter} className={`${currentFilter === filter ? activeFilter : navStyle}`}>
+                                <li key={filter} className={`hover:text-black ${currentFilter === filter ? activeFilter : navStyle}`}>
                                     <a
                                         href={`#${filter}`}
                                         onClick={() => setCurrentFilter(filter)}
