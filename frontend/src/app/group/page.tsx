@@ -4,37 +4,17 @@ import { GroupList } from "@/components/GroupList";
 import NewGroup from "./NewGroup";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { useState } from "react";
+import { Group } from "@/types/group";
 
 export default function Page() {
-    const [showAllGroups, setShowAllGroups] = useState(false)
-    const [showJoinedGroups, setShowJoinedGroups] = useState(true)
-    const [showInviteGroups, setShowInviteGroups] = useState(false)
+    // const [groups, setGroups] = useState<Group[]>();
+    const [windows, setWindows] = useState([true, false]);
 
-    const handleAllGroupsClick = () => {
-        if (!showAllGroups) {
-            setShowAllGroups(!showAllGroups)
-            setShowJoinedGroups(false)
-            setShowInviteGroups(false)
-        }
-    }
+    const changeWindow = (i: number) => () =>
+        setWindows((prev) => prev.map(({}, idx) => idx === i));
 
-    const handleJoinedGroupsClick = () => {
-        if (!showJoinedGroups) {
-            setShowAllGroups(false)
-            setShowJoinedGroups(!showJoinedGroups)
-            setShowInviteGroups(false)
-        }
-    }
-
-    const handleInviteGroupsClick = () => {
-        if (!showInviteGroups) {
-            setShowAllGroups(false)
-            setShowJoinedGroups(false)
-            setShowInviteGroups(!showInviteGroups)
-        }
-    }
-
-    const handlersClick = [handleJoinedGroupsClick, handleAllGroupsClick, handleInviteGroupsClick]
+    const titles = ["Joined groups", "All groups"];
+    const bodies = [() => <div>Joined</div>, () => <GroupList />];
 
     return (
         <>
@@ -42,21 +22,18 @@ export default function Page() {
                 <div className="flex flex-col items-center w-screen h-[calc(100vh-185px)] xl:bg-white/25 z-10 xl:mt-3 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-70px)]">
                     <NewGroup />
                     <ul className="flex flex-row w-full justify-evenly">
-                        {["Joined groups", "All groups", "Invite group"].map((name, idx) => (
-                            <li key={idx} className="w-1/3 text-center cursor-pointer p-3 hover:bg-black/10" onClick={handlersClick[idx]}>{name}</li>
+                        {titles.map((name, idx) => (
+                            <li
+                                key={idx}
+                                className="w-1/3 text-center cursor-pointer p-3 hover:bg-black/10"
+                                onClick={changeWindow(idx)}
+                            >
+                                {name}
+                            </li>
                         ))}
                     </ul>
-
-                    {showJoinedGroups && (
-                        <span>Joined Groups</span>
-                    )}
-
-                    {showAllGroups && (
-                        <GroupList />
-                    )}
-
-                    {showInviteGroups && (
-                        <span>Invite group</span>
+                    {bodies.map(
+                        (Value, idx) => windows[idx] && <Value key={idx} />
                     )}
                 </div>
             </HomeProfileLayout>

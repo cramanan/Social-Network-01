@@ -7,9 +7,11 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { BackIcon } from "@/components/icons/BackIcon";
 import Link from "next/link";
 import Image from "next/image";
+import { NewPost } from "@/components/NewPost";
 
 export default async function GroupPage({ params }: { params: Params }) {
     const { id } = await params;
+
     // const [showMemberList, setShowMemberList] = useState(true)
     // const [showEventList, setShowEventList] = useState(false)
 
@@ -52,6 +54,7 @@ export default async function GroupPage({ params }: { params: Params }) {
 
                     <div className="flex flex-row w-full h-full">
                         <div className="flex flex-col items-center w-72 border-r-4">
+                            <NewPost groupId={id} />
                             <NewEvent groupId={group.id} />
 
                             <span className="font-bold">Members</span>

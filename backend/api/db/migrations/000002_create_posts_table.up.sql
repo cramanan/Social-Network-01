@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
-    user_id TEXT REFERENCES users(id),
-    group_id TEXT DEFAULT '00000000' REFERENCES groups(id),
+    user_id TEXT NOT NULL REFERENCES users(id),
+    group_id TEXT REFERENCES groups(id),
     content TEXT NOT NULL,
     timestamp DATETIME NOT NULL
 );

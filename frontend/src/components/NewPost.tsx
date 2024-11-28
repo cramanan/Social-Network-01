@@ -8,12 +8,13 @@ import { ImageIcon } from "./icons/ImageIcon";
 import { Post } from "@/types/post";
 import Image from "next/image";
 
-type PostFields = Pick<Post, "content" | "images">;
+type PostFields = Pick<Post, "groupId" | "content" | "images">;
 
-export const NewPost = () => {
+export const NewPost = ({ groupId }: { groupId: string | null }) => {
     const [fields, setFields] = useState<PostFields>({
-        content: "",
+        content: JSON.stringify(groupId),
         images: [],
+        groupId,
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -34,7 +35,7 @@ export const NewPost = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const body = new FormData(e.currentTarget);
-        body.append("content", fields.content);
+        body.append("data", JSON.stringify(fields));
         const response = await fetch("/api/post", { method: "POST", body });
 
         if (response.ok) toggleModal();

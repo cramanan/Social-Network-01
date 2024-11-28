@@ -17,7 +17,7 @@ import (
 // `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/types/posts.go).
 //
 // This method return a Post (see ./api/types/posts.go) or usualy an SQL error (one is nil when the other isn't).
-func (store *SQLite3Store) CreatePost(ctx context.Context, req types.Post) (err error) {
+func (store *SQLite3Store) CreatePost(ctx context.Context, post *types.Post) (err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return err
@@ -29,15 +29,13 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req types.Post) (err 
 		return err
 	}
 
-	if req.GroupId == "" {
-		req.GroupId = "00000000"
-	}
+	// TODO: verifier que le group existe ou est nil
 
 	_, err = tx.ExecContext(ctx, "INSERT INTO posts (id, user_id, group_id, content, timestamp) VALUES (?, ?, ?, ?, ?);",
 		id.String(),
-		req.UserId,
-		req.GroupId,
-		req.Content,
+		post.UserId,
+		post.GroupId,
+		post.Content,
 		time.Now(),
 	)
 	if err != nil {
@@ -50,7 +48,7 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, req types.Post) (err 
 	}
 	defer stmt.Close()
 
-	for _, image := range req.Images {
+	for _, image := range post.Images {
 		_, err = stmt.Exec(id.String(), image)
 		if err != nil {
 			return err
