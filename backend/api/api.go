@@ -30,64 +30,111 @@ type API struct {
 	WebSocket websocket.WebSocket
 }
 
+// NewAPI initializes and returns a new API server instance with routes and database setup.
 func NewAPI(addr string, dbFilePath string) (*API, error) {
+	// Create a new API server instance.
 	server := new(API)
-	server.Server.Addr = addr
+	server.Server.Addr = addr // Set the address for the API server.
 
+	// Create a new router to handle incoming HTTP requests.
 	router := http.NewServeMux()
 
-	// TODO: Protect some routes
-	router.Handle("/api/register", handleFunc(server.Register))
-	router.Handle("/api/login", handleFunc(server.Login))
+	// Register routes for user authentication and profile management.
+	// TODO: Protect some routes with authentication and authorization logic.
+	// Route for user registration.
+	router.Handle("/api/register", handleFunc(server.Register)) 
+	// Route for user login.
+	router.Handle("/api/login", handleFunc(server.Login))       
 
-	router.Handle("/api/user/{userid}", handleFunc(server.User))
-	router.Handle("/api/user/{userid}/stats", handleFunc(server.GetUserStats))
-	router.Handle("/api/user/{userid}/send-request", handleFunc(server.SendFriendRequest))
-	router.Handle("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest))
-	router.Handle("/api/user/{userid}/decline-request", handleFunc(server.DeclineFriendRequest))
+	// Routes for accessing and managing user information and friend requests.
+	// Route to fetch user details by user ID.
+	router.Handle("/api/user/{userid}", handleFunc(server.User)) 
+	// Route for user statistics.
+	router.Handle("/api/user/{userid}/stats", handleFunc(server.GetUserStats)) 
+	// Route for sending a friend request.
+	router.Handle("/api/user/{userid}/send-request", handleFunc(server.SendFriendRequest)) 
+	// Route for accepting a friend request.
+	router.Handle("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest)) 
+	// Route for declining a friend request.
+	router.Handle("/api/user/{userid}/decline-request", handleFunc(server.DeclineFriendRequest)) 
 
-	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
-	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList))
-	router.Handle("/api/friend-requests", handleFunc(server.GetFriendRequests))
+	// Routes related to user chats and friend list management.
+	// Route for fetching chats between two users.
+	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid)) 
+	// Route for fetching a user's friend list.
+	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList)) 
+	// Route for fetching pending friend requests.
+	router.Handle("/api/friend-requests", handleFunc(server.GetFriendRequests)) 
 
-	router.Handle("/api/profile", handleFunc(server.Profile))
-	router.Handle("/api/profile/posts", handleFunc(server.ProfilePosts))
-	router.Handle("/api/profile/followers", handleFunc(server.GetProfileFollowers))
-	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing))
+	// Profile-related routes for fetching or updating user profile and posts.
+	// Route for fetching user profile.
+	router.Handle("/api/profile", handleFunc(server.Profile)) 
+	// Route for fetching posts on a user's profile.
+	router.Handle("/api/profile/posts", handleFunc(server.ProfilePosts)) 
+	// Route for fetching followers of a user.
+	router.Handle("/api/profile/followers", handleFunc(server.GetProfileFollowers)) 
+	// Route for fetching users followed by a user.
+	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing)) 
 
-	router.Handle("/api/groups", handleFunc(server.Groups))
-	router.Handle("/api/group/{groupid}", handleFunc(server.Group))
-	router.Handle("/api/group/{groupid}/request", handleFunc(server.RequestGroup))
-	router.Handle("/api/group/{groupid}/invite", handleFunc(server.InviteUserIntoGroup))
-	router.Handle("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts))
-	router.Handle("/api/group/{groupid}/events", handleFunc(server.Events))
-	router.Handle("/api/group/{groupid}/events/{eventid}", handleFunc(server.RegisterUserToEvent))
-	router.Handle("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup))
-	router.Handle("/api/group/{groupid}/chatroom", http.HandlerFunc(server.JoinGroupChat))
+	// Routes for group management, including group details, requests, and posts.
+	// Route for fetching all groups.
+	router.Handle("/api/groups", handleFunc(server.Groups)) 
+	// Route for fetching details of a specific group by ID.
+	router.Handle("/api/group/{groupid}", handleFunc(server.Group)) 
+	// Route for requesting to join a group.
+	router.Handle("/api/group/{groupid}/request", handleFunc(server.RequestGroup)) 
+	// Route for inviting a user to a group.
+	router.Handle("/api/group/{groupid}/invite", handleFunc(server.InviteUserIntoGroup)) 
+	// Route for fetching posts within a group.
+	router.Handle("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts)) 
+	// Route for fetching events within a group.
+	router.Handle("/api/group/{groupid}/events", handleFunc(server.Events)) 
+	// Route for registering a user to a group event.
+	router.Handle("/api/group/{groupid}/events/{eventid}", handleFunc(server.RegisterUserToEvent)) 
+	// Route for fetching group chats.
+	router.Handle("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup)) 
+	// Route for joining a group chatroom.
+	router.Handle("/api/group/{groupid}/chatroom", http.HandlerFunc(server.JoinGroupChat)) 
 
+	// Routes for creating and interacting with posts, including comments and likes.
+	// Route for creating a new post.
 	router.Handle("/api/post", handleFunc(server.CreatePost))
-	router.Handle("/api/post/{postid}", handleFunc(server.GetPostById))
-	router.Handle("/api/post/{postid}/comments", handleFunc(server.Comment))
-	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost))
+	// Route for fetching a specific post by ID.
+	router.Handle("/api/post/{postid}", handleFunc(server.GetPostById)) 
+	// Route for adding comments to a post.
+	router.Handle("/api/post/{postid}/comments", handleFunc(server.Comment)) 
+	// Protected route for liking a post.
+	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost)) 
 
+	// Initialize the WebSocket for real-time communication.
 	server.WebSocket = websocket.NewWebSocket()
 
-	router.Handle("/api/socket", http.HandlerFunc(server.Socket))
-	router.Handle("/api/online", handleFunc(server.GetOnlineUsers))
+	// Route for handling WebSocket connections.
+	// Route for WebSocket connections.
+	router.Handle("/api/socket", http.HandlerFunc(server.Socket)) 
+	// Route for fetching online users.
+	router.Handle("/api/online", handleFunc(server.GetOnlineUsers)) 
 
+	// Serve image files from the "api/images" directory.
 	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
 
+	// Set the router as the handler for the API server.
 	server.Server.Handler = router
 
+	// Set up the SQLite database connection and handle any errors.
 	storage, err := database.NewSQLite3Store(dbFilePath)
 	if err != nil {
-		return nil, err
+		return nil, err // Return an error if the database connection fails.
 	}
-	server.Storage = storage
+	server.Storage = storage // Store the database connection in the API server.
 
+	// Initialize the session store for managing user sessions.
 	server.Sessions = database.NewSessionStore()
+
+	// Return the fully initialized API server.
 	return server, nil
 }
+
 
 // parseRequestLimitAndOffset is used to extract the query parameters // with the name: "limit" & "offset".
 func parseRequestLimitAndOffset(request *http.Request) (limit, offset int) {
@@ -155,30 +202,47 @@ func (server *API) Protected(fn handlerFunc) http.HandlerFunc {
 	})
 }
 
+// MultiPartFiles processes multipart file uploads from an HTTP request.
+// It retrieves files named "images" from the request, stores them as temporary files, 
+// and returns a list of their paths.
 func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
+	// Retrieve the multipart files from the request's "images" field.
 	multipartImages := request.MultipartForm.File["images"]
 
+	// Initialize the filepaths slice to store the paths of the uploaded files.
 	filepaths = make([]string, len(multipartImages))
 
+	// Iterate through each file in the "images" field of the multipart form.
 	for idx, fileHeader := range multipartImages {
+		// Open the file for reading.
 		file, err := fileHeader.Open()
 		if err != nil {
-			return nil, err
+			// Return error if file cannot be opened.
+			return nil, err 
 		}
-		defer file.Close()
+		defer file.Close() // Ensure file is closed when the function exits.
 
+		// Create a temporary file in the "api/images" directory with the original filename.
 		temp, err := os.CreateTemp("api/images", fmt.Sprintf("*-%s", fileHeader.Filename))
 		if err != nil {
-			return nil, err
+			// Return error if temporary file cannot be created.
+			return nil, err 
 		}
-		defer temp.Close()
+		// Ensure temporary file is closed after use.
+		defer temp.Close() 
 
+		// Copy the contents of the uploaded file into the temporary file.
 		_, err = temp.ReadFrom(file)
 		if err != nil {
-			return nil, err
+			// Return error if there is an issue copying the file.
+			return nil, err 
 		}
 
+		// Store the relative path of the temporary file in the filepaths slice.
 		filepaths[idx] = fmt.Sprintf("/%s", temp.Name())
 	}
+
+	// Return the filepaths of the uploaded images.
 	return filepaths, nil
 }
+

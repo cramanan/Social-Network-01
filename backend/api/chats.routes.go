@@ -124,63 +124,97 @@ func (server *API) GetChatFrom2Userid(writer http.ResponseWriter, request *http.
 
 }
 
+// GetChatFromGroup handles the HTTP request for fetching chats from a group.
+// It retrieves the chats from the group based on the group ID and paginates the result using limit and offset.
 func (server *API) GetChatFromGroup(writer http.ResponseWriter, request *http.Request) error {
+	// Parse the limit and offset values from the request to handle pagination.
 	limit, offset := parseRequestLimitAndOffset(request)
 
+	// Handle the GET request to fetch group chats.
 	switch request.Method {
 	case http.MethodGet:
+		// Fetch the chats from the group using the group ID, limit, and offset.
 		chats, err := server.Storage.GetChatsFromGroup(context.TODO(), request.PathValue("groupid"), limit, offset)
 		if err != nil {
-			return err
+			return err // Return an error if fetching the chats fails.
 		}
+		// Write the chats as a JSON response with HTTP status OK.
 		return writeJSON(writer, http.StatusOK, chats)
 
+	// Handle unsupported HTTP methods.
 	default:
+		// Return a Method Not Allowed error if the HTTP method is not GET.
 		return HTTPerror(http.StatusMethodNotAllowed)
 	}
 }
 
+// JoinGroupChat handles the WebSocket connection for joining a group chat.
+// It upgrades the HTTP connection to a WebSocket connection and manages the chat session.
 func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Request) {
+	// Get the current session from the request to identify the user.
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
-		return
+		// Return if there is an error fetching the session (user not logged in or session expired).
+		return 
 	}
 
+	// Upgrade the HTTP request to a WebSocket connection.
 	conn, err := server.WebSocket.Upgrade(writer, request, nil)
 	if err != nil {
-		log.Println(err)
+		// Log the error if upgrading to WebSocket fails.
+		log.Println(err) 
 		return
 	}
 
+	// Retrieve the group ID from the URL path.
 	groupid := request.PathValue("groupid")
+
+	// Check if a chatroom for the group already exists in the WebSocket connections.
 	chatroom, ok := server.WebSocket.Chatrooms.Lookup(groupid)
 	if !ok {
+		// If no chatroom exists for the group, create a new chatroom.
 		chatroom = server.WebSocket.Chatrooms.Add(groupid, websocket.NewChatRoom())
-		log.Printf("Chatroom for %s created", groupid)
+		log.Printf("Chatroom for %s created", groupid) // Log the creation of a new chatroom.
 	}
 
+	// Add the current user connection to the chatroom.
 	chatroom.Add(sess.User.Id, conn)
-	defer chatroom.Remove(sess.User.Id)
+	// Ensure the user's connection is removed when the function exits.
+	defer chatroom.Remove(sess.User.Id) 
 
+	// Define a variable to hold the incoming chat message.
 	var message types.ServerChat
 	var userConn *websocket.MxConn
 
+	// Continuously read messages from the WebSocket connection.
 	for {
+		// Read the JSON message from the connection.
 		err = conn.ReadJSON(&message)
 		if err != nil || message.Content == "" {
-			return
+			// Exit if there's an error reading the message or if the message is empty.
+			return 
 		}
 
+		// Set the sender ID and recipient ID for the message.
 		message.SenderId = sess.User.Id
-		message.RecipientId = groupid // use groupid for storage
-		message.Timestamp = time.Now()
+		// Use the group ID as the recipient for storage.
+		message.RecipientId = groupid 
+		// Set the current timestamp for the message.
+		message.Timestamp = time.Now() 
+
+		// Store the message in the group chat in the database.
 		server.Storage.StoreGroupChat(request.Context(), message)
 
-		for message.RecipientId, userConn = range chatroom.Entries() { // then use user id for broadcast
+		// Broadcast the message to all users in the chatroom, except the sender.
+		for message.RecipientId, userConn = range chatroom.Entries() {
 			if message.RecipientId != message.SenderId {
-				userConn.WriteJSON(message)
+				// Send the message to each user in the chatroom.
+				userConn.WriteJSON(message) 
 			}
 		}
+
+		// Clear the content of the message after broadcasting it.
 		message.Content = ""
 	}
 }
+
