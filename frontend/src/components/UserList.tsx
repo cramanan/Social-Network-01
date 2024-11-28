@@ -38,7 +38,7 @@ export default function UserList() {
                         ))
                     ) : (
                         <p className="text-center font-bold">
-                            No follow(s) found.
+                            No follower(s) found.
                         </p>
                     )}
                 </div>

@@ -58,7 +58,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
             </div>
             {isModalOpen && (
                 <>
-                    <div className="absolute -inset-full bg-black/10 backdrop-blur-sm z-40"></div>
+                    <div className="-inset-full fixed bg-black/10 backdrop-blur-sm z-40"></div>
                     <form
                         encType="multipart/form-data"
                         onSubmit={handleSubmit}

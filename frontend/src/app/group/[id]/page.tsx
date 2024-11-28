@@ -8,6 +8,8 @@ import { BackIcon } from "@/components/icons/BackIcon";
 import Link from "next/link";
 import Image from "next/image";
 import { NewPost } from "@/components/NewPost";
+import { Post } from "@/types/post";
+import PostComponent from "@/components/PostComponent";
 
 export default async function GroupPage({ params }: { params: Params }) {
     const { id } = await params;
@@ -19,6 +21,13 @@ export default async function GroupPage({ params }: { params: Params }) {
         `http://${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}`
     );
     const group: Group = await response.json();
+
+    // const { limit, offset, next, previous } = useQueryParams();
+
+    const test = await fetch(
+        `http://${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}/posts?limit=20&offset=0`
+    );
+    const posts: Post[] = await test.json();
 
     // const handleMemberListClick = () => {
     //     setShowMemberList(showMemberList)
@@ -65,7 +74,11 @@ export default async function GroupPage({ params }: { params: Params }) {
                             <Events groupId={group.id} />
                         </div>
 
-                        <div className="w-full">Group posts</div>
+                        <div className="flex flex-col w-full p-3 gap-3 overflow-scroll no-scrollbar">
+                            {posts.map((post, idx) =>
+                                <PostComponent key={idx} post={post} />
+                            )}
+                        </div>
                     </div>
                 </div>
             </HomeProfileLayout>
