@@ -30,11 +30,13 @@ export default function UserList() {
                 <div className="flex flex-col items-center gap-3 mx-5 overflow-scroll no-scrollbar xl:max-h-[65vh]">
                     {users.length > 0 ? (
                         users.map((user, idx) => (
-                            <Users
-                                key={idx}
-                                user={user}
-                                showLastMessage={false}
-                            />
+                            <>
+                                <Users
+                                    key={idx}
+                                    user={user}
+                                    showLastMessage={false}
+                                />
+                            </>
                         ))
                     ) : (
                         <p className="text-center font-bold">

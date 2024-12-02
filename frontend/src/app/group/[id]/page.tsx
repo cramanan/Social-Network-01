@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Group } from "@/types/group";
-import { Params } from "@/types/query";
 import NewEvent from "./NewEvent";
 import Events from "./Events";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
@@ -13,6 +12,9 @@ import { NewPost } from "@/components/NewPost";
 import { Post } from "@/types/post";
 import PostComponent from "@/components/PostComponent";
 import { useParams } from "next/navigation";
+import { MemberGroupList } from "./MemberGroupList";
+import UserList from "@/components/UserList";
+import { User } from "@/types/user";
 
 export default function GroupPage() {
     const { id } = useParams<{ id: string }>();
@@ -20,8 +22,9 @@ export default function GroupPage() {
     const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState<Post[] | null>(null);
 
-    // const [showMemberList, setShowMemberList] = useState(true)
-    // const [showEventList, setShowEventList] = useState(false)
+    const [showMemberList, setShowMemberList] = useState(false)
+    const [showEventList, setShowEventList] = useState(true)
+
 
     useEffect(() => {
         const fetchInfos = async () => {
@@ -45,20 +48,38 @@ export default function GroupPage() {
         fetchInfos();
     }, [id]);
 
+    const [invites, setInvites] = useState<User[]>([])
+
+    useEffect(() => {
+        const fetchTest = async () => {
+            const response = await fetch(`/api/inbox/group-invites`)
+            const data: User[] = await response.json()
+            setInvites(data)
+        }
+        fetchTest()
+    }, [])
+
     if (loading) return <>loading</>;
 
     if (!group) return <>Group Not Found</>;
     // const { limit, offset, next, previous } = useQueryParams();
 
-    // const handleMemberListClick = () => {
-    //     setShowMemberList(showMemberList)
-    //     setShowEventList(false)
-    // }
+    const handleMemberListClick = () => {
+        setShowMemberList(true)
+        setShowEventList(false)
+    }
 
-    // const handleEventListClick = () => {
-    //     setShowMemberList(false)
-    //     setShowEventList(showEventList)
-    // }
+    const handleEventListClick = () => {
+        setShowMemberList(false)
+        setShowEventList(true)
+    }
+
+    const handleRequestClick = () => {
+        //Request handler
+        console.log("Sending request to join");
+        fetch(`/api/groups/${group.id}/request`, { method: "POST" });
+        console.log("Request Send !");
+    }
 
     return (
         <>
@@ -74,7 +95,7 @@ export default function GroupPage() {
                             <p>{group.description}</p>
                         </div>
 
-                        <div className="flex flex-row gap-5 text-3xl">
+                        <div className="flex flex-row items-center gap-5 text-3xl">
                             <Image
                                 src={group.image}
                                 alt=""
@@ -84,7 +105,8 @@ export default function GroupPage() {
 
                             {/* displaying only if in group */}
                             {/* Invite followers to group */}
-                            <input type="button" value="chat" />
+                            <Link href={`/group/${group.id}/chatroom`}>Chat</Link>
+
                             <input
                                 type="button"
                                 value="+"
@@ -94,15 +116,15 @@ export default function GroupPage() {
                     </div>
 
                     {/* Display if not in group */}
-                    {/* <div className="flex flex-col items-center font-bold text-3xl gap-5">
+                    <div className="flex flex-col items-center font-bold text-3xl gap-5">
                         <h2>You are not in the group yet, <br /> click below to send a request !</h2>
 
                         <label htmlFor="request-to-group"></label>
-                        <input name="request-to-group" id="request-to-group" type="button" value="request to join" />
-                    </div> */}
+                        <input name="request-to-group" id="request-to-group" type="button" value="request to join" onClick={handleRequestClick} />
+                    </div>
 
                     {/* Display if in group */}
-                    <div className="flex flex-row w-full h-full">
+                    {/* <div className="flex flex-row w-full h-full">
                         <div className="flex flex-col items-center w-72 border-r-4">
                             <div className="flex flex-col pt-3 gap-2">
                                 <NewPost groupId={id} />
@@ -110,14 +132,12 @@ export default function GroupPage() {
                             </div>
 
                             <ul className="flex flex-col items-center">
-                                <li className="font-bold">Invites</li>
-                                <span>List of Invites</span>
+                                <li onClick={handleMemberListClick} className="font-bold cursor-pointer">Members</li>
+                                {showMemberList && <MemberGroupList />}
 
-                                <li className="font-bold">Members</li>
-                                <span>List of Members</span>
 
-                                <li className="font-bold">Events</li>
-                                <Events groupId={group.id} />
+                                <li onClick={handleEventListClick} className="font-bold cursor-pointer">Events</li>
+                                {showEventList && <Events groupId={group.id} />}
                             </ul>
                         </div>
                         {posts && (
@@ -127,7 +147,9 @@ export default function GroupPage() {
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </div> */}
+
+                    <span className="absolute top-0 right-0 translate-x-full translate-y-20">{invites.length}</span>
                 </div>
             </HomeProfileLayout>
         </>

@@ -96,7 +96,7 @@ const PostComponent = ({ post }: { post: Post }) => {
             <div className="flex flex-col relative w-full bg-white/95 xl:rounded-[30px]">
                 <div className="flex flex-row justify-between items-center pr-5 mb-3">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-3">
-                        <Link href={`/user/${post.userId}`}>
+                        <Link href={`/users/${post.userId}`}>
                             <Image
                                 src={`${post.pfp ? "/" : "/Default_pfp.jpg"}`}
                                 width={48}

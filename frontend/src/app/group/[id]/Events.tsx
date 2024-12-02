@@ -11,7 +11,7 @@ export default function Events({ groupId }: { groupId: string }) {
     useEffect(() => {
         const fetchEvents = async () => {
             const response = await fetch(
-                `/api/group/${groupId}/events?limit=${limit}&offset=${offset}`
+                `/api/groups/${groupId}/events?limit=${limit}&offset=${offset}`
             );
             const data: Event[] = await response.json();
 
@@ -23,23 +23,27 @@ export default function Events({ groupId }: { groupId: string }) {
 
     return (
         <>
-            <ul className="flex flex-col gap-2">
-                {events.map((event, idx) => (
-                    <li key={idx}>
-                        <h3>{event.title}</h3>
-                        <p>{event.description}</p>
-                        <div>{event.date}</div>
-                        <label htmlFor="going">Going</label>
-                        <input
-                            type="checkbox"
-                            name="going"
-                            defaultChecked={event.going}
-                            onChange={console.log}
-                            id="going"
-                        />
-                    </li>
-                ))}
-            </ul>
+            {events.length > 0 ?
+                (<ul className="flex flex-col gap-2">
+                    {events.map((event, idx) => (
+                        <li key={idx}>
+                            <h3>{event.title}</h3>
+                            <p>{event.description}</p>
+                            <div>{event.date}</div>
+                            <label htmlFor="going">Going</label>
+                            <input
+                                type="checkbox"
+                                name="going"
+                                defaultChecked={event.going}
+                                onChange={console.log}
+                                id="going"
+                            />
+                        </li>
+                    ))}
+                </ul>)
+                :
+                (<span>No events</span>)
+            }
         </>
     );
 }
