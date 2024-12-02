@@ -336,9 +336,9 @@ func (store *SQLite3Store) DeclineGroupInvite(ctx context.Context, userId, group
 	}
 
 	_, err = tx.ExecContext(ctx, `
-	DELETE FROM groups_record 
+	DELETE FROM groups_record
 	WHERE group_id = ? AND user_id = ?;
-	`, userId, groupId)
+	`, groupId, userId)
 	if err != nil {
 		return err
 	}

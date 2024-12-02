@@ -3,7 +3,7 @@
 import { Group } from "@/types/group";
 import { User } from "@/types/user";
 import Image from "next/image";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 function FollowRequests() {
     const [users, setUsers] = useState<User[]>([]);

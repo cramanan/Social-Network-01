@@ -202,16 +202,7 @@ func (server *API) AcceptGroupInvite(writer http.ResponseWriter, request *http.R
 		return err
 	}
 
-	groupid := request.PathValue("groupid")
-	group, err := server.Storage.GetGroup(request.Context(), groupid)
-	if err != nil {
-		return err
-	}
-	if group.Owner != sess.User.Id {
-		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
-	}
-
-	err = server.Storage.AcceptGroupInvite(request.Context(), sess.User.Id, groupid)
+	err = server.Storage.AcceptGroupInvite(request.Context(), sess.User.Id, request.PathValue("groupid"))
 	if err != nil {
 		return err
 	}
@@ -225,16 +216,7 @@ func (server *API) DeclineGroupInvite(writer http.ResponseWriter, request *http.
 		return err
 	}
 
-	groupid := request.PathValue("groupid")
-	group, err := server.Storage.GetGroup(request.Context(), groupid)
-	if err != nil {
-		return err
-	}
-	if group.Owner != sess.User.Id {
-		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
-	}
-
-	err = server.Storage.DeclineGroupInvite(request.Context(), sess.User.Id, groupid)
+	err = server.Storage.DeclineGroupInvite(request.Context(), sess.User.Id, request.PathValue("groupid"))
 	if err != nil {
 		return err
 	}
