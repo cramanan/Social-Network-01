@@ -65,7 +65,7 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 // `followerId` is the corresponding following user in the database and is usualy find in the sessions field of the API structure.
 //
 // This method return an SQL error or nil if there are none.
-func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, followerId string) error {
+func (store *SQLite3Store) SendFollowRequest(ctx context.Context, userId, followerId string) error {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, follow
 	return tx.Commit()
 }
 
-func (store *SQLite3Store) AcceptFriendRequest(ctx context.Context, userId, followerId string) error {
+func (store *SQLite3Store) AcceptFollowRequest(ctx context.Context, userId, followerId string) error {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -142,7 +142,7 @@ func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId 
 	return tx.Commit()
 }
 
-func (store *SQLite3Store) GetFriendRequests(ctx context.Context, userId string) (users []types.User, err error) {
+func (store *SQLite3Store) GetFollowRequests(ctx context.Context, userId string) (users []types.User, err error) {
 	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, err

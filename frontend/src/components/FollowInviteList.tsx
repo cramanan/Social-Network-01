@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import Image from "next/image";
 
-const FriendInviteList = () => {
+const FollowInviteList = () => {
     const [users, setUsers] = useState<User[]>([]);
 
     const handleRequest = (id: string, foo: "accept" | "decline") => () => {
@@ -12,7 +12,7 @@ const FriendInviteList = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const response = await fetch("/api/friend-requests");
+            const response = await fetch("/api/follow-requests");
             const data: User[] = await response.json();
 
             setUsers(data);
@@ -22,11 +22,11 @@ const FriendInviteList = () => {
 
     return (
         <div
-            id="friendInviteList"
+            id="followInviteList"
             className="relative flex flex-col w-full h-full xl:w-fit xl:h-fit xl:bg-white/25 xl:rounded-[30px] xl:px-2 xl:py-5"
         >
             <h2 className="text-4xl text-white text-center py-5 xl:sr-only">
-                Friend Request List
+                Follow Request List
             </h2>
 
             <ul className="flex flex-col h-fit items-center gap-3 mx-2 overflow-scroll no-scrollbar xl:max-h-[68vh] xl:gap-1">
@@ -59,4 +59,4 @@ const FriendInviteList = () => {
     );
 };
 
-export default FriendInviteList;
+export default FollowInviteList;

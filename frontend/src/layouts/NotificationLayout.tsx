@@ -30,8 +30,8 @@ export default function NotificationLayout({ children }: PropsWithChildren) {
                 case "ping":
                     return;
 
-                case "friend-request":
-                    toast.message = "New Friend";
+                case "follow-request":
+                    toast.message = "New Follow";
                     break;
 
                 default:

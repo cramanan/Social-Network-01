@@ -193,3 +193,79 @@ func (store *SQLite3Store) UserJoinGroup(ctx context.Context, userId, groupId st
 
 	return tx.Commit()
 }
+
+func (store *SQLite3Store) GetGroupInvites(ctx context.Context, userId string) (groupInvites []types.Group, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, `
+	SELECT g.id, g.name
+	FROM groups_record gr JOIN groups g
+	WHERE gr.user_id = ? AND gr.is_request = FALSE AND gr.accepted = FALSE
+	;`, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var group types.Group
+		err = rows.Scan(
+			&group.Id,
+			&group.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	if groupInvites == nil {
+		return make([]types.Group, 0), nil
+	}
+
+	return
+}
+
+func (store *SQLite3Store) GetGroupRequests(ctx context.Context, userId string) (groupInvites []string, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, `
+	WITH owned_groups AS (
+		SELECT gr.user_id
+		FROM groups g JOIN groups_record gr
+		ON g.id = gr.group_id
+		WHERE g.owner = ?
+	)
+
+	SELECT og.user_id
+	FROM owned_groups og JOIN users u
+	ON og.user_id = u.id;
+	`, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var id string
+		err = rows.Scan(
+			&id,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	if groupInvites == nil {
+		return make([]string, 0), nil
+	}
+
+	return
+}

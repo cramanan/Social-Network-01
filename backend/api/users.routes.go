@@ -235,7 +235,7 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 	return writeJSON(writer, http.StatusOK, onlineUsers)
 }
 
-func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) GetUserFollowList(writer http.ResponseWriter, request *http.Request) (err error) {
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
@@ -243,7 +243,7 @@ func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.R
 
 	limit, offset := parseRequestLimitAndOffset(request)
 
-	users, err := server.Storage.GetUserFriendList(context.TODO(), sess.User.Id, limit, offset)
+	users, err := server.Storage.GetUserFollowList(context.TODO(), sess.User.Id, limit, offset)
 	if err != nil {
 		return err
 	}

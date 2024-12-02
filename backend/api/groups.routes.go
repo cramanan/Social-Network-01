@@ -181,3 +181,31 @@ func (server *API) RequestGroup(writer http.ResponseWriter, request *http.Reques
 
 	return writeJSON(writer, http.StatusOK, "OK")
 }
+
+func (server *API) GetGroupInvites(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	invites, err := server.Storage.GetGroupInvites(request.Context(), sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, invites)
+}
+
+func (server *API) GetGroupRequests(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	invites, err := server.Storage.GetGroupRequests(request.Context(), sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, invites)
+}

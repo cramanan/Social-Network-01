@@ -36,7 +36,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
         e.preventDefault();
         const body = new FormData(e.currentTarget);
         body.append("data", JSON.stringify(fields));
-        const response = await fetch("/api/post", { method: "POST", body });
+        const response = await fetch("/api/posts", { method: "POST", body });
 
         if (response.ok) toggleModal();
     };

@@ -461,7 +461,7 @@ func (store *SQLite3Store) UpdateUser(ctx context.Context, id string, value type
 	return modified, nil
 }
 
-func (store *SQLite3Store) GetUserFriendList(ctx context.Context, userId string, limit, offset int) (users []*types.User, err error) {
+func (store *SQLite3Store) GetUserFollowList(ctx context.Context, userId string, limit, offset int) (users []*types.User, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err

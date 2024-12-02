@@ -8,13 +8,13 @@ import (
 	"Social-Network-01/api/types"
 )
 
-func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) GetFollowRequests(writer http.ResponseWriter, request *http.Request) (err error) {
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
 	}
 
-	users, err := server.Storage.GetFriendRequests(request.Context(), sess.User.Id)
+	users, err := server.Storage.GetFollowRequests(request.Context(), sess.User.Id)
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.R
 // Perform the action of following one from another.
 //
 // `server` is a pointer of the API type (see ./api/api.go). It contains a session reference.
-func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) SendFollowRequest(writer http.ResponseWriter, request *http.Request) error {
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
@@ -48,11 +48,11 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 	var methodToUse func(context.Context, string, string) error
 
 	if !follows {
-		methodToUse = server.Storage.SendFriendRequest
+		methodToUse = server.Storage.SendFollowRequest
 		if conn, ok := server.WebSocket.Users.Lookup(userId); ok {
 			conn.WriteJSON(types.SocketMessage[string]{
-				Type: "friend-request",
-				Data: fmt.Sprintf("%s has sent you a friend request.", sess.User.Nickname),
+				Type: "follow-request",
+				Data: fmt.Sprintf("%s has sent you a follow request.", sess.User.Nickname),
 			})
 		}
 
@@ -68,7 +68,7 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 	return writeJSON(writer, http.StatusOK, "OK")
 }
 
-func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) AcceptFollowRequest(writer http.ResponseWriter, request *http.Request) (err error) {
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 
 	followerId := request.PathValue("userid")
 
-	err = server.Storage.AcceptFriendRequest(request.Context(), sess.User.Id, followerId)
+	err = server.Storage.AcceptFollowRequest(request.Context(), sess.User.Id, followerId)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 	return writeJSON(writer, http.StatusOK, http.StatusOK)
 }
 
-func (server *API) DeclineFriendRequest(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) DeclineFollowRequest(writer http.ResponseWriter, request *http.Request) (err error) {
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		return err
