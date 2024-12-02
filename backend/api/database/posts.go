@@ -103,14 +103,30 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId *string, l
 	}
 	defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, `
+	var args []any
+	var query string
+
+	if groupId == nil {
+		query = `
+	SELECT p.*, u.nickname
+	FROM posts p JOIN users u
+	ON p.user_id = u.id
+	WHERE group_id IS NULL
+	ORDER BY timestamp DESC
+	LIMIT ? OFFSET ?;`
+		args = []any{limit, offset}
+	} else {
+		query = `
 	SELECT p.*, u.nickname
 	FROM posts p JOIN users u
 	ON p.user_id = u.id
 	WHERE group_id = ?
 	ORDER BY timestamp DESC
-	LIMIT ? OFFSET ?;`,
-		groupId, limit, offset)
+	LIMIT ? OFFSET ?;`
+		args = []any{*groupId, limit, offset}
+	}
+
+	rows, err := tx.QueryContext(ctx, query, args...)
 	if err != nil {
 		return
 	}
