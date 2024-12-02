@@ -13,7 +13,7 @@ export default function NewEvent({ groupId }: { groupId: string }) {
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const response = await fetch(`/api/group/${groupId}/events`, {
+        const response = await fetch(`/api/groups/${groupId}/events`, {
             method: "POST",
             body: JSON.stringify(state),
         });

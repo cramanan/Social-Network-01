@@ -204,7 +204,7 @@ func (store *SQLite3Store) GetGroupInvites(ctx context.Context, userId string) (
 	rows, err := tx.QueryContext(ctx, `
 	SELECT g.id, g.name
 	FROM groups_record gr JOIN groups g
-	WHERE gr.user_id = ? AND gr.is_request = FALSE AND gr.accepted = FALSE
+	WHERE gr.user_id = ? AND gr.is_request = TRUE AND gr.accepted = FALSE
 	;`, userId)
 	if err != nil {
 		return nil, err
