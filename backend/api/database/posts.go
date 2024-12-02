@@ -11,258 +11,288 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// Create a new posts in the database.
-//
-// `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `req` is the corresponding postRequest (see ./api/types/posts.go).
-//
-// This method return a Post (see ./api/types/posts.go) or usualy an SQL error (one is nil when the other isn't).
+// CreatePost inserts a new post into the database, along with associated images.
+// - `post`: The post object containing the post details (e.g., user ID, group ID, content, images).
+// Returns an error if the operation fails.
 func (store *SQLite3Store) CreatePost(ctx context.Context, post *types.Post) (err error) {
-	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+    // Start a read-only transaction.
+    tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+    if err != nil {
+        return err
+    }
+    defer tx.Rollback()
 
-	id, err := uuid.NewV4()
-	if err != nil {
-		return err
-	}
+    // Generate a unique ID for the post.
+    id, err := uuid.NewV4()
+    if err != nil {
+        return err
+    }
 
-	// TODO: verifier que le group existe ou est nil
+    // TODO: Verify that the group exists, or ensure it can be nil.
 
-	_, err = tx.ExecContext(ctx, "INSERT INTO posts (id, user_id, group_id, content, timestamp) VALUES (?, ?, ?, ?, ?);",
-		id.String(),
-		post.UserId,
-		post.GroupId,
-		post.Content,
-		time.Now(),
-	)
-	if err != nil {
-		return err
-	}
+    // Insert the post into the database.
+    _, err = tx.ExecContext(ctx, `
+	INSERT INTO posts (id, user_id, group_id, content, timestamp) 
+	VALUES (?, ?, ?, ?, ?);`,
+        id.String(),
+        post.UserId,
+        post.GroupId,
+        post.Content,
+        time.Now(),
+    )
+    if err != nil {
+        return err
+    }
 
-	stmt, err := tx.PrepareContext(ctx, "INSERT INTO posts_images (post_id, path) VALUES (?, ?);")
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
+    // Prepare the statement for inserting images.
+    stmt, err := tx.PrepareContext(ctx, `
+	INSERT INTO posts_images (post_id, path) 
+	VALUES (?, ?);`)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
 
-	for _, image := range post.Images {
-		_, err = stmt.Exec(id.String(), image)
-		if err != nil {
-			return err
-		}
-	}
+    // Insert each image associated with the post.
+    for _, image := range post.Images {
+        _, err = stmt.Exec(id.String(), image)
+        if err != nil {
+            return err
+        }
+    }
 
-	return tx.Commit()
+    return tx.Commit()
 }
 
-// Retrieve a post from the database using its postId.
-//
-// `store` is find in the API structure and is the SQLite3 DB.
-// `ctx` is the context of the request. `postId` is the corresponding id in the database and is usualy find in the request pathvalue.
-//
-// This method return a post (see ./api/types/posts.go) or usualy an SQL error (one is nil when the other isn't).
+// GetPost retrieves a post by its ID.
+// - `postId`: The ID of the post to retrieve.
+// Returns the Post object or an SQL error.
 func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *types.Post, err error) {
-	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
+    tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+    if err != nil {
+        return nil, err
+    }
+    defer tx.Rollback()
 
-	post = new(types.Post)
+    post = new(types.Post)
 
-	err = tx.QueryRowContext(ctx, `
+    // Retrieve the post details, including the username of the author.
+    err = tx.QueryRowContext(ctx, `
 	SELECT p.*, u.nickname
-	FROM posts p JOIN users u
-	ON p.user_id = u.id
+	FROM posts p 
+	JOIN users u ON p.user_id = u.id
 	WHERE p.id = ?;`, postId).Scan(
-		&post.Id,
-		&post.UserId,
-		&post.GroupId,
-		&post.Content,
-		&post.Timestamp,
-		&post.Username,
-	)
-	if err != nil {
-		return nil, err
-	}
+        &post.Id,
+        &post.UserId,
+        &post.GroupId,
+        &post.Content,
+        &post.Timestamp,
+        &post.Username,
+    )
+    if err != nil {
+        return nil, err
+    }
 
-	if post.Images == nil {
-		post.Images = make([]string, 0)
-	}
+    // Ensure the Images field is initialized.
+    if post.Images == nil {
+        post.Images = make([]string, 0)
+    }
 
-	return
+    return
 }
 
+// GetGroupPosts retrieves posts for a specific group, with pagination.
+// - `groupId`: The ID of the group.
+// - `limit`: The maximum number of posts to retrieve.
+// - `offset`: The offset for pagination.
+// Returns a slice of Post objects or an SQL error.
 func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []types.Post, err error) {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return
-	}
-	defer tx.Rollback()
+    tx, err := store.BeginTx(ctx, nil)
+    if err != nil {
+        return
+    }
+    defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, `
+    // Query posts for the group, ordered by timestamp in descending order.
+    rows, err := tx.QueryContext(ctx, `
 	SELECT p.*, u.nickname
-	FROM posts p JOIN users u
-	ON p.user_id = u.id
+	FROM posts p 
+	JOIN users u ON p.user_id = u.id
 	WHERE group_id = ?
 	ORDER BY timestamp DESC
 	LIMIT ? OFFSET ?;`,
-		groupId, limit, offset)
-	if err != nil {
-		return
-	}
-	defer rows.Close()
+        groupId, limit, offset)
+    if err != nil {
+        return
+    }
+    defer rows.Close()
 
-	stmt, err := tx.PrepareContext(ctx, `
+    // Prepare a statement to retrieve images for posts.
+    stmt, err := tx.PrepareContext(ctx, `
 	SELECT path
 	FROM posts_images
 	WHERE post_id = ?;`)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
+    if err != nil {
+        return nil, err
+    }
+    defer stmt.Close()
 
-	for rows.Next() {
-		var post types.Post
-		err = rows.Scan(
-			&post.Id,
-			&post.UserId,
-			&post.GroupId,
-			&post.Content,
-			&post.Timestamp,
-			&post.Username)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
+    // Process each post.
+    for rows.Next() {
+        var post types.Post
+        err = rows.Scan(
+            &post.Id,
+            &post.UserId,
+            &post.GroupId,
+            &post.Content,
+            &post.Timestamp,
+            &post.Username)
+        if err != nil {
+            log.Println(err)
+            continue // Skip posts with errors.
+        }
 
-		images, err := stmt.QueryContext(ctx, post.Id)
-		if err != nil {
-			return nil, err
-		}
+        // Retrieve associated images for the post.
+        images, err := stmt.QueryContext(ctx, post.Id)
+        if err != nil {
+            return nil, err
+        }
 
-		for images.Next() {
-			var path string
-			err = images.Scan(&path)
-			if err != nil {
-				return nil, err
-			}
-			post.Images = append(post.Images, path)
-		}
+        for images.Next() {
+            var path string
+            err = images.Scan(&path)
+            if err != nil {
+                return nil, err
+            }
+            post.Images = append(post.Images, path)
+        }
 
-		if post.Images == nil {
-			post.Images = make([]string, 0)
-		}
+        if post.Images == nil {
+            post.Images = make([]string, 0)
+        }
 
-		posts = append(posts, post)
-	}
+        posts = append(posts, post)
+    }
 
-	if posts == nil {
-		posts = make([]types.Post, 0)
-	}
+    // Ensure posts slice is initialized.
+    if posts == nil {
+        posts = make([]types.Post, 0)
+    }
 
-	return posts, tx.Commit()
+    return posts, tx.Commit()
 }
 
+// LikePost toggles a like for a post by a user.
+// - `userId`: The ID of the user liking/unliking the post.
+// - `postId`: The ID of the post to like/unlike.
+// Returns an error if the operation fails.
 func (store *SQLite3Store) LikePost(ctx context.Context, userId, postId string) (err error) {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return
-	}
-	defer tx.Rollback()
+    tx, err := store.BeginTx(ctx, nil)
+    if err != nil {
+        return
+    }
+    defer tx.Rollback()
 
-	var exists bool
-	err = tx.QueryRowContext(ctx, `
+    // Check if the like record already exists.
+    var exists bool
+    err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS(
 		SELECT * 
 		FROM likes_records 
 		WHERE user_id = ? AND post_id = ?
 	);`, userId, postId).Scan(&exists)
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return err
+    }
 
-	var query string = "INSERT INTO likes_records (user_id, post_id) VALUES (?, ?);"
-	if exists {
-		query = "DELETE FROM likes_records WHERE user_id = ? AND post_id = ?;"
-	}
+    // Toggle the like: Insert if not exists, delete otherwise.
+    query := "INSERT INTO likes_records (user_id, post_id) VALUES (?, ?);"
+    if exists {
+        query = "DELETE FROM likes_records WHERE user_id = ? AND post_id = ?;"
+    }
 
-	_, err = tx.ExecContext(ctx, query, userId, postId)
-	if err != nil {
-		return err
-	}
+    _, err = tx.ExecContext(ctx, query, userId, postId)
+    if err != nil {
+        return err
+    }
 
-	return tx.Commit()
+    return tx.Commit()
 }
 
+// GetUserPosts retrieves posts created by a specific user, with pagination.
+// - `userId`: The ID of the user.
+// - `limit`: The maximum number of posts to retrieve.
+// - `offset`: The offset for pagination.
+// Returns a slice of Post objects or an SQL error.
 func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limit, offset int) (posts []types.Post, err error) {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return
-	}
-	defer tx.Rollback()
+    tx, err := store.BeginTx(ctx, nil)
+    if err != nil {
+        return
+    }
+    defer tx.Rollback()
 
-	rows, err := tx.Query(`
+    // Query posts by the user.
+    rows, err := tx.Query(`
 	SELECT p.*, u.nickname
-	FROM posts p JOIN users u
-	ON p.user_id = u.id
+	FROM posts p 
+	JOIN users u ON p.user_id = u.id
 	WHERE user_id = ?
 	LIMIT ? OFFSET ?;`,
-		userId, limit, offset)
-	if err != nil {
-		return nil, err
-	}
+        userId, limit, offset)
+    if err != nil {
+        return nil, err
+    }
 
-	stmt, err := tx.PrepareContext(ctx, `
+    // Prepare a statement to retrieve images for posts.
+    stmt, err := tx.PrepareContext(ctx, `
 	SELECT path
 	FROM posts_images
 	WHERE post_id = ?;`)
-	if err != nil {
-		return nil, err
-	}
+    if err != nil {
+        return nil, err
+    }
 
-	for rows.Next() {
-		var post types.Post
+    // Process each post.
+    for rows.Next() {
+        var post types.Post
+        err = rows.Scan(
+            &post.Id,
+            &post.UserId,
+            &post.GroupId,
+            &post.Content,
+            &post.Timestamp,
+            &post.Username)
+        if err != nil {
+            log.Println(err)
+            continue // Skip posts with errors.
+        }
 
-		err = rows.Scan(
-			&post.Id,
-			&post.UserId,
-			&post.GroupId,
-			&post.Content,
-			&post.Timestamp,
-			&post.Username)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
+        // Retrieve associated images for the post.
+        images, err := stmt.QueryContext(ctx, post.Id)
+        if err != nil {
+            return nil, err
+        }
 
-		images, err := stmt.QueryContext(ctx, post.Id)
-		if err != nil {
-			return nil, err
-		}
+        for images.Next() {
+            var path string
+            err = images.Scan(&path)
+            if err != nil {
+                return nil, err
+            }
+            post.Images = append(post.Images, path)
+        }
 
-		for images.Next() {
-			var path string
-			err = images.Scan(&path)
-			if err != nil {
-				return nil, err
-			}
-			post.Images = append(post.Images, path)
-		}
+        if post.Images == nil {
+            post.Images = make([]string, 0)
+        }
 
-		if post.Images == nil {
-			post.Images = make([]string, 0)
-		}
+        posts = append(posts, post)
+    }
 
-		posts = append(posts, post)
-	}
+    // Ensure posts slice is initialized.
+    if posts == nil {
+        posts = make([]types.Post, 0)
+    }
 
-	if posts == nil {
-		posts = make([]types.Post, 0)
-	}
-
-	return posts, nil
+    return posts, nil
 }

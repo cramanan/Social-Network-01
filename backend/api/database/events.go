@@ -9,15 +9,22 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// RegisterUserToEvent registers or unregisters a user for an event.
+// - `userId`: The ID of the user.
+// - `eventId`: The ID of the event.
+// If the user is not already registered, they are added to the event. If they are already registered, they are removed.
 func (store *SQLite3Store) RegisterUserToEvent(ctx context.Context, userId, eventId string) (err error) {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+    // Begin a transaction.
+    tx, err := store.BeginTx(ctx, nil)
+    if err != nil {
+        return err
+    }
+    // Ensure the transaction is rolled back if an error occurs.
+    defer tx.Rollback()
 
-	rowsExists := false
-	err = tx.QueryRowContext(ctx, `
+    // Check if the user and event exist in the database.
+    rowsExists := false
+    err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 
 		FROM users 
@@ -27,123 +34,151 @@ func (store *SQLite3Store) RegisterUserToEvent(ctx context.Context, userId, even
 		FROM events 
 		WHERE id = ?
 	);`, userId, eventId).Scan(&rowsExists)
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return err
+    }
 
-	if !rowsExists {
-		return fmt.Errorf("user or event does not exist")
-	}
+    // Return an error if the user or event does not exist.
+    if !rowsExists {
+        return fmt.Errorf("user or event does not exist")
+    }
 
-	var alreadyGoing bool
-	err = tx.QueryRowContext(ctx, `
+    // Check if the user is already registered for the event.
+    var alreadyGoing bool
+    err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM events_records 
 		WHERE user_id = ? AND event_id = ?
 		);`, userId, eventId).Scan(&alreadyGoing)
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return err
+    }
 
-	query := "INSERT INTO events_records (event_id, user_id) VALUES(?, ?);"
-	if alreadyGoing {
-		query = "DELETE FROM events_records WHERE event_id = ? AND user_id = ?;"
-	}
+    // Prepare the query: insert to register, delete to unregister.
+    query := "INSERT INTO events_records (event_id, user_id) VALUES(?, ?);"
+    if alreadyGoing {
+        query = "DELETE FROM events_records WHERE event_id = ? AND user_id = ?;"
+    }
 
-	_, err = tx.ExecContext(ctx, query, eventId, userId)
-	if err != nil {
-		return err
-	}
+    // Execute the query.
+    _, err = tx.ExecContext(ctx, query, eventId, userId)
+    if err != nil {
+        return err
+    }
 
-	return tx.Commit()
+    // Commit the transaction.
+    return tx.Commit()
 }
 
+// GetEvents retrieves events for a specific group.
+// - `userId`: The ID of the user (to check registration status).
+// - `groupId`: The ID of the group for which events are being retrieved.
+// - `limit`: The maximum number of results to return (for pagination).
+// - `offset`: The number of results to skip (for pagination).
+// This method returns a slice of Event objects or an error.
 func (store *SQLite3Store) GetEvents(ctx context.Context, userId, groupId string, limit, offset int) (events []types.Event, err error) {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
+    // Begin a transaction.
+    tx, err := store.BeginTx(ctx, nil)
+    if err != nil {
+        return nil, err
+    }
+    // Ensure the transaction is rolled back in case of an error.
+    defer tx.Rollback()
 
-	rows, err := tx.QueryContext(ctx, `
+    // Execute the SQL query to retrieve events and check if the user is registered for each.
+    rows, err := tx.QueryContext(ctx, `
 	SELECT e.*, CASE WHEN er.event_id IS NOT NULL THEN TRUE ELSE FALSE END AS events_records
 	FROM events e LEFT JOIN events_records er
 	ON e.id = er.event_id AND er.user_id = ?
 	WHERE e.group_id = ?
 	LIMIT ? OFFSET ?;`,
-		userId, groupId,
-		limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+        userId, groupId,
+        limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    // Ensure the rows are closed after processing.
+    defer rows.Close()
 
-	for rows.Next() {
-		var event types.Event
-		err = rows.Scan(
-			&event.Id,
-			&event.GroupId,
-			&event.Title,
-			&event.Description,
-			&event.Date,
-			&event.Going,
-		)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
+    // Iterate through the result set and populate the events slice.
+    for rows.Next() {
+        var event types.Event
+        err = rows.Scan(
+            &event.Id,
+            &event.GroupId,
+            &event.Title,
+            &event.Description,
+            &event.Date,
+            &event.Going, // Boolean indicating if the user is registered.
+        )
+        if err != nil {
+            log.Println(err) // Log errors and continue with the next row.
+            continue
+        }
 
-		events = append(events, event)
-	}
+        events = append(events, event)
+    }
 
-	if events == nil {
-		return make([]types.Event, 0), nil
-	}
+    // Return an empty slice if no events are found.
+    if events == nil {
+        return make([]types.Event, 0), nil
+    }
 
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
-	}
+    // Commit the transaction.
+    err = tx.Commit()
+    if err != nil {
+        return nil, err
+    }
 
-	return events, err
+    return events, err
 }
 
+// CreateEvent creates a new event in the database.
+// - `event`: The Event object containing the event details (group ID, title, description, and date).
+// This method checks if the group exists before creating the event.
 func (store *SQLite3Store) CreateEvent(ctx context.Context, event types.Event) (err error) {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+    // Begin a transaction.
+    tx, err := store.BeginTx(ctx, nil)
+    if err != nil {
+        return err
+    }
+    // Ensure the transaction is rolled back if an error occurs.
+    defer tx.Rollback()
 
-	groupExists := false
-	err = tx.QueryRowContext(ctx, `
+    // Check if the group exists in the database.
+    groupExists := false
+    err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT id FROM groups WHERE id = ? 
 	);`, event.GroupId).Scan(&groupExists)
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return err
+    }
 
-	if !groupExists {
-		return fmt.Errorf("group does not exists")
-	}
+    // Return an error if the group does not exist.
+    if !groupExists {
+        return fmt.Errorf("group does not exist")
+    }
 
-	rawId, err := uuid.NewV4()
-	if err != nil {
-		return err
-	}
+    // Generate a new UUID for the event.
+    rawId, err := uuid.NewV4()
+    if err != nil {
+        return err
+    }
 
-	_, err = tx.ExecContext(ctx,
-		"INSERT INTO events (id, group_id, title, description, date) VALUES (?, ?, ?, ?, ?)",
-		rawId.String(),
-		event.GroupId,
-		event.Title,
-		event.Description,
-		event.Date,
-	)
-	if err != nil {
-		return err
-	}
+    // Insert the new event into the database.
+    _, err = tx.ExecContext(ctx,
+        "INSERT INTO events (id, group_id, title, description, date) VALUES (?, ?, ?, ?, ?)",
+        rawId.String(),
+        event.GroupId,
+        event.Title,
+        event.Description,
+        event.Date,
+    )
+    if err != nil {
+        return err
+    }
 
-	return tx.Commit()
+    // Commit the transaction.
+    return tx.Commit()
 }
