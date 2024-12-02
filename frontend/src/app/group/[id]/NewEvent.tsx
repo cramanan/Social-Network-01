@@ -27,7 +27,7 @@ export default function NewEvent({ groupId }: { groupId: string }) {
         <>
             <form
                 onSubmit={onSubmit}
-                className="flex flex-col items-center py-3 border-b-2"
+                className="flex flex-col items-center pb-3 border-b-2"
             >
                 <h1 className="font-bold">New Event</h1>
                 <label htmlFor="title">Title</label>

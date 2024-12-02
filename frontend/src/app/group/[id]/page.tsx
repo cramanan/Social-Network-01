@@ -43,7 +43,7 @@ export default async function GroupPage({ params }: { params: Params }) {
         <>
             <HomeProfileLayout>
                 <div className="flex flex-col w-screen h-[calc(100vh-185px)] xl:bg-white/25 z-10 xl:mt-3 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-70px)]">
-                    <div className="flex flex-row justify-between items-center w-full h-16 px-5 shadow-xl">
+                    <div className="flex flex-row justify-between items-center w-full h-16 px-5 py-2 shadow-xl">
                         <Link href={"/group"}>
                             <BackIcon />
                         </Link>
@@ -53,25 +53,49 @@ export default async function GroupPage({ params }: { params: Params }) {
                             <p>{group.description}</p>
                         </div>
 
-                        <Image
-                            src={group.image}
-                            alt=""
-                            width={50}
-                            height={50}
-                        />
+                        <div className="flex flex-row gap-5 text-3xl">
+                            <Image
+                                src={group.image}
+                                alt=""
+                                width={50}
+                                height={50}
+                            />
+
+                            {/* displaying only if in group */}
+                            {/* Invite followers to group */}
+                            <input type="button" value="chat" />
+                            <input type="button" value="+" className="font-bold" />
+                        </div>
                     </div>
 
+
+                    {/* Display if not in group */}
+                    {/* <div className="flex flex-col items-center font-bold text-3xl gap-5">
+                        <h2>You are not in the group yet, <br /> click below to send a request !</h2>
+
+                        <label htmlFor="request-to-group"></label>
+                        <input name="request-to-group" id="request-to-group" type="button" value="request to join" />
+                    </div> */}
+
+
+                    {/* Display if in group */}
                     <div className="flex flex-row w-full h-full">
                         <div className="flex flex-col items-center w-72 border-r-4">
-                            <NewPost groupId={id} />
-                            <NewEvent groupId={group.id} />
+                            <div className="flex flex-col pt-3 gap-2">
+                                <NewPost groupId={id} />
+                                <NewEvent groupId={group.id} />
+                            </div>
 
-                            <span className="font-bold">Members</span>
+                            <ul className="flex flex-col items-center">
+                                <li className="font-bold">Invites</li>
+                                <span>List of Invites</span>
 
-                            <span>List of Members</span>
+                                <li className="font-bold">Members</li>
+                                <span>List of Members</span>
 
-                            <span className="font-bold">Events</span>
-                            <Events groupId={group.id} />
+                                <li className="font-bold">Events</li>
+                                <Events groupId={group.id} />
+                            </ul>
                         </div>
 
                         <div className="flex flex-col w-full p-3 gap-3 overflow-scroll no-scrollbar">
