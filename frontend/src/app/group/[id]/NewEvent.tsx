@@ -13,7 +13,7 @@ export default function NewEvent({ groupId }: { groupId: string }) {
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const response = await fetch(`/api/group/${groupId}/events`, {
+        const response = await fetch(`/api/groups/${groupId}/events`, {
             method: "POST",
             body: JSON.stringify(state),
         });
@@ -27,7 +27,7 @@ export default function NewEvent({ groupId }: { groupId: string }) {
         <>
             <form
                 onSubmit={onSubmit}
-                className="flex flex-col items-center py-3 border-b-2"
+                className="flex flex-col items-center pb-3 border-b-2"
             >
                 <h1 className="font-bold">New Event</h1>
                 <label htmlFor="title">Title</label>

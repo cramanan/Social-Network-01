@@ -5,10 +5,8 @@ import { BackIcon } from "./icons/BackIcon";
 import { SendIcon } from "./icons/SendIcon";
 import { EmoteIcon } from "./icons/EmoteIcon";
 import { User } from "@/types/user";
-import Link from "next/link";
 import { ClientChat, ServerChat, SocketMessage } from "@/types/chat";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import useIsMobile from "@/hooks/useIsMobile";
 import Image from "next/image";
 
 interface ChatBoxProps {
@@ -17,7 +15,6 @@ interface ChatBoxProps {
 }
 
 const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
-    const isMobile = useIsMobile();
     // Incoming messages state array
     const [messages, setMessages] = useState<ServerChat[]>([]);
 

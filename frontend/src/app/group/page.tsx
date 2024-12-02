@@ -4,10 +4,8 @@ import { GroupList } from "@/components/GroupList";
 import NewGroup from "./NewGroup";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { useState } from "react";
-import { Group } from "@/types/group";
 
 export default function Page() {
-    // const [groups, setGroups] = useState<Group[]>();
     const [windows, setWindows] = useState([true, false]);
 
     const changeWindow = (i: number) => () =>

@@ -106,22 +106,37 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *ty
 // - `limit`: The maximum number of posts to retrieve.
 // - `offset`: The offset for pagination.
 // Returns a slice of Post objects or an SQL error.
-func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []types.Post, err error) {
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId *string, limit, offset int) (posts []types.Post, err error) {
     tx, err := store.BeginTx(ctx, nil)
     if err != nil {
         return
     }
     defer tx.Rollback()
 
-    // Query posts for the group, ordered by timestamp in descending order.
-    rows, err := tx.QueryContext(ctx, `
+	var args []any
+	var query string
+
+	if groupId == nil {
+		query = `
+	SELECT p.*, u.nickname
+	FROM posts p JOIN users u
+	ON p.user_id = u.id
+	WHERE group_id IS NULL
+	ORDER BY timestamp DESC
+	LIMIT ? OFFSET ?;`
+		args = []any{limit, offset}
+	} else {
+		query = `
 	SELECT p.*, u.nickname
 	FROM posts p 
 	JOIN users u ON p.user_id = u.id
 	WHERE group_id = ?
 	ORDER BY timestamp DESC
-	LIMIT ? OFFSET ?;`,
-        groupId, limit, offset)
+	LIMIT ? OFFSET ?;`
+        args = []any{*groupId, limit, offset}
+	}
+
+	rows, err := tx.QueryContext(ctx, query, args...)
     if err != nil {
         return
     }

@@ -10,11 +10,11 @@ import { ExitIcon } from "./icons/ExitIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
 import { BookmarkMenuIcon } from "./icons/BookmarkMenuIcon";
-import FriendInviteList from "./FriendInviteList";
+import FollowInviteList from "./FollowInviteList";
 
 const SideNavMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isFriendInvListOpen, setFriendInvListOpen] = useState(false);
+    const [isFollowInvListOpen, setFollowInvListOpen] = useState(false);
 
     const toggleSideNav = () => {
         setIsOpen(!isOpen);
@@ -25,12 +25,12 @@ const SideNavMenu = () => {
             .getElementById("backIcon")
             ?.classList.toggle("translate-x-[182px]");
         if (!isOpen) {
-            setFriendInvListOpen(false);
+            setFollowInvListOpen(false);
         }
     };
 
-    const handleFriendInviteIcon = () => {
-        setFriendInvListOpen(!isFriendInvListOpen);
+    const handleFollowInviteIcon = () => {
+        setFollowInvListOpen(!isFollowInvListOpen);
         if (isOpen) {
             toggleSideNav();
         }
@@ -41,7 +41,7 @@ const SideNavMenu = () => {
         {
             label: "Request",
             icon: <RequestIcon />,
-            onClick: handleFriendInviteIcon,
+            onClick: handleFollowInviteIcon,
         },
         { label: "Groups", icon: <GroupsIcon />, href: "/group" },
         { label: "Notifications", icon: <NotificationsIcon /> },
@@ -102,14 +102,15 @@ const SideNavMenu = () => {
 
             <div
                 id="friend-inv-list"
-                className={`transition-all duration-300 ease-in-out
-                    ${isFriendInvListOpen
-                        ? "opacity-100 -translate-x-44 pointer-events-auto"
-                        : "opacity-0 -translate-x-40 pointer-events-none"
+                className={`transition-all duration-300 ease-in-out z-20
+                    ${
+                        isFollowInvListOpen
+                            ? "opacity-100 -translate-x-44 pointer-events-auto"
+                            : "opacity-0 -translate-x-40 pointer-events-none"
                     }`}
-                aria-label="Friend invite list"
+                aria-label="Follow invite list"
             >
-                <FriendInviteList />
+                <FollowInviteList />
             </div>
         </>
     );

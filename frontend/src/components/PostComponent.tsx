@@ -14,7 +14,6 @@ import Image from "next/image";
 import Link from "next/link";
 import formatDate from "@/utils/formatDate";
 import { LikeIcon } from "./icons/LikeIcon";
-import { cp } from "fs";
 import Comment from "./Comment";
 
 type CommentFields = Pick<CommentType, "content" | "image">;
@@ -73,7 +72,7 @@ const PostComponent = ({ post }: { post: Post }) => {
         };
 
         fetchComments();
-    }, []);
+    }, [post.id]);
 
     useEffect(() => {
         const checkOverflow = () => {
@@ -97,9 +96,9 @@ const PostComponent = ({ post }: { post: Post }) => {
             <div className="flex flex-col relative w-full bg-white/95 xl:rounded-[30px]">
                 <div className="flex flex-row justify-between items-center pr-5 mb-3">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-3">
-                        <Link href={`/user/${post.userId}`}>
+                        <Link href={`/users/${post.userId}`}>
                             <Image
-                                src={`${post.pfp ? ("/") : ("/Default_pfp.jpg")}`}
+                                src={`${post.pfp ? "/" : "/Default_pfp.jpg"}`}
                                 width={48}
                                 height={48}
                                 alt=""
@@ -146,11 +145,10 @@ const PostComponent = ({ post }: { post: Post }) => {
                 <Link
                     ref={contentRef}
                     href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${
-                        isExpanded
-                            ? ""
-                            : "h-[110px] line-clamp-5 overflow-hidden"
-                    }`}
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
+                        ? ""
+                        : "h-[110px] line-clamp-5 overflow-hidden"
+                        }`}
                 >
                     {post.content}
                 </Link>
@@ -172,9 +170,8 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
 
                 <div
-                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${
-                        ShowAllComment ? "h-fit" : "max-h-[108px]"
-                    }`}
+                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"
+                        }`}
                 >
                     {allComments.map((comment, idx) => (
                         <Comment key={idx} {...comment} />
@@ -192,14 +189,15 @@ const PostComponent = ({ post }: { post: Post }) => {
 
                 <form
                     onSubmit={submitComment}
-                    className="pl-px pr-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2"
+                    className="px-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2"
                 >
                     <div className="w-full flex flex-row items-center gap-2">
+                        <label htmlFor="images" className="w-fit text-center">Send image</label>
                         <input
                             name="images"
                             id="images"
                             type="file"
-                            className="w-[44px] h-[40px] relative"
+                            className="hidden"
                             accept="image/jpeg,image/png,image/gif"
                             onChange={changeCommentImages}
                         />
@@ -218,7 +216,7 @@ const PostComponent = ({ post }: { post: Post }) => {
                                 value={newComment.content}
                                 type="text"
                                 placeholder="Enter your newComment"
-                                className="block"
+                                className="w-full"
                                 onChange={changeCommentContent}
                             />
                         </div>

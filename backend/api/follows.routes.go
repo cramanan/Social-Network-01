@@ -10,7 +10,7 @@ import (
 
 // GetFriendRequests retrieves all the friend requests for the currently logged-in user.
 // It checks the session, fetches the list of users who sent friend requests, and returns them.
-func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) GetFollowRequests(writer http.ResponseWriter, request *http.Request) (err error) {
 	// Retrieve the session for the current user.
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
@@ -19,7 +19,7 @@ func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.R
 	}
 
 	// Retrieve the list of friend requests from the storage for the current user.
-	users, err := server.Storage.GetFriendRequests(request.Context(), sess.User.Id)
+	users, err := server.Storage.GetFollowRequests(request.Context(), sess.User.Id)
 	if err != nil {
 		// Return error if fetching friend requests fails.
 		return err 
@@ -31,7 +31,7 @@ func (server *API) GetFriendRequests(writer http.ResponseWriter, request *http.R
 
 // SendFriendRequest handles sending or canceling a friend request between users.
 // It checks if the user is trying to follow themselves, sends a friend request or unfollows based on the current state.
-func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.Request) error {
+func (server *API) SendFollowRequest(writer http.ResponseWriter, request *http.Request) error {
 	// Only allow POST method for this route. If not POST, return Method Not Allowed.
 	if request.Method != http.MethodPost {
 		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
@@ -64,12 +64,12 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 
 	if !follows {
 		// If not following, send a friend request.
-		methodToUse = server.Storage.SendFriendRequest
+		methodToUse = server.Storage.SendFollowRequest
 		// Notify the user through WebSocket about the incoming friend request.
 		if conn, ok := server.WebSocket.Users.Lookup(userId); ok {
 			conn.WriteJSON(types.SocketMessage[string]{
-				Type: "friend-request",
-				Data: fmt.Sprintf("%s has sent you a friend request.", sess.User.Nickname),
+				Type: "follow-request",
+				Data: fmt.Sprintf("%s has sent you a follow request.", sess.User.Nickname),
 			})
 		}
 	} else {
@@ -89,7 +89,7 @@ func (server *API) SendFriendRequest(writer http.ResponseWriter, request *http.R
 }
 
 // AcceptFriendRequest allows the currently logged-in user to accept a friend request from another user.
-func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) AcceptFollowRequest(writer http.ResponseWriter, request *http.Request) (err error) {
 	// Retrieve the session for the current user.
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
@@ -101,7 +101,7 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 	followerId := request.PathValue("userid")
 
 	// Call the storage method to accept the friend request.
-	err = server.Storage.AcceptFriendRequest(request.Context(), sess.User.Id, followerId)
+	err = server.Storage.AcceptFollowRequest(request.Context(), sess.User.Id, followerId)
 	if err != nil {
 		// Return error if accepting the friend request fails.
 		return err 
@@ -112,7 +112,7 @@ func (server *API) AcceptFriendRequest(writer http.ResponseWriter, request *http
 }
 
 // DeclineFriendRequest allows the user to decline a friend request.
-func (server *API) DeclineFriendRequest(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) DeclineFollowRequest(writer http.ResponseWriter, request *http.Request) (err error) {
 	// Retrieve the session for the current user.
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {

@@ -9,19 +9,24 @@ import (
 
 	// CreatePost handles the creation of a new post by the user. 
 // It processes a multipart form request, extracts post data, and stores the post in the database.
-func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request) (err error) {
-    // Ensure that the HTTP method is POST, as we are creating a new post
-    if request.Method != http.MethodPost {
-        return err
-    }
-
+func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err error) {
     // Retrieve the session of the user making the request
     sess, err := server.Sessions.GetSession(request)
     if err != nil {
 		// Return an error if session retrieval fails
         return err 
     }
+    // Ensure that the HTTP method is POST, as we are creating a new post
+	switch request.Method {
+	case http.MethodGet:
+		limit, offset := parseRequestLimitAndOffset(request)
+		posts, err := server.Storage.GetGroupPosts(request.Context(), nil, limit, offset)
+		if err != nil {
+			return err
+		}
+		return writeJSON(writer, http.StatusOK, posts)
 
+	case http.MethodPost:
     // Parse the multipart form data (max 5MB in size)
     err = request.ParseMultipartForm(5 * (1 << 20))
     if err != nil {
@@ -29,40 +34,44 @@ func (server *API) CreatePost(writer http.ResponseWriter, request *http.Request)
         return err 
     }
 
-    post := new(types.Post)
+	    post := new(types.Post)
 
     // Check if the form contains the "data" field with post details
-    data, ok := request.MultipartForm.Value["data"]
-    if !ok || len(data) < 1 {
-        return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "No content in request"))
-    }
+	    data, ok := request.MultipartForm.Value["data"]
+	    if !ok || len(data) < 1 {
+	        return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "No content in request"))
+	    }
 
     // Unmarshal the "data" field into a Post object
-    err = json.Unmarshal([]byte(data[0]), post)
-    if err != nil {
+	    err = json.Unmarshal([]byte(data[0]), post)
+	    if err != nil {
 		// Return an error if unmarshalling fails
-        return err 
-    }
+	        return err 
+	    }
 
     // Associate the post with the user making the request
-    post.UserId = sess.User.Id
+	    post.UserId = sess.User.Id
 
     // Extract any images attached to the post
-    post.Images, err = MultiPartFiles(request)
-    if err != nil {
+	    post.Images, err = MultiPartFiles(request)
+	    if err != nil {
 		// Return an error if there is an issue extracting the files
-        return err 
-    }
+	        return err 
+	    }
 
     // Save the post in the database
-    err = server.Storage.CreatePost(request.Context(), post)
-    if err != nil {
+	    err = server.Storage.CreatePost(request.Context(), post)
+	    if err != nil {
 		// Return an error if saving the post fails
-        return err 
-    }
+	        return err 
+	    }
 
     // Respond with a success message and HTTP status code 201 (Created)
-    return writeJSON(writer, http.StatusCreated, "Created")
+	    return writeJSON(writer, http.StatusCreated, "Created")
+
+	default:
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
 }
 
 // GetPostById retrieves a post by its unique ID from the database.

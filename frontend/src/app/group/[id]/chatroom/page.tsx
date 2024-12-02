@@ -9,11 +9,11 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 
 export default function Page() {
     const { user, loading } = useAuth();
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
+    const [socket, setSocket] = useState<WebSocket | null>(null);
     const [messages, setMessages] = useState<ServerChat[]>([]);
     const { limit, offset } = useQueryParams();
     const [content, setContent] = useState("");
-    const [socket, setSocket] = useState<WebSocket | null>(null);
 
     const onSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -21,13 +21,13 @@ export default function Page() {
         setContent("");
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ content }));
-            setMessages([
-                ...messages,
+            setMessages((prev) => [
+                ...prev,
                 {
                     senderid: user.id,
                     content,
                     timestamp: formatDate(new Date().toString()),
-                    recipientId: "",
+                    recipientId: id,
                 },
             ]);
         }
@@ -47,24 +47,24 @@ export default function Page() {
         };
 
         fetchMessages();
+    }, [id, limit, offset]);
 
-        const onMessage = (msg: MessageEvent) => {
-            const message = JSON.parse(msg.data) as ServerChat;
-            setMessages([...messages, message]);
-        };
-
+    useEffect(() => {
         const newSocket = new WebSocket(
             `ws://${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}/chatroom`
         );
 
-        newSocket.addEventListener("message", onMessage);
+        newSocket.addEventListener("message", (msg) => {
+            const message = JSON.parse(msg.data) as ServerChat;
+            setMessages((prev) => [...prev, message]);
+        });
 
         setSocket(newSocket);
 
         return () => {
             newSocket.close();
         };
-    }, [id, limit, offset, messages]);
+    }, [id]);
 
     if (loading) return <>Loading</>;
 

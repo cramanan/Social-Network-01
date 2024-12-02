@@ -36,7 +36,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
         e.preventDefault();
         const body = new FormData(e.currentTarget);
         body.append("data", JSON.stringify(fields));
-        const response = await fetch("/api/post", { method: "POST", body });
+        const response = await fetch("/api/posts", { method: "POST", body });
 
         if (response.ok) toggleModal();
     };
@@ -58,7 +58,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
             </div>
             {isModalOpen && (
                 <>
-                    <div className="absolute -inset-full bg-black/10 backdrop-blur-sm z-40"></div>
+                    <div className="-inset-full fixed bg-black/10 backdrop-blur-sm z-40"></div>
                     <form
                         encType="multipart/form-data"
                         onSubmit={handleSubmit}

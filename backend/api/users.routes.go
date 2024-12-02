@@ -29,8 +29,12 @@ func (server *API) Register(writer http.ResponseWriter, request *http.Request) e
     }
 
     // Check if all required fields are provided in the registration request
-    if registerReq.Nickname == "" || registerReq.Email == "" || registerReq.Password == "" ||
-        registerReq.FirstName == "" || registerReq.LastName == "" || registerReq.DateOfBirth == "" {
+    if registerReq.Nickname == "" ||
+        registerReq.Email == "" || 
+        registerReq.Password == "" ||
+        registerReq.FirstName == "" || 
+        registerReq.LastName == "" || 
+        registerReq.DateOfBirth == "" {
         return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusBadRequest, "All fields are required"))
     }
 
@@ -147,7 +151,12 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
     switch request.Method {
     case http.MethodGet:
         // Return the user's profile data (session data)
-        return writeJSON(writer, http.StatusOK, sess.User)
+        s, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized, "You are unauthorized to access this ressource."))
+		}
+
+		return writeJSON(writer, http.StatusOK, s.User)
 
     case http.MethodPatch:
         // Handle profile updates (e.g., change name, image)
@@ -175,6 +184,8 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
             return err
         }
 
+        //TODO: DELETE old profile picture
+
         // If a new image is provided, update the profile image path
         if len(imgs) > 0 {
             user.ImagePath = imgs[0]
@@ -195,6 +206,10 @@ func (server *API) Profile(writer http.ResponseWriter, request *http.Request) (e
 
     case http.MethodDelete:
         // Ensure the request is for the logged-in user to delete their account
+        sess, err := server.Sessions.GetSession(request)
+		if err != nil {
+			return err
+		}
         if sess.User.Id != request.PathValue("userid") {
             return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized, "You are not authorized to perform this action."))
         }
@@ -249,7 +264,7 @@ func (server *API) GetOnlineUsers(writer http.ResponseWriter, request *http.Requ
 }
 
 // GetUserFriendList retrieves the list of friends for the logged-in user, including their online status.
-func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) GetUserFollowList(writer http.ResponseWriter, request *http.Request) (err error) {
     sess, err := server.Sessions.GetSession(request)
     if err != nil {
         return err
@@ -259,7 +274,7 @@ func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.R
     limit, offset := parseRequestLimitAndOffset(request)
 
     // Get the user's friend list
-    users, err := server.Storage.GetUserFriendList(context.TODO(), sess.User.Id, limit, offset)
+    users, err := server.Storage.GetUserFollowList(context.TODO(), sess.User.Id, limit, offset)
     if err != nil {
         return err
     }
@@ -272,4 +287,20 @@ func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.R
     }
 
     return writeJSON(writer, http.StatusOK, onlineUsers)
+}
+
+// GetUserGroups handles GET requests to retrieve a user's groups.
+// It validates the request method, fetches groups from storage, 
+// and writes the response as JSON.
+func (server *API) GetUserGroups(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
+
+	groups, err := server.Storage.GetUserGroups(request.Context(), request.PathValue("userid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, groups)
 }

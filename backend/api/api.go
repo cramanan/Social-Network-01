@@ -48,23 +48,23 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	// Routes for accessing and managing user information and friend requests.
 	// Route to fetch user details by user ID.
-	router.Handle("/api/user/{userid}", handleFunc(server.User)) 
+	router.Handle("/api/users/{userid}", handleFunc(server.User)) 
 	// Route for user statistics.
-	router.Handle("/api/user/{userid}/stats", handleFunc(server.GetUserStats)) 
+	router.Handle("/api/users/{userid}/stats", handleFunc(server.GetUserStats)) 
 	// Route for sending a friend request.
-	router.Handle("/api/user/{userid}/send-request", handleFunc(server.SendFriendRequest)) 
+	router.Handle("/api/users/{userid}/send-request", handleFunc(server.SendFollowRequest)) 
 	// Route for accepting a friend request.
-	router.Handle("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest)) 
+	router.Handle("/api/users/{userid}/accept-request", handleFunc(server.AcceptFollowRequest)) 
 	// Route for declining a friend request.
-	router.Handle("/api/user/{userid}/decline-request", handleFunc(server.DeclineFriendRequest)) 
-
+	router.Handle("/api/users/{userid}/decline-request", handleFunc(server.DeclineFollowRequest)) 
 	// Routes related to user chats and friend list management.
 	// Route for fetching chats between two users.
-	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid)) 
+	router.Handle("/api/users/{userid}/groups", handleFunc(server.GetUserGroups)) 
 	// Route for fetching a user's friend list.
-	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList)) 
+	router.Handle("/api/users/{userid}/chats", handleFunc(server.GetChatFrom2Userid)) 
 	// Route for fetching pending friend requests.
-	router.Handle("/api/friend-requests", handleFunc(server.GetFriendRequests)) 
+
+	router.Handle("/api/follow-list", handleFunc(server.GetUserFollowList)) 
 
 	// Profile-related routes for fetching or updating user profile and posts.
 	// Route for fetching user profile.
@@ -76,35 +76,26 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	// Route for fetching users followed by a user.
 	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing)) 
 
-	// Routes for group management, including group details, requests, and posts.
-	// Route for fetching all groups.
-	router.Handle("/api/groups", handleFunc(server.Groups)) 
-	// Route for fetching details of a specific group by ID.
-	router.Handle("/api/group/{groupid}", handleFunc(server.Group)) 
-	// Route for requesting to join a group.
-	router.Handle("/api/group/{groupid}/request", handleFunc(server.RequestGroup)) 
-	// Route for inviting a user to a group.
-	router.Handle("/api/group/{groupid}/invite", handleFunc(server.InviteUserIntoGroup)) 
-	// Route for fetching posts within a group.
-	router.Handle("/api/group/{groupid}/posts", handleFunc(server.GetGroupPosts)) 
-	// Route for fetching events within a group.
-	router.Handle("/api/group/{groupid}/events", handleFunc(server.Events)) 
-	// Route for registering a user to a group event.
-	router.Handle("/api/group/{groupid}/events/{eventid}", handleFunc(server.RegisterUserToEvent)) 
-	// Route for fetching group chats.
-	router.Handle("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup)) 
-	// Route for joining a group chatroom.
-	router.Handle("/api/group/{groupid}/chatroom", http.HandlerFunc(server.JoinGroupChat)) 
+	router.Handle("/api/groups", handleFunc(server.Groups))
+	router.Handle("/api/groups/{groupid}", handleFunc(server.Group))
+	router.Handle("/api/groups/{groupid}/invite", handleFunc(server.InviteUserIntoGroup))
+	router.Handle("/api/groups/{groupid}/accept-invite", handleFunc(server.AcceptGroupInvite))
+	router.Handle("/api/groups/{groupid}/decline-invite", handleFunc(server.DeclineGroupInvite))
+	router.Handle("/api/groups/{groupid}/request", handleFunc(server.RequestGroup))
+	router.Handle("/api/groups/{groupid}/posts", handleFunc(server.GetGroupPosts))
+	router.Handle("/api/groups/{groupid}/events", handleFunc(server.Events))
+	router.Handle("/api/groups/{groupid}/events/{eventid}", handleFunc(server.RegisterUserToEvent))
+	router.Handle("/api/groups/{groupid}/chats", handleFunc(server.GetChatFromGroup))
+	router.Handle("/api/groups/{groupid}/chatroom", http.HandlerFunc(server.JoinGroupChat))
 
-	// Routes for creating and interacting with posts, including comments and likes.
-	// Route for creating a new post.
-	router.Handle("/api/post", handleFunc(server.CreatePost))
-	// Route for fetching a specific post by ID.
-	router.Handle("/api/post/{postid}", handleFunc(server.GetPostById)) 
-	// Route for adding comments to a post.
-	router.Handle("/api/post/{postid}/comments", handleFunc(server.Comment)) 
-	// Protected route for liking a post.
-	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost)) 
+	router.Handle("/api/posts", handleFunc(server.Posts))
+	router.Handle("/api/posts/{postid}", handleFunc(server.GetPostById))
+	router.Handle("/api/posts/{postid}/comments", handleFunc(server.Comment))
+	router.Handle("/api/posts/{postid}/likes", server.Protected(server.LikePost))
+
+	router.Handle("/api/inbox/group-invites", handleFunc(server.GetGroupInvites))
+	router.Handle("/api/inbox/group-requests", handleFunc(server.GetGroupRequests))
+	router.Handle("/api/inbox/follow-requests", handleFunc(server.GetFollowRequests))
 
 	// Initialize the WebSocket for real-time communication.
 	server.WebSocket = websocket.NewWebSocket()

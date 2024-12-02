@@ -16,12 +16,12 @@ const HomeProfileLayout = ({ children }: PropsWithChildren) => {
                 </div>
 
                 <main className="flex flex-grow">
-                    <div className="w-full h-full xl:absolute xl:left-1/2 xl:-translate-x-1/2 xl:w-fit">
+                    <div className="w-full h-full relative z-1 xl:absolute xl:left-1/2 xl:-translate-x-1/2 xl:w-fit">
                         {children}
                     </div>
                 </main>
 
-                <div className="hidden right-0 xl:flex  xl:mt-3">
+                <div className="hidden right-0 relative z-9 xl:flex xl:mt-3">
                     <Chat />
                 </div>
             </div>

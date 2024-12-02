@@ -65,7 +65,7 @@ func (store *SQLite3Store) Follows(ctx context.Context, userId, followerId strin
 // - `followerId`: The ID of the user sending the follow request.
 // Automatically accepts the follow request if the target user is not private.
 // Returns an SQL error if any issues occur.
-func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, followerId string) error {
+func (store *SQLite3Store) SendFollowRequest(ctx context.Context, userId, followerId string) error {
     // Start a transaction.
     tx, err := store.BeginTx(ctx, nil)
     if err != nil {
@@ -107,7 +107,7 @@ func (store *SQLite3Store) SendFriendRequest(ctx context.Context, userId, follow
 // - `userId`: The ID of the user being followed.
 // - `followerId`: The ID of the user who sent the follow request.
 // Returns an SQL error if any issues occur.
-func (store *SQLite3Store) AcceptFriendRequest(ctx context.Context, userId, followerId string) error {
+func (store *SQLite3Store) AcceptFollowRequest(ctx context.Context, userId, followerId string) error {
     // Start a transaction.
     tx, err := store.BeginTx(ctx, nil)
     if err != nil {
@@ -159,7 +159,7 @@ func (store *SQLite3Store) UnfollowUser(ctx context.Context, userId, followerId 
 // GetFriendRequests retrieves all pending follow requests for a user.
 // - `userId`: The ID of the user receiving the follow requests.
 // Returns a slice of User objects representing the followers and/or an SQL error.
-func (store *SQLite3Store) GetFriendRequests(ctx context.Context, userId string) (users []types.User, err error) {
+func (store *SQLite3Store) GetFollowRequests(ctx context.Context, userId string) (users []types.User, err error) {
     // Start a read-only transaction.
     tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
     if err != nil {

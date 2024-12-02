@@ -39,15 +39,29 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 // GetGroupPosts retrieves the posts of a group. It supports pagination with limit and offset.
 func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Request) (err error) {
 	// Check if the request method is GET, if not return a 405 Method Not Allowed error.
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
 	}
 
+	groupid := request.PathValue("groupid")
+	inGroup, err := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	if !inGroup {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
+	}
+
 	// Parse the limit and offset for pagination from the request.
 	limit, offset := parseRequestLimitAndOffset(request)
-
 	// Fetch the posts of the group from the storage.
-	posts, err := server.Storage.GetGroupPosts(request.Context(), request.PathValue("groupid"), limit, offset)
+	posts, err := server.Storage.GetGroupPosts(request.Context(), &groupid, limit, offset)
 	if err != nil {
 		// Return any error encountered while fetching the posts.
 		return err
@@ -163,15 +177,32 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 	})
 
 	// Check if the user has permission to invite another user to the group.
-	allowed, err := server.Storage.AllowGroupInvite(request.Context(), sess.User.Id, payload.UserId, payload.GroupId)
+	err = json.NewDecoder(request.Body).Decode(&payload)
+	if err != nil {
+		return err
+	}
+
+	if payload.GroupId == "" || payload.UserId == "" {
+		return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest))
+	}
+
+	hostInGroup, err := server.Storage.UserInGroup(request.Context(), payload.GroupId, sess.User.Id)
 	if err != nil {
 		// Return error if checking permission fails.
 		return err 
 	}
 
-	if !allowed {
+	if !hostInGroup {
 		// Return a 401 Unauthorized error if the user is not allowed to invite the other user.
 		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
+	}
+
+	guestInGroup, err := server.Storage.UserInGroup(request.Context(), payload.GroupId, payload.UserId)
+	if err != nil {
+		return err
+	}
+	if guestInGroup {
+		return writeJSON(writer, http.StatusConflict, HTTPerror(http.StatusConflict))
 	}
 
 	// Add the user to the group (invited user).
@@ -184,26 +215,56 @@ func (server *API) RequestGroup(writer http.ResponseWriter, request *http.Reques
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Retrieve the group ID from the request path.
 	groupid := request.PathValue("groupid")
-
-	// Check if the user is allowed to request to join the group.
-	allowed, err := server.Storage.AllowGroupRequest(request.Context(), groupid, sess.User.Id)
-	if err != nil {
-		// Return error if checking permission fails.
-		return err 
-	}
-
-	if !allowed {
-		// Return a 401 Unauthorized error if the user is not allowed to request to join the group.
-		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
-	}
-
 	// Add the user to the group as a request (pending approval).
 	err = server.Storage.UserJoinGroup(request.Context(), sess.User.Id, groupid, true)
+	if err != nil {
+		return err
+	}
+
+	// Return a success response with HTTP Status OK.
+	return writeJSON(writer, http.StatusOK, "OK")
+}
+
+func (server *API) GetGroupInvites(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	invites, err := server.Storage.GetGroupInvites(request.Context(), sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, invites)
+}
+
+func (server *API) AcceptGroupInvite(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	err = server.Storage.AcceptGroupInvite(request.Context(), sess.User.Id, request.PathValue("groupid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
+}
+
+func (server *API) DeclineGroupInvite(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	err = server.Storage.DeclineGroupInvite(request.Context(), sess.User.Id, request.PathValue("groupid"))
 	if err != nil {
 		// Return error if joining the group fails.
 		return err 
@@ -211,4 +272,20 @@ func (server *API) RequestGroup(writer http.ResponseWriter, request *http.Reques
 
 	// Return a success response with HTTP Status OK.
 	return writeJSON(writer, http.StatusOK, "OK")
+}
+
+// GetGroupRequests handles requests to fetch group invitations for the current user.
+// It retrieves the session, fetches group requests from storage, and returns them as JSON.
+func (server *API) GetGroupRequests(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	invites, err := server.Storage.GetGroupRequests(request.Context(), sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, invites)
 }
