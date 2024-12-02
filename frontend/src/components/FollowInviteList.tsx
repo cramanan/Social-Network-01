@@ -12,7 +12,7 @@ const FollowInviteList = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const response = await fetch("/api/follow-requests");
+            const response = await fetch("/api/inbox/follow-requests");
             const data: User[] = await response.json();
 
             setUsers(data);

@@ -56,6 +56,7 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *types.Register
 	user.FirstName = req.FirstName
 	user.LastName = req.LastName
 	user.DateOfBirth, err = time.Parse("2006-05-01", req.DateOfBirth)
+	user.ImagePath = "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
 	user.Timestamp = time.Now().UTC()
 
 	_, err = tx.ExecContext(ctx, `
@@ -67,7 +68,7 @@ func (store *SQLite3Store) RegisterUser(ctx context.Context, req *types.Register
 		user.FirstName,
 		user.LastName,
 		user.DateOfBirth,
-		"https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg",
+		user.ImagePath,
 		nil,
 		false,
 		user.Timestamp,

@@ -13,7 +13,7 @@ const ProfileStats = ({ userId }: { userId: string }) => {
     const [stats, setStats] = useState<typeof defaultStats>(defaultStats);
 
     useEffect(() => {
-        fetch(`/api/user/${userId}/stats`)
+        fetch(`/api/users/${userId}/stats`)
             .then((resp) => {
                 if (resp.ok) return resp.json();
                 throw "error";

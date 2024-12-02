@@ -7,14 +7,15 @@ import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { User } from "@/types/user";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { string } from "zod";
 
 export default function Page() {
     const [user, setUser] = useState<User | null>();
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
 
     useEffect(() => {
         const fetchUser = async () => {
-            const response = await fetch(`/api/user/${id}`);
+            const response = await fetch(`/api/users/${id}`);
             const user = await response.json();
             setUser(user);
         };

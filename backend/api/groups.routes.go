@@ -196,6 +196,52 @@ func (server *API) GetGroupInvites(writer http.ResponseWriter, request *http.Req
 	return writeJSON(writer, http.StatusOK, invites)
 }
 
+func (server *API) AcceptGroupInvite(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	groupid := request.PathValue("groupid")
+	group, err := server.Storage.GetGroup(request.Context(), groupid)
+	if err != nil {
+		return err
+	}
+	if group.Owner != sess.User.Id {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
+	}
+
+	err = server.Storage.AcceptGroupInvite(request.Context(), sess.User.Id, groupid)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
+}
+
+func (server *API) DeclineGroupInvite(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	groupid := request.PathValue("groupid")
+	group, err := server.Storage.GetGroup(request.Context(), groupid)
+	if err != nil {
+		return err
+	}
+	if group.Owner != sess.User.Id {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
+	}
+
+	err = server.Storage.DeclineGroupInvite(request.Context(), sess.User.Id, groupid)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
+}
+
 func (server *API) GetGroupRequests(writer http.ResponseWriter, request *http.Request) error {
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {

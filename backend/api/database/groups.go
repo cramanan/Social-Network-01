@@ -194,7 +194,7 @@ func (store *SQLite3Store) UserJoinGroup(ctx context.Context, userId, groupId st
 	return tx.Commit()
 }
 
-func (store *SQLite3Store) GetGroupInvites(ctx context.Context, userId string) (groupInvites []types.Group, err error) {
+func (store *SQLite3Store) GetGroupInvites(ctx context.Context, userId string) (groups []types.Group, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -202,8 +202,9 @@ func (store *SQLite3Store) GetGroupInvites(ctx context.Context, userId string) (
 	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
-	SELECT g.id, g.name
+	SELECT g.id, g.name, g.image
 	FROM groups_record gr JOIN groups g
+	ON gr.group_id = g.id
 	WHERE gr.user_id = ? AND gr.is_request = FALSE AND gr.accepted = FALSE
 	;`, userId)
 	if err != nil {
@@ -215,21 +216,33 @@ func (store *SQLite3Store) GetGroupInvites(ctx context.Context, userId string) (
 		err = rows.Scan(
 			&group.Id,
 			&group.Name,
+			&group.Image,
 		)
 		if err != nil {
 			return nil, err
 		}
 
+		groups = append(groups, group)
+
 	}
 
-	if groupInvites == nil {
+	if groups == nil {
 		return make([]types.Group, 0), nil
 	}
 
 	return
 }
 
-func (store *SQLite3Store) GetGroupRequests(ctx context.Context, userId string) (groupInvites []string, err error) {
+type groupRequest struct {
+	GroupId    string `json:"groupId"`
+	GroupName  string `json:"groupName"`
+	GroupImage string `json:"groupImage"`
+	UserId     string `json:"userId"`
+	UserName   string `json:"userName"`
+	UserImage  string `json:"userImage"`
+}
+
+func (store *SQLite3Store) GetGroupRequests(ctx context.Context, userId string) (requests []groupRequest, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -238,13 +251,13 @@ func (store *SQLite3Store) GetGroupRequests(ctx context.Context, userId string) 
 
 	rows, err := tx.QueryContext(ctx, `
 	WITH owned_groups AS (
-		SELECT gr.user_id
+		SELECT gr.group_id, gr.user_id, g.name, g.image
 		FROM groups g JOIN groups_record gr
 		ON g.id = gr.group_id
 		WHERE g.owner = ?
 	)
 
-	SELECT og.user_id
+	SELECT og.group_id, og.name,og.image , u.id, u.nickname, u.image_path
 	FROM owned_groups og JOIN users u
 	ON og.user_id = u.id;
 	`, userId)
@@ -253,19 +266,82 @@ func (store *SQLite3Store) GetGroupRequests(ctx context.Context, userId string) 
 	}
 
 	for rows.Next() {
-		var id string
+		var request groupRequest
 		err = rows.Scan(
-			&id,
+			&request.GroupId,
+			&request.GroupName,
+			&request.GroupImage,
+			&request.UserId,
+			&request.UserName,
+			&request.UserImage,
 		)
 		if err != nil {
 			return nil, err
 		}
 
+		requests = append(requests, request)
 	}
 
-	if groupInvites == nil {
-		return make([]string, 0), nil
+	if requests == nil {
+		return make([]groupRequest, 0), nil
 	}
 
 	return
+}
+
+func (store *SQLite3Store) AcceptGroupInvite(ctx context.Context, userId, groupId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	exists := false
+	err = tx.QueryRowContext(ctx, `SELECT EXISTS (
+		SELECT 1 from groups WHERE id = ?
+	) AND EXISTS (
+		SELECT 1 FROM users WHERE id = ? 
+	);`, groupId, userId).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `
+	UPDATE groups_record
+	SET accepted = TRUE
+	WHERE group_id = ? AND user_id = ?;
+	`, groupId, userId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (store *SQLite3Store) DeclineGroupInvite(ctx context.Context, userId, groupId string) error {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	exists := false
+	err = tx.QueryRowContext(ctx, `SELECT EXISTS (
+		SELECT 1 from groups WHERE id = ?
+	) AND EXISTS (
+		SELECT 1 FROM users WHERE id = ? 
+	);`, groupId, userId).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `
+	DELETE FROM groups_record 
+	WHERE group_id = ? AND user_id = ?;
+	`, userId, groupId)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
