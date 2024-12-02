@@ -7,9 +7,9 @@ import (
 	"Social-Network-01/api/types"
 )
 
-	// CreatePost handles the creation of a new post by the user. 
+// Post handles the creation of a new post by the user. 
 // It processes a multipart form request, extracts post data, and stores the post in the database.
-func (server *API) Post(writer http.ResponseWriter, request *http.Request) (err error) {
+func (server *API) Posts(writer http.ResponseWriter, request *http.Request) (err error) {
     // Retrieve the session of the user making the request
     sess, err := server.Sessions.GetSession(request)
     if err != nil {
