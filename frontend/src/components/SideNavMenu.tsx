@@ -101,10 +101,10 @@ const SideNavMenu = () => {
             </nav>
 
             <div
-                id="follow-inv-list"
-                className={`transition-all duration-300 ease-in-out
+                id="friend-inv-list"
+                className={`transition-all duration-300 ease-in-out z-20
                     ${
-                        isFollowInvListOpen
+                        isFriendInvListOpen
                             ? "opacity-100 -translate-x-44 pointer-events-auto"
                             : "opacity-0 -translate-x-40 pointer-events-none"
                     }`}
