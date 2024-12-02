@@ -2,18 +2,18 @@ import React from "react";
 import { UserOnlineIcon } from "./icons/UserOnlineIcon";
 import { OnlineUser } from "@/types/user";
 import Image from "next/image";
-import Link from "next/link";
-import useIsMobile from "@/hooks/useIsMobile";
 
 interface UserListProps {
     user: OnlineUser;
     onUserSelect?: (user: OnlineUser) => void;
-    showLastMessage: boolean
+    showLastMessage: boolean;
 }
 
-const Users = ({ user, onUserSelect, showLastMessage = false }: UserListProps) => {
-    const isMobile = useIsMobile();
-
+const Users = ({
+    user,
+    onUserSelect,
+    showLastMessage = false,
+}: UserListProps) => {
     const handleUserClick = (e: React.MouseEvent) => {
         if (onUserSelect) {
             e.preventDefault();

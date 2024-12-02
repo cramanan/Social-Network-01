@@ -511,3 +511,41 @@ func (store *SQLite3Store) GetUserFriendList(ctx context.Context, userId string,
 	}
 	return
 }
+
+func (store *SQLite3Store) GetUserGroups(ctx context.Context, userId string) (groups []types.Group, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, `
+	SELECT * 
+	FROM groups_record 
+	WHERE user_id = ?;`, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var group types.Group
+
+		err = rows.Scan(
+			&group.Id,
+			&group.Name,
+			&group.Owner,
+			&group.Description,
+			&group.Image,
+			&group.Timestamp,
+		)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		groups = append(groups, group)
+	}
+
+	return groups, tx.Commit()
+}

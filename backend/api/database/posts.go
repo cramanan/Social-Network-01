@@ -96,7 +96,7 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *ty
 	return
 }
 
-func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId string, limit, offset int) (posts []types.Post, err error) {
+func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId *string, limit, offset int) (posts []types.Post, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return

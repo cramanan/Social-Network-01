@@ -45,6 +45,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/user/{userid}/send-request", handleFunc(server.SendFriendRequest))
 	router.Handle("/api/user/{userid}/accept-request", handleFunc(server.AcceptFriendRequest))
 	router.Handle("/api/user/{userid}/decline-request", handleFunc(server.DeclineFriendRequest))
+	router.Handle("/api/user/{userid}/groups", handleFunc(server.GetUserGroups))
 
 	router.Handle("/api/user/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
 	router.Handle("/api/friend-list", handleFunc(server.GetUserFriendList))
@@ -65,10 +66,10 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/group/{groupid}/chats", handleFunc(server.GetChatFromGroup))
 	router.Handle("/api/group/{groupid}/chatroom", http.HandlerFunc(server.JoinGroupChat))
 
-	router.Handle("/api/post", handleFunc(server.CreatePost))
-	router.Handle("/api/post/{postid}", handleFunc(server.GetPostById))
-	router.Handle("/api/post/{postid}/comments", handleFunc(server.Comment))
-	router.Handle("/api/post/{postid}/like", server.Protected(server.LikePost))
+	router.Handle("/api/posts", handleFunc(server.Posts))
+	router.Handle("/api/posts/{postid}", handleFunc(server.GetPostById))
+	router.Handle("/api/posts/{postid}/comments", handleFunc(server.Comment))
+	router.Handle("/api/posts/{postid}/likes", server.Protected(server.LikePost))
 
 	server.WebSocket = websocket.NewWebSocket()
 

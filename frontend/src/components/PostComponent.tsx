@@ -14,7 +14,6 @@ import Image from "next/image";
 import Link from "next/link";
 import formatDate from "@/utils/formatDate";
 import { LikeIcon } from "./icons/LikeIcon";
-import { cp } from "fs";
 import Comment from "./Comment";
 
 type CommentFields = Pick<CommentType, "content" | "image">;
@@ -73,7 +72,7 @@ const PostComponent = ({ post }: { post: Post }) => {
         };
 
         fetchComments();
-    }, []);
+    }, [post.id]);
 
     useEffect(() => {
         const checkOverflow = () => {
@@ -99,7 +98,7 @@ const PostComponent = ({ post }: { post: Post }) => {
                     <div className="flex flex-row items-center ml-2 mt-2 gap-3">
                         <Link href={`/user/${post.userId}`}>
                             <Image
-                                src={`${post.pfp ? ("/") : ("/Default_pfp.jpg")}`}
+                                src={`${post.pfp ? "/" : "/Default_pfp.jpg"}`}
                                 width={48}
                                 height={48}
                                 alt=""

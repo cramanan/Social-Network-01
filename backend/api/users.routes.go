@@ -257,3 +257,16 @@ func (server *API) GetUserFriendList(writer http.ResponseWriter, request *http.R
 
 	return writeJSON(writer, http.StatusOK, onlineUsers)
 }
+
+func (server *API) GetUserGroups(writer http.ResponseWriter, request *http.Request) (err error) {
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
+
+	groups, err := server.Storage.GetUserGroups(request.Context(), request.PathValue("userid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, groups)
+}

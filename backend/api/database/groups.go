@@ -125,56 +125,41 @@ func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (gr
 	return
 }
 
-func (store *SQLite3Store) AllowGroupInvite(ctx context.Context, hostId, guestId, groupId string) (boolean bool, err error) {
+func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId string) (inGroup bool, err error) {
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
 	}
 	defer tx.Rollback()
+
+	exists := false
+	err = tx.QueryRowContext(ctx, `
+	SELECT EXISTS (
+		SELECT 1 FROM groups
+		WHERE id = ?
+	) AND EXISTS (
+		SELECT 1 FROM users
+		WHERE id = ?
+	);`, groupId, userId).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	if !exists {
+		return false, fmt.Errorf("error: group or user does not exists")
+	}
 
 	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
-		SELECT 1 FROM groups_record
-		WHERE group_id = ? AND user_id = ?
-	) AND NOT EXISTS (
-		SELECT 1 FROM groups_record 
-		WHERE group_id = ? AND user_id = ?
-	);`,
-		groupId, hostId,
-		groupId, guestId,
-	).Scan(&boolean)
-
-	if err != nil {
-		return false, err
-	}
-
-	return boolean, tx.Commit()
-}
-
-func (store *SQLite3Store) AllowGroupRequest(ctx context.Context, groupId, userId string) (boolean bool, err error) {
-	tx, err := store.BeginTx(ctx, nil)
-	if err != nil {
-		return false, err
-	}
-	defer tx.Rollback()
-
-	err = tx.QueryRowContext(ctx, `
-	SELECT NOT EXISTS (
-		SELECT 1 FROM groups_record 
-		WHERE group_id = ? AND user_id = ?
-	) AND NOT EXISTS (
 		SELECT 1 FROM groups
-		WHERE id = ? AND owner = ?
-	);`,
-		groupId, userId,
-		groupId, userId,
-	).Scan(&boolean)
-
+		WHERE owner = ?
+	) OR EXISTS (
+		SELECT 1 FROM groups_record
+		WHERE group_id = ? AND user_id = ? AND accepted = TRUE
+	);`, userId, groupId, userId).Scan(&inGroup)
 	if err != nil {
 		return false, err
 	}
-
-	return boolean, tx.Commit()
+	return inGroup, tx.Commit()
 }
 
 func (store *SQLite3Store) UserJoinGroup(ctx context.Context, userId, groupId string, isRequest bool) (err error) {
