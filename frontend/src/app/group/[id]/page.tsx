@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Group } from "@/types/group";
 import { Params } from "@/types/query";
 import NewEvent from "./NewEvent";
@@ -10,24 +12,43 @@ import Image from "next/image";
 import { NewPost } from "@/components/NewPost";
 import { Post } from "@/types/post";
 import PostComponent from "@/components/PostComponent";
+import { useParams } from "next/navigation";
 
-export default async function GroupPage({ params }: { params: Params }) {
-    const { id } = await params;
+export default function GroupPage() {
+    const { id } = useParams<{ id: string }>();
+    const [group, setGroup] = useState<Group | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [posts, setPosts] = useState<Post[] | null>(null);
 
     // const [showMemberList, setShowMemberList] = useState(true)
     // const [showEventList, setShowEventList] = useState(false)
 
-    const response = await fetch(
-        `http://${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}`
-    );
-    const group: Group = await response.json();
+    useEffect(() => {
+        const fetchInfos = async () => {
+            try {
+                const response = await fetch(`/api/groups/${id}`);
+                const group: Group = await response.json();
+                setGroup(group);
+                const test = await fetch(
+                    `/api/groups/${id}/posts?limit=20&offset=0`
+                );
+                if (!test.ok) throw "Error fetching posts";
+                const posts: Post[] = await test.json();
+                setPosts(posts);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
+        fetchInfos();
+    }, [id]);
+
+    if (loading) return <>loading</>;
+
+    if (!group) return <>Group Not Found</>;
     // const { limit, offset, next, previous } = useQueryParams();
-
-    const test = await fetch(
-        `http://${process.env.NEXT_PUBLIC_API_URL}/api/group/${id}/posts?limit=20&offset=0`
-    );
-    const posts: Post[] = await test.json();
 
     // const handleMemberListClick = () => {
     //     setShowMemberList(showMemberList)
@@ -64,10 +85,13 @@ export default async function GroupPage({ params }: { params: Params }) {
                             {/* displaying only if in group */}
                             {/* Invite followers to group */}
                             <input type="button" value="chat" />
-                            <input type="button" value="+" className="font-bold" />
+                            <input
+                                type="button"
+                                value="+"
+                                className="font-bold"
+                            />
                         </div>
                     </div>
-
 
                     {/* Display if not in group */}
                     {/* <div className="flex flex-col items-center font-bold text-3xl gap-5">
@@ -76,7 +100,6 @@ export default async function GroupPage({ params }: { params: Params }) {
                         <label htmlFor="request-to-group"></label>
                         <input name="request-to-group" id="request-to-group" type="button" value="request to join" />
                     </div> */}
-
 
                     {/* Display if in group */}
                     <div className="flex flex-row w-full h-full">
@@ -97,12 +120,13 @@ export default async function GroupPage({ params }: { params: Params }) {
                                 <Events groupId={group.id} />
                             </ul>
                         </div>
-
-                        <div className="flex flex-col w-full p-3 gap-3 overflow-scroll no-scrollbar">
-                            {posts.map((post, idx) =>
-                                <PostComponent key={idx} post={post} />
-                            )}
-                        </div>
+                        {posts && (
+                            <div className="flex flex-col w-full p-3 gap-3 overflow-scroll no-scrollbar">
+                                {posts.map((post, idx) => (
+                                    <PostComponent key={idx} post={post} />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </HomeProfileLayout>
