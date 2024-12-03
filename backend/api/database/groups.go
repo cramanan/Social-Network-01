@@ -16,78 +16,78 @@ const groupIdLength = 8
 // - `groupId`: The ID of the group to retrieve.
 // Returns the Group object or an SQL error.
 func (store *SQLite3Store) GetGroup(ctx context.Context, groupId string) (group *types.Group, err error) {
-    // Start a read-only transaction.
-    tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
-    if err != nil {
-        return nil, err
-    }
-    // Ensure transaction rollback on error.
-    defer tx.Rollback()
+	// Start a read-only transaction.
+	tx, err := store.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return nil, err
+	}
+	// Ensure transaction rollback on error.
+	defer tx.Rollback()
 
-    // Initialize a new Group object.
-    group = new(types.Group)
+	// Initialize a new Group object.
+	group = new(types.Group)
 
-    // Query to retrieve the group details.
-    err = tx.QueryRowContext(ctx, `
+	// Query to retrieve the group details.
+	err = tx.QueryRowContext(ctx, `
 	SELECT * 
 	FROM groups 
 	WHERE id = ?`, groupId).Scan(
-        &group.Id,
-        &group.Name,
-        &group.Owner,
-        &group.Description,
-        &group.Image,
-        &group.Timestamp)
-    if err != nil {
-        return nil, err
-    }
+		&group.Id,
+		&group.Name,
+		&group.Owner,
+		&group.Description,
+		&group.Image,
+		&group.Timestamp)
+	if err != nil {
+		return nil, err
+	}
 
-    return group, err
+	return group, err
 }
 
 // NewGroup creates a new group in the database.
 // - `group`: The group object containing the new group details.
 // Returns an error if the operation fails.
 func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (err error) {
-    // Start a transaction.
-    tx, err := store.BeginTx(ctx, nil)
-    if err != nil {
-        return
-    }
-    // Ensure transaction rollback on error.
-    defer tx.Rollback()
+	// Start a transaction.
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	// Ensure transaction rollback on error.
+	defer tx.Rollback()
 
-    // Check if a group with the same name already exists.
-    var exists bool
-    err = tx.QueryRowContext(ctx, `
+	// Check if a group with the same name already exists.
+	var exists bool
+	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM groups WHERE name = ?
 	);`, group.Name).Scan(&exists)
-    if err != nil {
-        return err
-    }
-    if exists {
-        return ErrConflict // Group name conflict.
-    }
+	if err != nil {
+		return err
+	}
+	if exists {
+		return ErrConflict // Group name conflict.
+	}
 
-    // Generate a unique ID and timestamp for the new group.
-    group.Id = generateB64(groupIdLength)
-    group.Timestamp = time.Now().UTC()
+	// Generate a unique ID and timestamp for the new group.
+	group.Id = generateB64(groupIdLength)
+	group.Timestamp = time.Now().UTC()
 
-    // Insert the new group into the database.
-    _, err = tx.ExecContext(ctx, `
+	// Insert the new group into the database.
+	_, err = tx.ExecContext(ctx, `
 	INSERT INTO groups (id, name, owner, description, timestamp)
 	VALUES (?, ?, ?, ?, ?);`,
-        group.Id,
-        group.Name,
-        group.Owner,
-        group.Description,
-        group.Timestamp)
-    if err != nil {
-        return
-    }
+		group.Id,
+		group.Name,
+		group.Owner,
+		group.Description,
+		group.Timestamp)
+	if err != nil {
+		return
+	}
 
-    return tx.Commit()
+	return tx.Commit()
 }
 
 // GetGroups retrieves a list of groups from the database with pagination.
@@ -95,47 +95,47 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (er
 // - `offset`: Offset for the pagination.
 // Returns a slice of Group objects or an SQL error.
 func (store *SQLite3Store) GetGroups(ctx context.Context, limit, offset int) (groups []*types.Group, err error) {
-    // Start a transaction.
-    tx, err := store.BeginTx(ctx, nil)
-    if err != nil {
-        return
-    }
-    // Ensure transaction rollback on error.
-    defer tx.Rollback()
+	// Start a transaction.
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	// Ensure transaction rollback on error.
+	defer tx.Rollback()
 
-    // Query to retrieve the groups with pagination.
-    rows, err := tx.QueryContext(ctx, `
+	// Query to retrieve the groups with pagination.
+	rows, err := tx.QueryContext(ctx, `
 	SELECT * FROM groups
 	LIMIT ? OFFSET ?;`,
-        limit, offset)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+		limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-    // Iterate over the rows and populate the groups slice.
-    for rows.Next() {
-        group := new(types.Group)
-        err = rows.Scan(
-            &group.Id,
-            &group.Name,
-            &group.Owner,
-            &group.Description,
-            &group.Image,
-            &group.Timestamp)
-        if err != nil {
-            log.Println(err)
-            continue // Skip rows with errors.
-        }
-        groups = append(groups, group)
-    }
+	// Iterate over the rows and populate the groups slice.
+	for rows.Next() {
+		group := new(types.Group)
+		err = rows.Scan(
+			&group.Id,
+			&group.Name,
+			&group.Owner,
+			&group.Description,
+			&group.Image,
+			&group.Timestamp)
+		if err != nil {
+			log.Println(err)
+			continue // Skip rows with errors.
+		}
+		groups = append(groups, group)
+	}
 
-    // Return an empty slice if no groups are found.
-    if groups == nil {
-        groups = make([]*types.Group, 0)
-    }
+	// Return an empty slice if no groups are found.
+	if groups == nil {
+		groups = make([]*types.Group, 0)
+	}
 
-    return
+	return
 }
 
 func (store *SQLite3Store) AllowGroupInvite(ctx context.Context, hostId, guestId, groupId string) (boolean bool, err error) {
@@ -196,38 +196,38 @@ func (store *SQLite3Store) AllowGroupRequest(ctx context.Context, groupId, userI
 // - `isRequest`: Indicates if this is a request to join (as opposed to an invite).
 // Returns an SQL error if the operation fails.
 func (store *SQLite3Store) UserJoinGroup(ctx context.Context, userId, groupId string, isRequest bool) (err error) {
-    // Start a transaction.
-    tx, err := store.BeginTx(ctx, nil)
-    if err != nil {
-        return
-    }
-    // Ensure transaction rollback on error.
-    defer tx.Rollback()
+	// Start a transaction.
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	// Ensure transaction rollback on error.
+	defer tx.Rollback()
 
-    // Check if the group and user exist in the database.
-    exists := false
-    err = tx.QueryRowContext(ctx, `
+	// Check if the group and user exist in the database.
+	exists := false
+	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM groups WHERE id = ?
 	) AND EXISTS (
 		SELECT 1 FROM users WHERE id = ? 
 	);`, groupId, userId).Scan(&exists)
-    if err != nil {
-        return err
-    }
-    if !exists {
-        return fmt.Errorf("group or user does not exist")
-    }
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("group or user does not exist")
+	}
 
-    // Insert a record into groups_record for the user.
-    _, err = tx.ExecContext(ctx, `
+	// Insert a record into groups_record for the user.
+	_, err = tx.ExecContext(ctx, `
 	INSERT INTO groups_record (group_id, user_id, is_request, accepted)
 	VALUES (?, ?, ?, FALSE);`, groupId, userId, isRequest)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    return tx.Commit()
+	return tx.Commit()
 }
 
 func (store *SQLite3Store) GetGroupInvites(ctx context.Context, userId string) (groups []types.Group, err error) {
@@ -287,7 +287,7 @@ func (store *SQLite3Store) GetGroupRequests(ctx context.Context, userId string) 
 
 	rows, err := tx.QueryContext(ctx, `
 	WITH owned_groups AS (
-		SELECT gr.group_id, gr.user_id, g.name, g.image
+		SELECT gr.*, g.name, g.image
 		FROM groups g JOIN groups_record gr
 		ON g.id = gr.group_id
 		WHERE g.owner = ?
@@ -295,7 +295,8 @@ func (store *SQLite3Store) GetGroupRequests(ctx context.Context, userId string) 
 
 	SELECT og.group_id, og.name,og.image , u.id, u.nickname, u.image_path
 	FROM owned_groups og JOIN users u
-	ON og.user_id = u.id;
+	ON og.user_id = u.id
+	WHERE og.is_request = TRUE AND og.accepted = FALSE;
 	`, userId)
 	if err != nil {
 		return nil, err
@@ -388,17 +389,17 @@ func (store *SQLite3Store) DeclineGroupInvite(ctx context.Context, userId, group
 // - `groupId`: The ID of the group.
 // Returns a boolean indicating if the invitation is allowed and/or an SQL error.
 func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId string) (inGroup bool, err error) {
-    // Start a transaction.
-    tx, err := store.BeginTx(ctx, nil)
-    if err != nil {
-        return false, err
-    }
-    // Ensure transaction rollback on error.
-    defer tx.Rollback()
+	// Start a transaction.
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return false, err
+	}
+	// Ensure transaction rollback on error.
+	defer tx.Rollback()
 
-    // Query to check if the host is a member of the group and the guest is not.
+	// Query to check if the host is a member of the group and the guest is not.
 	exists := false
-    err = tx.QueryRowContext(ctx, `
+	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM groups
 		WHERE id = ?
@@ -413,8 +414,8 @@ func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId stri
 		return false, fmt.Errorf("error: group or user does not exists")
 	}
 
-    // Query to check if the user is neither a member nor the group owner.
-    err = tx.QueryRowContext(ctx, `
+	// Query to check if the user is neither a member nor the group owner.
+	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM groups
 		WHERE owner = ?
@@ -426,4 +427,40 @@ func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId stri
 		return false, err
 	}
 	return inGroup, tx.Commit()
+}
+
+func (store *SQLite3Store) GetGroupMembers(ctx context.Context, groupId string, limit, offset int) (users []types.User, err error) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Ensure transaction rollback on error.
+	defer tx.Rollback()
+
+	rows, err := tx.QueryContext(ctx, `
+	SELECT u.nickname
+	FROM groups_record gr JOIN users u
+	ON gr.user_id = u.id
+	WHERE gr.group_id = ? AND gr.accepted = TRUE
+	LIMIT ? OFFSET ?
+	;`, groupId, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user types.User
+		err = rows.Scan(
+			&user.Nickname,
+		)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		users = append(users, user)
+	}
+
+	return users, tx.Commit()
 }

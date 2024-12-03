@@ -77,7 +77,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	switch request.Method {
@@ -86,7 +86,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 		err = request.ParseMultipartForm(5 * (1 << 20)) // Max 5MB for form data.
 		if err != nil {
 			// Return error if parsing the multipart form fails.
-			return err 
+			return err
 		}
 
 		// Retrieve the group data from the multipart form.
@@ -100,14 +100,14 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 		err = json.Unmarshal([]byte(data[0]), &newGroup)
 		if err != nil {
 			// Return error if deserialization fails.
-			return err 
+			return err
 		}
 
 		// Retrieve any uploaded files (e.g., group image).
 		files, err := MultiPartFiles(request)
 		if err != nil {
 			// Return error if file retrieval fails.
-			return err 
+			return err
 		}
 		// If no image is uploaded, use a default image.
 		if len(files) != 1 {
@@ -131,7 +131,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 		}
 		if err != nil {
 			// Return any other error encountered during group creation.
-			return err 
+			return err
 		}
 
 		// Return a success response with HTTP Status Created (201).
@@ -145,7 +145,7 @@ func (server *API) Groups(writer http.ResponseWriter, request *http.Request) (er
 		groups, err := server.Storage.GetGroups(request.Context(), limit, offset)
 		if err != nil {
 			// Return error if fetching groups fails.
-			return err 
+			return err
 		}
 		// Return the list of groups as a JSON response with HTTP Status OK.
 		return writeJSON(writer, http.StatusOK, groups)
@@ -167,7 +167,7 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Parse the incoming JSON payload for the group ID and user ID.
@@ -189,7 +189,7 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 	hostInGroup, err := server.Storage.UserInGroup(request.Context(), payload.GroupId, sess.User.Id)
 	if err != nil {
 		// Return error if checking permission fails.
-		return err 
+		return err
 	}
 
 	if !hostInGroup {
@@ -267,7 +267,7 @@ func (server *API) DeclineGroupInvite(writer http.ResponseWriter, request *http.
 	err = server.Storage.DeclineGroupInvite(request.Context(), sess.User.Id, request.PathValue("groupid"))
 	if err != nil {
 		// Return error if joining the group fails.
-		return err 
+		return err
 	}
 
 	// Return a success response with HTTP Status OK.
@@ -288,4 +288,44 @@ func (server *API) GetGroupRequests(writer http.ResponseWriter, request *http.Re
 	}
 
 	return writeJSON(writer, http.StatusOK, invites)
+}
+
+func (server *API) GetProfileGroups(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	groups, err := server.Storage.GetUserGroups(request.Context(), sess.User.Id)
+	if err != nil {
+		return err
+	}
+	return writeJSON(writer, http.StatusOK, groups)
+}
+
+func (server *API) GetGroupMembers(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
+	groupid := request.PathValue("groupid")
+
+	ok, err := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
+	}
+
+	limit, offset := parseRequestLimitAndOffset(request)
+
+	users, err := server.Storage.GetGroupMembers(request.Context(), groupid, limit, offset)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, users)
 }

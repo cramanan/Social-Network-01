@@ -74,6 +74,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/profile/followers", handleFunc(server.GetProfileFollowers))
 	// Route for fetching users followed by a user.
 	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing))
+	router.Handle("/api/profile/groups", handleFunc(server.GetProfileGroups))
 
 	router.Handle("/api/groups", handleFunc(server.Groups))
 	router.Handle("/api/groups/{groupid}", handleFunc(server.Group))
@@ -81,6 +82,7 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	router.Handle("/api/groups/{groupid}/accept-invite", handleFunc(server.AcceptGroupInvite))
 	router.Handle("/api/groups/{groupid}/decline-invite", handleFunc(server.DeclineGroupInvite))
 	router.Handle("/api/groups/{groupid}/request", handleFunc(server.RequestGroup))
+	router.Handle("/api/groups/{groupid}/members", handleFunc(server.GetGroupMembers))
 	router.Handle("/api/groups/{groupid}/posts", handleFunc(server.GetGroupPosts))
 	router.Handle("/api/groups/{groupid}/events", handleFunc(server.Events))
 	router.Handle("/api/groups/{groupid}/events/{eventid}", handleFunc(server.RegisterUserToEvent))
