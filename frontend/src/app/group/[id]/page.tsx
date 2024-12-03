@@ -13,7 +13,6 @@ import { Post } from "@/types/post";
 import PostComponent from "@/components/PostComponent";
 import { useParams } from "next/navigation";
 import { MemberGroupList } from "./MemberGroupList";
-import { User } from "@/types/user";
 import { FollowersList } from "@/components/FollowingList";
 
 export default function GroupPage() {
@@ -22,9 +21,8 @@ export default function GroupPage() {
     const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState<Post[] | null>(null);
 
-    const [showMemberList, setShowMemberList] = useState(false)
-    const [showEventList, setShowEventList] = useState(true)
-
+    const [showMemberList, setShowMemberList] = useState(false);
+    const [showEventList, setShowEventList] = useState(true);
 
     useEffect(() => {
         const fetchInfos = async () => {
@@ -54,21 +52,21 @@ export default function GroupPage() {
     // const { limit, offset, next, previous } = useQueryParams();
 
     const handleMemberListClick = () => {
-        setShowMemberList(true)
-        setShowEventList(false)
-    }
+        setShowMemberList(true);
+        setShowEventList(false);
+    };
 
     const handleEventListClick = () => {
-        setShowMemberList(false)
-        setShowEventList(true)
-    }
+        setShowMemberList(false);
+        setShowEventList(true);
+    };
 
     const handleRequestClick = () => {
         //Request handler
         console.log("Sending request to join");
         fetch(`/api/groups/${group.id}/request`, { method: "POST" });
         console.log("Request Send !");
-    }
+    };
 
     return (
         <>
@@ -94,7 +92,9 @@ export default function GroupPage() {
 
                             {/* displaying only if in group */}
                             {/* Invite followers to group */}
-                            <Link href={`/group/${group.id}/chatroom`}>Chat</Link>
+                            <Link href={`/group/${group.id}/chatroom`}>
+                                Chat
+                            </Link>
 
                             <input
                                 type="button"
@@ -121,11 +121,20 @@ export default function GroupPage() {
                             </div>
 
                             <ul className="flex flex-col items-center">
-                                <li onClick={handleMemberListClick} className="font-bold cursor-pointer">Members</li>
+                                <li
+                                    onClick={handleMemberListClick}
+                                    className="font-bold cursor-pointer"
+                                >
+                                    Members
+                                </li>
                                 {showMemberList && <MemberGroupList />}
 
-
-                                <li onClick={handleEventListClick} className="font-bold cursor-pointer">Events</li>
+                                <li
+                                    onClick={handleEventListClick}
+                                    className="font-bold cursor-pointer"
+                                >
+                                    Events
+                                </li>
                                 {showEventList && <Events groupId={group.id} />}
                             </ul>
                         </div>
@@ -138,7 +147,9 @@ export default function GroupPage() {
                         )}
                     </div>
 
-                    <span className="absolute top-0 right-0 translate-x-full translate-y-40"><FollowersList groupId={group.id} /></span>
+                    <span className="absolute top-0 right-0 translate-x-full translate-y-40">
+                        <FollowersList groupId={group.id} />
+                    </span>
                 </div>
             </HomeProfileLayout>
         </>

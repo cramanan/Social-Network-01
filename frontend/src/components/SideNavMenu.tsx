@@ -9,7 +9,6 @@ import { SettingIcon } from "./icons/SettingIcon";
 import { ExitIcon } from "./icons/ExitIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
-import FollowInviteList from "./FollowInviteList";
 
 const SideNavMenu = () => {
     const [isOpen, setIsOpen] = useState(false);

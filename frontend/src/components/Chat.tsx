@@ -59,10 +59,11 @@ const Chat = () => {
                 {navBody.map((Component, idx) => (
                     <li
                         key={idx}
-                        className={`absolute w-72 transition-all duration-300 ease-in-out ${windows[idx]
-                            ? "opacity-100 translate-y-0 pointer-events-auto"
-                            : "opacity-0 translate-y-5 pointer-events-none"
-                            }`}
+                        className={`absolute w-72 transition-all duration-300 ease-in-out ${
+                            windows[idx]
+                                ? "opacity-100 translate-y-0 pointer-events-auto"
+                                : "opacity-0 translate-y-5 pointer-events-none"
+                        }`}
                     >
                         <Component />
                     </li>

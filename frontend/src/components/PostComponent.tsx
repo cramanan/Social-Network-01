@@ -51,7 +51,7 @@ const PostComponent = ({ post }: { post: Post }) => {
         );
         console.log(formdata);
         try {
-            const response = await fetch(`/api/post/${post.id}/comments/`, {
+            const response = await fetch(`/api/posts/${post.id}/comments/`, {
                 method: "POST",
                 body: formdata,
             });
@@ -65,7 +65,7 @@ const PostComponent = ({ post }: { post: Post }) => {
 
     useEffect(() => {
         const fetchComments = async () => {
-            const response = await fetch(`/api/post/${post.id}/comments`);
+            const response = await fetch(`/api/posts/${post.id}/comments`);
             const data: CommentType[] = await response.json();
 
             setAllComments(data);
