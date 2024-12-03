@@ -21,7 +21,7 @@ const HomeProfileLayout = ({ children }: PropsWithChildren) => {
                     </div>
                 </main>
 
-                <div className="hidden right-0 relative z-9 xl:flex xl:mt-3">
+                <div className="hidden h-fit right-0 relative z-9 xl:flex xl:mt-3">
                     <Chat />
                 </div>
             </div>

@@ -1,10 +1,7 @@
-"use client";
-
 import { OnlineUser } from "@/types/user";
-import React, { useEffect, useState } from "react";
-import Users from "./Users";
+import React, { useEffect, useState } from 'react'
 
-export default function UserList() {
+export const FollowersList = ({ groupId }: { groupId: string }) => {
     const [users, setUsers] = useState<OnlineUser[]>([]);
 
     useEffect(() => {
@@ -16,6 +13,16 @@ export default function UserList() {
         };
         fetchUsers();
     }, []);
+
+    const handleInvitation = (userId: string) => {
+        fetch(`/api/groups/${groupId}/invite`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ groupId: groupId, userId: userId })
+        });
+    }
 
     return (
         <>
@@ -31,11 +38,15 @@ export default function UserList() {
                     {users.length > 0 ? (
                         users.map((user, idx) => (
                             <>
-                                <Users
+                                {/* <Users
                                     key={idx}
                                     user={user}
                                     showLastMessage={false}
-                                />
+                                /> */}
+                                <li key={idx} className="flex flex-row relative w-full justify-between z-30">
+                                    {user.nickname}
+                                    <input type="button" value="Send Invite" onClick={() => handleInvitation(user.id)} className="cursor-pointer" />
+                                </li>
                             </>
                         ))
                     ) : (
@@ -46,5 +57,5 @@ export default function UserList() {
                 </div>
             </div>
         </>
-    );
+    )
 }
