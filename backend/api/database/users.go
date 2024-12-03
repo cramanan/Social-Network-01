@@ -511,9 +511,10 @@ func (store *SQLite3Store) GetUserGroups(ctx context.Context, userId string) (gr
 	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
-	SELECT * 
-	FROM groups_record 
-	WHERE user_id = ?;`, userId)
+	SELECT groups.*
+	FROM groups_record JOIN groups 
+	ON groups_record.group_id = groups.id
+	WHERE groups_record.user_id = ?;`, userId)
 	if err != nil {
 		return nil, err
 	}
