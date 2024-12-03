@@ -13,8 +13,8 @@ import { Post } from "@/types/post";
 import PostComponent from "@/components/PostComponent";
 import { useParams } from "next/navigation";
 import { MemberGroupList } from "./MemberGroupList";
-import UserList from "@/components/UserList";
 import { User } from "@/types/user";
+import { FollowersList } from "@/components/FollowersList";
 
 export default function GroupPage() {
     const { id } = useParams<{ id: string }>();
@@ -47,17 +47,6 @@ export default function GroupPage() {
 
         fetchInfos();
     }, [id]);
-
-    const [invites, setInvites] = useState<User[]>([])
-
-    useEffect(() => {
-        const fetchTest = async () => {
-            const response = await fetch(`/api/inbox/group-invites`)
-            const data: User[] = await response.json()
-            setInvites(data)
-        }
-        fetchTest()
-    }, [])
 
     if (loading) return <>loading</>;
 
@@ -116,15 +105,15 @@ export default function GroupPage() {
                     </div>
 
                     {/* Display if not in group */}
-                    <div className="flex flex-col items-center font-bold text-3xl gap-5">
+                    {/* <div className="flex flex-col items-center font-bold text-3xl gap-5">
                         <h2>You are not in the group yet, <br /> click below to send a request !</h2>
 
                         <label htmlFor="request-to-group"></label>
                         <input name="request-to-group" id="request-to-group" type="button" value="request to join" onClick={handleRequestClick} />
-                    </div>
+                    </div> */}
 
                     {/* Display if in group */}
-                    {/* <div className="flex flex-row w-full h-full">
+                    <div className="flex flex-row w-full h-full">
                         <div className="flex flex-col items-center w-72 border-r-4">
                             <div className="flex flex-col pt-3 gap-2">
                                 <NewPost groupId={id} />
@@ -147,9 +136,9 @@ export default function GroupPage() {
                                 ))}
                             </div>
                         )}
-                    </div> */}
+                    </div>
 
-                    <span className="absolute top-0 right-0 translate-x-full translate-y-20">{invites.length}</span>
+                    <span className="absolute top-0 right-0 translate-x-full translate-y-40"><FollowersList groupId={group.id} /></span>
                 </div>
             </HomeProfileLayout>
         </>
