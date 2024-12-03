@@ -24,6 +24,8 @@ export default function GroupPage() {
     const [showMemberList, setShowMemberList] = useState(false);
     const [showEventList, setShowEventList] = useState(true);
 
+    const [unauthorized, setUnauthorized] = useState(false)
+
     useEffect(() => {
         const fetchInfos = async () => {
             try {
@@ -33,6 +35,10 @@ export default function GroupPage() {
                 const test = await fetch(
                     `/api/groups/${id}/posts?limit=20&offset=0`
                 );
+                setUnauthorized(() => {
+                    console.log(test.status);
+                    return test.status === 401
+                })
                 if (!test.ok) throw "Error fetching posts";
                 const posts: Post[] = await test.json();
                 setPosts(posts);
@@ -105,15 +111,15 @@ export default function GroupPage() {
                     </div>
 
                     {/* Display if not in group */}
-                    {/* <div className="flex flex-col items-center font-bold text-3xl gap-5">
+                    {unauthorized && <div className="flex flex-col items-center font-bold text-3xl gap-5">
                         <h2>You are not in the group yet, <br /> click below to send a request !</h2>
 
                         <label htmlFor="request-to-group"></label>
                         <input name="request-to-group" id="request-to-group" type="button" value="request to join" onClick={handleRequestClick} />
-                    </div> */}
+                    </div>}
 
                     {/* Display if in group */}
-                    <div className="flex flex-row w-full h-full">
+                    {/* <div className="flex flex-row w-full h-full">
                         <div className="flex flex-col items-center w-72 border-r-4">
                             <div className="flex flex-col pt-3 gap-2">
                                 <NewPost groupId={id} />
@@ -151,7 +157,7 @@ export default function GroupPage() {
 
                     <span className="absolute top-0 right-0 translate-x-full translate-y-40">
                         <FollowersList groupId={group.id} />
-                    </span>
+                    </span> */}
                 </div>
             </HomeProfileLayout>
         </>

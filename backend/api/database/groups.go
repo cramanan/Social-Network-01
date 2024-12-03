@@ -441,7 +441,7 @@ func (store *SQLite3Store) GetGroupMembers(ctx context.Context, groupId string, 
 	SELECT u.nickname
 	FROM groups g JOIN users u
 	ON g.owner = u.id
-	WHERE group_id = ?
+	WHERE g.id = ?
 
 	UNION
 
