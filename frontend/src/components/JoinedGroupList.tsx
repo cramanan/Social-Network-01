@@ -17,7 +17,7 @@ export const JoinedGroupList = () => {
     return (
         <>
             <ul>
-                {groups.map((group, idx) => (
+                {groups.length > 0 ? (groups.map((group, idx) => (
                     <Link
                         key={idx}
                         href={`/group/${group.id}`}
@@ -31,7 +31,13 @@ export const JoinedGroupList = () => {
                         />
                         <span>{group.name}</span>
                     </Link>
-                ))}
+                )))
+                    :
+                    <p className="text-center font-bold">
+                        No joined group(s) found.
+                    </p>
+                }
+
             </ul>
         </>
     )

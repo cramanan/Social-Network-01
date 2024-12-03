@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { RequestIcon } from "./icons/RequestIcon";
 import { HomeIcon } from "./icons/HomeIcon";
 import { GroupsIcon } from "./icons/GroupsIcon";
 import { NotificationsIcon } from "./icons/NotificationsIcon";
@@ -17,7 +16,6 @@ const SideNavMenu = () => {
 
     const menuItems = [
         { label: "Home", icon: <HomeIcon />, href: "/" },
-        { label: "Request", icon: <RequestIcon /> },
         { label: "Groups", icon: <GroupsIcon />, href: "/group" },
         { label: "Inbox", icon: <NotificationsIcon />, href: "/inbox" },
         { label: "Setting", icon: <SettingIcon />, href: "/profile/settings" },
@@ -28,7 +26,7 @@ const SideNavMenu = () => {
         <>
             <nav
                 id="sideNav"
-                className={`w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 ${!isOpen && "-translate-x-[182px]"
+                className={`w-[267px] h-[467px] relative bg-white/25 rounded-r-[25px] px-5 py-7 ${!isOpen && "-translate-x-[182px]"
                     } duration-300 ease-in-out select-none`}
                 aria-label="Side navigation"
             >
