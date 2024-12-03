@@ -14,7 +14,7 @@ import PostComponent from "@/components/PostComponent";
 import { useParams } from "next/navigation";
 import { MemberGroupList } from "./MemberGroupList";
 import { User } from "@/types/user";
-import { FollowersList } from "@/components/FollowersList";
+import { FollowersList } from "@/components/FollowingList";
 
 export default function GroupPage() {
     const { id } = useParams<{ id: string }>();

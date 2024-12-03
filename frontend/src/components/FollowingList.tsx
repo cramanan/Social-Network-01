@@ -6,7 +6,7 @@ export const FollowersList = ({ groupId }: { groupId: string }) => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const response = await fetch("/api/follow-list");
+            const response = await fetch("/api/profile/following");
             const data: OnlineUser[] = await response.json();
 
             setUsers(data);
