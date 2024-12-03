@@ -4,15 +4,16 @@ import { GroupList } from "@/components/GroupList";
 import NewGroup from "./NewGroup";
 import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { useState } from "react";
+import { JoinedGroupList } from "@/components/JoinedGroupList";
 
 export default function Page() {
     const [windows, setWindows] = useState([true, false]);
 
     const changeWindow = (i: number) => () =>
-        setWindows((prev) => prev.map(({}, idx) => idx === i));
+        setWindows((prev) => prev.map(({ }, idx) => idx === i));
 
     const titles = ["Joined groups", "All groups"];
-    const bodies = [() => <div>Joined</div>, () => <GroupList />];
+    const bodies = [() => <JoinedGroupList />, () => <GroupList />];
 
     return (
         <>

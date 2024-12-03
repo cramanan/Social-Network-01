@@ -43,7 +43,7 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 	}
 
 	if !ok {
-		writeJSON(writer, http.StatusUnauthorized, group)
+		return writeJSON(writer, http.StatusUnauthorized, group)
 	}
 
 	// Return the group details as a JSON response with a 200 OK status.
