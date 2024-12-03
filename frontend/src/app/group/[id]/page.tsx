@@ -31,15 +31,13 @@ export default function GroupPage() {
             try {
                 const response = await fetch(`/api/groups/${id}`);
                 const group: Group = await response.json();
+                setUnauthorized(() => {
+                    return response.status === 401
+                })
                 setGroup(group);
-
                 const test = await fetch(
                     `/api/groups/${id}/posts?limit=20&offset=0`
                 );
-                setUnauthorized(() => {
-                    console.log(test.status);
-                    return test.status === 401
-                })
                 if (!test.ok) throw "Error fetching posts";
                 const posts: Post[] = await test.json();
                 setPosts(posts);
@@ -98,22 +96,69 @@ export default function GroupPage() {
 
                         {/* displaying only if in group */}
                         {/* Invite followers to group */}
-                        <Link href={`/group/${group.id}/chatroom`}>Chat</Link>
-
-                        <input type="button" value="+" className="font-bold" />
+                        {!unauthorized &&
+                            <>
+                                <Link href={`/group/${group.id}/chatroom`}>Chat</Link>
+                                <input type="button" value="+" className="font-bold" />
+                            </>
+                        }
                     </div>
                 </div>
 
-                    {/* Display if not in group */}
-                    {unauthorized && <div className="flex flex-col items-center font-bold text-3xl gap-5">
-                        <h2>You are not in the group yet, <br /> click below to send a request !</h2>
+                {/* Display if not in group */}
+                {unauthorized ? <div className="flex flex-col items-center font-bold text-3xl gap-5">
+                    <h2>You are not in the group yet, <br /> click below to send a request !</h2>
 
-                        <label htmlFor="request-to-group"></label>
-                        <input name="request-to-group" id="request-to-group" type="button" value="request to join" onClick={handleRequestClick} />
-                    </div>}
+                    <label htmlFor="request-to-group"></label>
+                    <input name="request-to-group" id="request-to-group" type="button" value="request to join" onClick={handleRequestClick} />
+                </div>
+                    :
+                    <>
+                        {/* Display if in group */}
+                        <div className="flex flex-row w-full h-full">
+                            <div className="flex flex-col items-center w-72 border-r-4">
+                                <div className="flex flex-col pt-3 gap-2">
+                                    <NewPost groupId={id} />
+                                    <NewEvent groupId={group.id} />
+                                </div>
 
-                    {/* Display if in group */}
-                    {/* <div className="flex flex-row w-full h-full">
+                                <ul className="flex flex-col items-center">
+                                    <li
+                                        onClick={handleMemberListClick}
+                                        className="font-bold cursor-pointer"
+                                    >
+                                        Members
+                                    </li>
+                                    {showMemberList && (
+                                        <MemberGroupList groupId={group.id} />
+                                    )}
+
+                                    <li
+                                        onClick={handleEventListClick}
+                                        className="font-bold cursor-pointer"
+                                    >
+                                        Events
+                                    </li>
+                                    {showEventList && <Events groupId={group.id} />}
+                                </ul>
+                            </div>
+                            {posts && (
+                                <div className="flex flex-col w-full p-3 gap-3 overflow-scroll no-scrollbar">
+                                    {posts.map((post, idx) => (
+                                        <PostComponent key={idx} post={post} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <span className="absolute top-0 right-0 translate-x-full translate-y-40">
+                            <FollowersList groupId={group.id} />
+                        </span>
+                    </>
+                }
+
+
+                {/* <div className="flex flex-row w-full h-full">
                         <div className="flex flex-col items-center w-72 border-r-4">
                             <div className="flex flex-col pt-3 gap-2">
                                 <NewPost groupId={id} />
@@ -152,8 +197,7 @@ export default function GroupPage() {
                     <span className="absolute top-0 right-0 translate-x-full translate-y-40">
                         <FollowersList groupId={group.id} />
                     </span> */}
-                </div>
-            </HomeProfileLayout>
-        </>
+            </div>
+        </HomeProfileLayout>
     );
 }
