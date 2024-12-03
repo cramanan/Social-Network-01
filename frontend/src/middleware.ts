@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+
     try {
         const response = await fetch(
             `http://${process.env.NEXT_PUBLIC_API_URL}/api/profile`,

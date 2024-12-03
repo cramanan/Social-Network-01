@@ -96,9 +96,11 @@ export const Register = () => {
                         aria-label="Date of birth"
                     />
                 </div>
-                <button type="submit" className="m-3">
-                    Sign up
-                </button>
+                <div className="flex justify-center w-full">
+                    <button type="submit" className="w-2/4 bg-white mb-4 hover:bg-violet-100 text-black border-r border-l border-black font-bold py-2 px-4 rounded-md">
+                        Sign in
+                    </button>
+                </div>
             </div>
         </form>
     );

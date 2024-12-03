@@ -30,7 +30,7 @@ export const Login = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col w-full gap-20 md:gap-12 pt-14">
+            <div className="flex flex-col h-full justify-center align-center md:justify-center gap-20 md:gap-12 pt-14">
                 <h1 className="text-white  text-4xl font-semibold font-['Noto Sans']">
                     Login
                 </h1>
@@ -53,9 +53,14 @@ export const Login = () => {
                     />
                     <span>{errors.password?.message}</span>
                 </div>
-                <button type="submit" className="m-3">
-                    Sign in
-                </button>
+                <div className="flex justify-center w-full">
+                    <button
+                        type="submit"
+                        className="w-2/4 bg-white mb-6 hover:bg-violet-100 text-black border-r border-l border-black font-bold py-2 px-4 rounded-md"
+                    >
+                        Log in
+                    </button>
+                </div>
             </div>
         </form>
     );
