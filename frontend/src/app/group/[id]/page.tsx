@@ -127,7 +127,9 @@ export default function GroupPage() {
                                 >
                                     Members
                                 </li>
-                                {showMemberList && <MemberGroupList />}
+                                {showMemberList && (
+                                    <MemberGroupList groupId={group.id} />
+                                )}
 
                                 <li
                                     onClick={handleEventListClick}

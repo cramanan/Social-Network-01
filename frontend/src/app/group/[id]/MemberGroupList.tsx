@@ -3,12 +3,12 @@
 import { OnlineUser } from "@/types/user";
 import React, { useEffect, useState } from 'react'
 
-export const MemberGroupList = () => {
+export const MemberGroupList = ({ groupId }: { groupId: string }) => {
     const [users, setUsers] = useState<OnlineUser[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const response = await fetch("/api/follow-list"); //TODO: change fetch route
+            const response = await fetch(`/api/groups/${groupId}/members`);
             const data: OnlineUser[] = await response.json();
 
             setUsers(data);
@@ -18,7 +18,10 @@ export const MemberGroupList = () => {
 
     return (
         <>
-            <div>MemberGroupList</div>
+            <ul>{users.map((user, idx) =>
+                <li key={idx}>{user.nickname}</li>
+            )}
+            </ul>
         </>
     )
 }
