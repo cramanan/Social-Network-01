@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
 import { OnlineUser } from "@/types/user";
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 
 export const MemberGroupList = ({ groupId }: { groupId: string }) => {
     const [users, setUsers] = useState<OnlineUser[]>([]);
@@ -14,14 +14,15 @@ export const MemberGroupList = ({ groupId }: { groupId: string }) => {
             setUsers(data);
         };
         fetchUsers();
-    }, []);
+    }, [groupId]);
 
     return (
         <>
-            <ul>{users.map((user, idx) =>
-                <li key={idx}>{user.nickname}</li>
-            )}
+            <ul>
+                {users.map((user, idx) => (
+                    <li key={idx}>{user.nickname}</li>
+                ))}
             </ul>
         </>
-    )
-}
+    );
+};

@@ -13,6 +13,11 @@ import (
 // Group retrieves a group from the database using its ID (groupid) from the request path.
 // It checks if the request method is GET and returns the group details or an error.
 func (server *API) Group(writer http.ResponseWriter, request *http.Request) error {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
 	// Check if the request method is GET, if not return a 405 Method Not Allowed error.
 	if request.Method != http.MethodGet {
 		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
@@ -30,6 +35,15 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 	if err != nil {
 		// Return other errors encountered while fetching the group.
 		return err
+	}
+
+	ok, err := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		writeJSON(writer, http.StatusUnauthorized, group)
 	}
 
 	// Return the group details as a JSON response with a 200 OK status.
