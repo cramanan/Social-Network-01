@@ -439,11 +439,19 @@ func (store *SQLite3Store) GetGroupMembers(ctx context.Context, groupId string, 
 
 	rows, err := tx.QueryContext(ctx, `
 	SELECT u.nickname
+	FROM groups g JOIN users u
+	ON g.owner = u.id
+	WHERE group_id = ?
+
+	UNION
+
+	SELECT u.nickname
 	FROM groups_record gr JOIN users u
 	ON gr.user_id = u.id
 	WHERE gr.group_id = ? AND gr.accepted = TRUE
-	LIMIT ? OFFSET ?
-	;`, groupId, limit, offset)
+	LIMIT ? OFFSET ?;
+	
+	`, groupId, groupId, limit, offset)
 	if err != nil {
 		return nil, err
 	}

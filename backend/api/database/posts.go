@@ -119,7 +119,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId *string, l
 
 	if groupId == nil {
 		query = `
-	SELECT p.*, u.nickname
+	SELECT p.*, u.nickname, u.image_path
 	FROM posts p JOIN users u
 	ON p.user_id = u.id
 	WHERE group_id IS NULL
@@ -128,7 +128,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId *string, l
 		args = []any{limit, offset}
 	} else {
 		query = `
-	SELECT p.*, u.nickname
+	SELECT p.*, u.nickname, u.image_path
 	FROM posts p 
 	JOIN users u ON p.user_id = u.id
 	WHERE group_id = ?
@@ -162,7 +162,8 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId *string, l
 			&post.GroupId,
 			&post.Content,
 			&post.Timestamp,
-			&post.Username)
+			&post.Username,
+			&post.UserImage)
 		if err != nil {
 			log.Println(err)
 			continue // Skip posts with errors.
