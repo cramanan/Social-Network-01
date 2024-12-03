@@ -468,5 +468,9 @@ func (store *SQLite3Store) GetGroupMembers(ctx context.Context, groupId string, 
 		users = append(users, user)
 	}
 
+	if users == nil {
+		users = make([]types.User, 0)
+	}
+
 	return users, tx.Commit()
 }
