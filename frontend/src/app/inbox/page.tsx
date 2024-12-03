@@ -1,5 +1,6 @@
 "use client";
 
+import HomeProfileLayout from "@/layouts/HomeProfileLayout";
 import { Group } from "@/types/group";
 import { User } from "@/types/user";
 import Image from "next/image";
@@ -25,14 +26,22 @@ function FollowRequests() {
 
     return (
         <div>
-            {users.map(({ id, image, nickname }, idx) => (
-                <div key={idx}>
-                    <Image src={image} alt="" width={80} height={80} />
-                    <span>{nickname}</span>
-                    <button onClick={handleRequest(id, "accept")}>✓</button>
-                    <button onClick={handleRequest(id, "decline")}>X</button>
-                </div>
-            ))}
+            {users.length > 0 ? (
+                users.map(({ id, image, nickname }, idx) => (
+                    <div key={idx}>
+                        <Image src={image} alt="" width={80} height={80} />
+                        <span>{nickname}</span>
+                        <button onClick={handleRequest(id, "accept")}>✓</button>
+                        <button onClick={handleRequest(id, "decline")}>
+                            X
+                        </button>
+                    </div>
+                ))
+            ) : (
+                <p className="text-center font-bold">
+                    No Follow Request(s) found.
+                </p>
+            )}
         </div>
     );
 }
@@ -57,14 +66,22 @@ function GroupInvites() {
 
     return (
         <div>
-            {groups.map(({ id, name, image }, idx) => (
-                <div key={idx}>
-                    <Image src={image} alt="" width={80} height={80} />
-                    <span>{name}</span>
-                    <button onClick={handleRequest(id, "accept")}>✓</button>
-                    <button onClick={handleRequest(id, "decline")}>X</button>
-                </div>
-            ))}
+            {groups.length > 0 ? (
+                groups.map(({ id, name, image }, idx) => (
+                    <div key={idx}>
+                        <Image src={image} alt="" width={80} height={80} />
+                        <span>{name}</span>
+                        <button onClick={handleRequest(id, "accept")}>✓</button>
+                        <button onClick={handleRequest(id, "decline")}>
+                            X
+                        </button>
+                    </div>
+                ))
+            ) : (
+                <p className="text-center font-bold">
+                    No Group Invite(s) found.
+                </p>
+            )}
         </div>
     );
 }
@@ -107,52 +124,61 @@ function GroupRequests() {
 
     return (
         <div>
-            {requests.map((request, idx) => (
-                <div key={idx} className="w-fit flex flex-col items-center">
-                    <div className="flex items-center gap-3">
-                        <Image
-                            src={request.userImage}
-                            alt=""
-                            width={80}
-                            height={80}
-                        />
-                        {"=>"}
-                        <Image
-                            src={request.groupImage}
-                            alt=""
-                            width={80}
-                            height={80}
-                        />
+            {requests.length > 0 ? (
+                requests.map((request, idx) => (
+                    <div key={idx} className="w-fit flex flex-col items-center">
+                        <div className="flex items-center gap-3">
+                            <Image
+                                src={request.userImage}
+                                alt=""
+                                width={80}
+                                height={80}
+                            />
+                            {"=>"}
+                            <Image
+                                src={request.groupImage}
+                                alt=""
+                                width={80}
+                                height={80}
+                            />
+                        </div>
+                        <span>
+                            <a href={`/user/${request.userId}`} target="_blank">
+                                {request.userName}
+                            </a>{" "}
+                            wants to join{" "}
+                            <a
+                                href={`/group/${request.groupId}`}
+                                target="_blank"
+                            >
+                                {request.groupName}
+                            </a>
+                        </span>
+                        <button
+                            onClick={handleRequest(
+                                request.userId,
+                                request.groupId,
+                                "accept"
+                            )}
+                        >
+                            ✓
+                        </button>
+                        <button
+                            onClick={handleRequest(
+                                request.userId,
+                                request.groupId,
+                                "decline"
+                            )}
+                        >
+                            X
+                        </button>
                     </div>
-                    <span>
-                        <a href={`/user/${request.userId}`} target="_blank">
-                            {request.userName}
-                        </a>{" "}
-                        wants to join{" "}
-                        <a href={`/group/${request.groupId}`} target="_blank">
-                            {request.groupName}
-                        </a>
-                    </span>
-                    <button
-                        onClick={handleRequest(
-                            request.userId,
-                            request.groupId,
-                            "accept"
-                        )}
-                    >
-                        ✓
-                    </button>
-                    <button
-                        onClick={handleRequest(
-                            request.userId,
-                            request.groupId,
-                            "decline"
-                        )}
-                    >
-                        X
-                    </button>
-                </div>
-            ))}
+                ))
+            ) : (
+                <p className="text-center font-bold">
+                    No Group Request(s) found.
+                </p>
+            )}
         </div>
     );
 }
@@ -161,21 +187,23 @@ export default function Inbox() {
     const [windows, setWindows] = useState([true, false, false]);
     const changeWindow = (i: number) => () =>
         setWindows((prev) => prev.map(({}, idx) => idx === i));
-    const headers = ["Follow Requests", "Group Invites", "Group Requests"];
+    const headers = ["Follow Request", "Group Invite", "Group Request"];
     const content = [FollowRequests, GroupInvites, GroupRequests];
 
     return (
-        <div>
-            <nav className="flex gap-3">
-                {headers.map((name, idx) => (
-                    <button onClick={changeWindow(idx)} key={idx}>
-                        {name}
-                    </button>
-                ))}
-            </nav>
-            {content.map(
-                (Component, idx) => windows[idx] && <Component key={idx} />
-            )}
-        </div>
+        <>
+            <HomeProfileLayout>
+                <nav className="flex gap-3">
+                    {headers.map((name, idx) => (
+                        <button onClick={changeWindow(idx)} key={idx}>
+                            {name}
+                        </button>
+                    ))}
+                </nav>
+                {content.map(
+                    (Component, idx) => windows[idx] && <Component key={idx} />
+                )}
+            </HomeProfileLayout>
+        </>
     );
 }

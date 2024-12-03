@@ -11,7 +11,7 @@ const HomeProfileLayout = ({ children }: PropsWithChildren) => {
         <>
             <Header />
             <div className="flex flex-row h-full">
-                <div className="hidden items-center left-0 top-[150px] xl:flex xl:mt-3">
+                <div className="hidden items-center xl:flex xl:mt-3">
                     <SideNavMenu />
                 </div>
 

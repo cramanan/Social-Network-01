@@ -6,7 +6,7 @@ export const FollowersList = ({ groupId }: { groupId: string }) => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const response = await fetch("/api/profile/following");
+            const response = await fetch("/api/profile/followers");
             const data: OnlineUser[] = await response.json();
 
             setUsers(data);
@@ -45,7 +45,7 @@ export const FollowersList = ({ groupId }: { groupId: string }) => {
                         ))
                     ) : (
                         <p className="text-center font-bold">
-                            No follow(s) found.
+                            No follower(s) found.
                         </p>
                     )}
                 </div>

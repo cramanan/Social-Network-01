@@ -156,47 +156,6 @@ export default function GroupPage() {
                         </span>
                     </>
                 }
-
-
-                {/* <div className="flex flex-row w-full h-full">
-                        <div className="flex flex-col items-center w-72 border-r-4">
-                            <div className="flex flex-col pt-3 gap-2">
-                                <NewPost groupId={id} />
-                                <NewEvent groupId={group.id} />
-                            </div>
-
-                        <ul className="flex flex-col items-center">
-                            <li
-                                onClick={handleMemberListClick}
-                                className="font-bold cursor-pointer"
-                            >
-                                Members
-                            </li>
-                            {showMemberList && (
-                                <MemberGroupList groupId={group.id} />
-                            )}
-
-                            <li
-                                onClick={handleEventListClick}
-                                className="font-bold cursor-pointer"
-                            >
-                                Events
-                            </li>
-                            {showEventList && <Events groupId={group.id} />}
-                        </ul>
-                    </div>
-                    {posts && (
-                        <div className="flex flex-col w-full p-3 gap-3 overflow-scroll no-scrollbar">
-                            {posts.map((post, idx) => (
-                                <PostComponent key={idx} post={post} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                    <span className="absolute top-0 right-0 translate-x-full translate-y-40">
-                        <FollowersList groupId={group.id} />
-                    </span> */}
             </div>
         </HomeProfileLayout>
     );
