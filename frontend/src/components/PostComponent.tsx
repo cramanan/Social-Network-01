@@ -41,6 +41,7 @@ const PostComponent = ({ post }: { post: Post }) => {
             image: URL.createObjectURL(e.target.files[0]),
         });
     };
+
     const submitComment = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formdata = new FormData(e.currentTarget);

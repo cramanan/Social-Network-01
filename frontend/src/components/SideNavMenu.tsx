@@ -13,35 +13,12 @@ import FollowInviteList from "./FollowInviteList";
 
 const SideNavMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isFollowInvListOpen, setFollowInvListOpen] = useState(false);
 
-    const toggleSideNav = () => {
-        setIsOpen(!isOpen);
-        document
-            .getElementById("sideNav")
-            ?.classList.toggle("-translate-x-[182px]");
-        document
-            .getElementById("backIcon")
-            ?.classList.toggle("translate-x-[182px]");
-        if (!isOpen) {
-            setFollowInvListOpen(false);
-        }
-    };
-
-    const handleFollowInviteIcon = () => {
-        setFollowInvListOpen(!isFollowInvListOpen);
-        if (isOpen) {
-            toggleSideNav();
-        }
-    };
+    const toggleSideNav = () => setIsOpen(!isOpen);
 
     const menuItems = [
         { label: "Home", icon: <HomeIcon />, href: "/" },
-        {
-            label: "Request",
-            icon: <RequestIcon />,
-            onClick: handleFollowInviteIcon,
-        },
+        { label: "Request", icon: <RequestIcon /> },
         { label: "Groups", icon: <GroupsIcon />, href: "/group" },
         { label: "Inbox", icon: <NotificationsIcon />, href: "/inbox" },
         { label: "Setting", icon: <SettingIcon />, href: "/profile/settings" },
@@ -52,7 +29,9 @@ const SideNavMenu = () => {
         <>
             <nav
                 id="sideNav"
-                className="w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 -translate-x-[182px] duration-300 ease-in-out select-none"
+                className={`w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 ${
+                    isOpen && "-translate-x-[182px]"
+                } duration-300 ease-in-out select-none`}
                 aria-label="Side navigation"
             >
                 {" "}
@@ -61,7 +40,9 @@ const SideNavMenu = () => {
                     <li className={`flex flex-rowitems-center`}>
                         <button
                             id="backIcon"
-                            className="translate-x-[182px] duration-300 ease-in-out"
+                            className={`${
+                                isOpen && "translate-x-[182px]"
+                            } duration-300 ease-in-out`}
                             aria-label={isOpen ? "Close menu" : "Open menu"}
                             onClick={toggleSideNav}
                         >
@@ -78,38 +59,16 @@ const SideNavMenu = () => {
                             key={index}
                             className="flex flex-row justify-between items-center"
                         >
-                            <span className="text-white text-2xl font-semibold font-['Inter']">
+                            <div className="flex justify-between w-full text-white text-2xl font-semibold font-['Inter']">
                                 {item.label}
-                            </span>
-                            {item.href ? (
                                 <a aria-label={item.label} href={item.href}>
                                     {item.icon}
                                 </a>
-                            ) : (
-                                <button
-                                    aria-label={item.label}
-                                    onClick={item.onClick}
-                                >
-                                    {item.icon}
-                                </button>
-                            )}
+                            </div>
                         </li>
                     ))}
                 </ul>
             </nav>
-
-            <div
-                id="friend-inv-list"
-                className={`transition-all duration-300 ease-in-out z-20
-                    ${
-                        isFollowInvListOpen
-                            ? "opacity-100 -translate-x-44 pointer-events-auto"
-                            : "opacity-0 -translate-x-40 pointer-events-none"
-                    }`}
-                aria-label="Follow invite list"
-            >
-                <FollowInviteList />
-            </div>
         </>
     );
 };
