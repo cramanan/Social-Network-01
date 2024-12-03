@@ -37,17 +37,11 @@ export const FollowersList = ({ groupId }: { groupId: string }) => {
                 <div className="flex flex-col items-center gap-3 mx-5 overflow-scroll no-scrollbar xl:max-h-[65vh]">
                     {users.length > 0 ? (
                         users.map((user, idx) => (
-                            <>
-                                {/* <Users
-                                    key={idx}
-                                    user={user}
-                                    showLastMessage={false}
-                                /> */}
-                                <li key={idx} className="flex flex-row relative w-full justify-between z-30">
-                                    {user.nickname}
-                                    <input type="button" value="Send Invite" onClick={() => handleInvitation(user.id)} className="cursor-pointer" />
-                                </li>
-                            </>
+                            <li key={idx} className="flex flex-row relative w-full justify-between z-30">
+                                {user.nickname}
+                                <input type="button" value="Send Invite" onClick={() => handleInvitation(user.id)} className="cursor-pointer" />
+                            </li>
+
                         ))
                     ) : (
                         <p className="text-center font-bold">

@@ -28,9 +28,8 @@ const SideNavMenu = () => {
         <>
             <nav
                 id="sideNav"
-                className={`w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 ${
-                    isOpen && "-translate-x-[182px]"
-                } duration-300 ease-in-out select-none`}
+                className={`w-[267px] h-[667px] relative bg-white/25 rounded-r-[25px] px-5 py-7 ${!isOpen && "-translate-x-[182px]"
+                    } duration-300 ease-in-out select-none`}
                 aria-label="Side navigation"
             >
                 {" "}
@@ -39,9 +38,8 @@ const SideNavMenu = () => {
                     <li className={`flex flex-rowitems-center`}>
                         <button
                             id="backIcon"
-                            className={`${
-                                isOpen && "translate-x-[182px]"
-                            } duration-300 ease-in-out`}
+                            className={`${!isOpen && "translate-x-[182px]"
+                                } duration-300 ease-in-out`}
                             aria-label={isOpen ? "Close menu" : "Open menu"}
                             onClick={toggleSideNav}
                         >

@@ -250,7 +250,7 @@ func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limi
 
 	// Query posts by the user.
 	rows, err := tx.Query(`
-	SELECT p.*, u.nickname
+	SELECT p.*, u.nickname, u.image_path
 	FROM posts p 
 	JOIN users u ON p.user_id = u.id
 	WHERE user_id = ?
@@ -278,7 +278,8 @@ func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limi
 			&post.GroupId,
 			&post.Content,
 			&post.Timestamp,
-			&post.Username)
+			&post.Username,
+			&post.UserImage)
 		if err != nil {
 			log.Println(err)
 			continue // Skip posts with errors.

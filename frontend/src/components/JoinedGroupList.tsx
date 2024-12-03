@@ -1,5 +1,7 @@
 import useQueryParams from "@/hooks/useQueryParams";
 import { Group } from "@/types/group";
+import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useState } from 'react'
 
 export const JoinedGroupList = () => {
@@ -16,7 +18,19 @@ export const JoinedGroupList = () => {
         <>
             <ul>
                 {groups.map((group, idx) => (
-                    <li key={idx}>{group.name}</li>
+                    <Link
+                        key={idx}
+                        href={`/group/${group.id}`}
+                        className="flex flex-col justify-center items-center"
+                    >
+                        <Image
+                            src={group.image}
+                            alt=""
+                            width={56}
+                            height={56}
+                        />
+                        <span>{group.name}</span>
+                    </Link>
                 ))}
             </ul>
         </>
