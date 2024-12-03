@@ -7,7 +7,6 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { BookmarkIcon } from "./icons/BookmarkIcon";
 import { CommentIcon } from "./icons/CommentIcon";
 import { Comment as CommentType, Post } from "@/types/post";
 import Image from "next/image";
@@ -98,12 +97,12 @@ const PostComponent = ({ post }: { post: Post }) => {
                     <div className="flex flex-row items-center ml-2 mt-2 gap-3">
                         <Link href={`/users/${post.userId}`}>
                             <Image
-                                src={`${post.pfp ? "/" : "/Default_pfp.jpg"}`}
+                                src={post.userImage}
                                 width={48}
                                 height={48}
                                 alt=""
                                 className="flex justify-center items-center w-12 h-12 border border-black rounded-full"
-                            ></Image>
+                            />
                         </Link>
 
                         <div className="flex flex-col">
@@ -118,7 +117,6 @@ const PostComponent = ({ post }: { post: Post }) => {
                             </span>
                         </div>
                     </div>
-                    <BookmarkIcon />
                 </div>
 
                 {post.images.length > 0 && (
@@ -145,10 +143,11 @@ const PostComponent = ({ post }: { post: Post }) => {
                 <Link
                     ref={contentRef}
                     href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
-                        ? ""
-                        : "h-[110px] line-clamp-5 overflow-hidden"
-                        }`}
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${
+                        isExpanded
+                            ? ""
+                            : "h-[110px] line-clamp-5 overflow-hidden"
+                    }`}
                 >
                     {post.content}
                 </Link>
@@ -170,8 +169,9 @@ const PostComponent = ({ post }: { post: Post }) => {
                 </div>
 
                 <div
-                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${ShowAllComment ? "h-fit" : "max-h-[108px]"
-                        }`}
+                    className={`bg-black/10 overflow-hidden my-3 ml-5 mr-10 ${
+                        ShowAllComment ? "h-fit" : "max-h-[108px]"
+                    }`}
                 >
                     {allComments.map((comment, idx) => (
                         <Comment key={idx} {...comment} />
@@ -192,7 +192,12 @@ const PostComponent = ({ post }: { post: Post }) => {
                     className="px-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2"
                 >
                     <div className="w-full flex flex-row items-center gap-2">
-                        <label htmlFor="images" className="w-fit text-center">Send image</label>
+                        <label
+                            htmlFor="images"
+                            className="w-fit text-center cursor-pointer"
+                        >
+                            Send image
+                        </label>
                         <input
                             name="images"
                             id="images"

@@ -42,39 +42,38 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	// Register routes for user authentication and profile management.
 	// TODO: Protect some routes with authentication and authorization logic.
 	// Route for user registration.
-	router.Handle("/api/register", handleFunc(server.Register)) 
+	router.Handle("/api/register", handleFunc(server.Register))
 	// Route for user login.
-	router.Handle("/api/login", handleFunc(server.Login))       
+	router.Handle("/api/login", handleFunc(server.Login))
 
 	// Routes for accessing and managing user information and friend requests.
 	// Route to fetch user details by user ID.
-	router.Handle("/api/users/{userid}", handleFunc(server.User)) 
+	router.Handle("/api/users/{userid}", handleFunc(server.User))
 	// Route for user statistics.
-	router.Handle("/api/users/{userid}/stats", handleFunc(server.GetUserStats)) 
+	router.Handle("/api/users/{userid}/stats", handleFunc(server.GetUserStats))
 	// Route for sending a friend request.
-	router.Handle("/api/users/{userid}/send-request", handleFunc(server.SendFollowRequest)) 
+	router.Handle("/api/users/{userid}/send-request", handleFunc(server.SendFollowRequest))
 	// Route for accepting a friend request.
-	router.Handle("/api/users/{userid}/accept-request", handleFunc(server.AcceptFollowRequest)) 
+	router.Handle("/api/users/{userid}/accept-request", handleFunc(server.AcceptFollowRequest))
 	// Route for declining a friend request.
-	router.Handle("/api/users/{userid}/decline-request", handleFunc(server.DeclineFollowRequest)) 
+	router.Handle("/api/users/{userid}/decline-request", handleFunc(server.DeclineFollowRequest))
 	// Routes related to user chats and friend list management.
 	// Route for fetching chats between two users.
-	router.Handle("/api/users/{userid}/groups", handleFunc(server.GetUserGroups)) 
+	router.Handle("/api/users/{userid}/groups", handleFunc(server.GetUserGroups))
 	// Route for fetching a user's friend list.
-	router.Handle("/api/users/{userid}/chats", handleFunc(server.GetChatFrom2Userid)) 
-	// Route for fetching pending friend requests.
+	router.Handle("/api/users/{userid}/chats", handleFunc(server.GetChatFrom2Userid))
 
-	router.Handle("/api/follow-list", handleFunc(server.GetUserFollowList)) 
+	router.Handle("/api/follow-list", handleFunc(server.GetUserFollowList))
 
 	// Profile-related routes for fetching or updating user profile and posts.
 	// Route for fetching user profile.
-	router.Handle("/api/profile", handleFunc(server.Profile)) 
+	router.Handle("/api/profile", handleFunc(server.Profile))
 	// Route for fetching posts on a user's profile.
-	router.Handle("/api/profile/posts", handleFunc(server.ProfilePosts)) 
+	router.Handle("/api/profile/posts", handleFunc(server.ProfilePosts))
 	// Route for fetching followers of a user.
-	router.Handle("/api/profile/followers", handleFunc(server.GetProfileFollowers)) 
+	router.Handle("/api/profile/followers", handleFunc(server.GetProfileFollowers))
 	// Route for fetching users followed by a user.
-	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing)) 
+	router.Handle("/api/profile/following", handleFunc(server.GetProfileFollowing))
 
 	router.Handle("/api/groups", handleFunc(server.Groups))
 	router.Handle("/api/groups/{groupid}", handleFunc(server.Group))
@@ -95,6 +94,8 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	router.Handle("/api/inbox/group-invites", handleFunc(server.GetGroupInvites))
 	router.Handle("/api/inbox/group-requests", handleFunc(server.GetGroupRequests))
+
+	// Route for fetching pending follow requests.
 	router.Handle("/api/inbox/follow-requests", handleFunc(server.GetFollowRequests))
 
 	// Initialize the WebSocket for real-time communication.
@@ -102,9 +103,9 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 
 	// Route for handling WebSocket connections.
 	// Route for WebSocket connections.
-	router.Handle("/api/socket", http.HandlerFunc(server.Socket)) 
+	router.Handle("/api/socket", http.HandlerFunc(server.Socket))
 	// Route for fetching online users.
-	router.Handle("/api/online", handleFunc(server.GetOnlineUsers)) 
+	router.Handle("/api/online", handleFunc(server.GetOnlineUsers))
 
 	// Serve image files from the "api/images" directory.
 	router.Handle("/api/images/", http.StripPrefix("/api/images/", http.FileServer(http.Dir("api/images"))))
@@ -125,7 +126,6 @@ func NewAPI(addr string, dbFilePath string) (*API, error) {
 	// Return the fully initialized API server.
 	return server, nil
 }
-
 
 // parseRequestLimitAndOffset is used to extract the query parameters // with the name: "limit" & "offset".
 func parseRequestLimitAndOffset(request *http.Request) (limit, offset int) {
@@ -194,7 +194,7 @@ func (server *API) Protected(fn handlerFunc) http.HandlerFunc {
 }
 
 // MultiPartFiles processes multipart file uploads from an HTTP request.
-// It retrieves files named "images" from the request, stores them as temporary files, 
+// It retrieves files named "images" from the request, stores them as temporary files,
 // and returns a list of their paths.
 func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
 	// Retrieve the multipart files from the request's "images" field.
@@ -209,7 +209,7 @@ func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
 		file, err := fileHeader.Open()
 		if err != nil {
 			// Return error if file cannot be opened.
-			return nil, err 
+			return nil, err
 		}
 		defer file.Close() // Ensure file is closed when the function exits.
 
@@ -217,16 +217,16 @@ func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
 		temp, err := os.CreateTemp("api/images", fmt.Sprintf("*-%s", fileHeader.Filename))
 		if err != nil {
 			// Return error if temporary file cannot be created.
-			return nil, err 
+			return nil, err
 		}
 		// Ensure temporary file is closed after use.
-		defer temp.Close() 
+		defer temp.Close()
 
 		// Copy the contents of the uploaded file into the temporary file.
 		_, err = temp.ReadFrom(file)
 		if err != nil {
 			// Return error if there is an issue copying the file.
-			return nil, err 
+			return nil, err
 		}
 
 		// Store the relative path of the temporary file in the filepaths slice.
@@ -236,4 +236,3 @@ func MultiPartFiles(request *http.Request) (filepaths []string, err error) {
 	// Return the filepaths of the uploaded images.
 	return filepaths, nil
 }
-

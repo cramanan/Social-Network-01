@@ -9,7 +9,6 @@ import { SettingIcon } from "./icons/SettingIcon";
 import { ExitIcon } from "./icons/ExitIcon";
 import { OpenSideMenuIcon } from "./icons/OpenSideMenuIcon";
 import { CloseSideMenuIcon } from "./icons/CloseSideMenuIcon";
-import { BookmarkMenuIcon } from "./icons/BookmarkMenuIcon";
 import FollowInviteList from "./FollowInviteList";
 
 const SideNavMenu = () => {
@@ -44,8 +43,7 @@ const SideNavMenu = () => {
             onClick: handleFollowInviteIcon,
         },
         { label: "Groups", icon: <GroupsIcon />, href: "/group" },
-        { label: "Notifications", icon: <NotificationsIcon /> },
-        { label: "Bookmarks", icon: <BookmarkMenuIcon /> },
+        { label: "Inbox", icon: <NotificationsIcon />, href: "/inbox" },
         { label: "Setting", icon: <SettingIcon />, href: "/profile/settings" },
         { label: "Exit", icon: <ExitIcon /> },
     ];
