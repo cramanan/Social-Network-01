@@ -343,3 +343,74 @@ func (server *API) GetGroupMembers(writer http.ResponseWriter, request *http.Req
 
 	return writeJSON(writer, http.StatusOK, users)
 }
+
+func (server *API) AcceptGroupRequest(writer http.ResponseWriter, request *http.Request) error {
+	if request.Method != http.MethodPost {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+	var payload struct {
+		UserId string `json:"userId"`
+	}
+
+	err = json.NewDecoder(request.Body).Decode(&payload)
+	if err != nil {
+		return err
+	}
+
+	groupid := request.PathValue("groupid")
+
+	group, err := server.Storage.GetGroup(request.Context(), groupid)
+	if err != nil {
+		return err
+	}
+
+	if group.Owner != sess.User.Id {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized, "You are not the owner of this group"))
+	}
+
+	err = server.Storage.AcceptGroupInvite(request.Context(), payload.UserId, request.PathValue("groupid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
+}
+
+func (server *API) DeclineGroupRequest(writer http.ResponseWriter, request *http.Request) error {
+	if request.Method != http.MethodPost {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
+
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+	var payload struct {
+		UserId string `json:"userId"`
+	}
+	err = json.NewDecoder(request.Body).Decode(&payload)
+	if err != nil {
+		return err
+	}
+	groupid := request.PathValue("groupid")
+
+	group, err := server.Storage.GetGroup(request.Context(), groupid)
+	if err != nil {
+		return err
+	}
+
+	if group.Owner != sess.User.Id {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized, "You are not the owner of this group"))
+	}
+
+	err = server.Storage.DeclineGroupInvite(request.Context(), payload.UserId, request.PathValue("groupid"))
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(writer, http.StatusOK, "OK")
+}

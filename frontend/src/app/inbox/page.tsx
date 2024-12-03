@@ -81,10 +81,19 @@ function GroupRequests() {
     };
     const [requests, setRequests] = useState<groupRequest[]>([]);
 
-    // const handleRequest = (id: string, foo: "accept" | "decline") => () => {
-    //     fetch(`/api/users/${id}/${foo}-request`, { method: "POST" });
-    //     setUsers(users.filter((u) => u.id !== id));
-    // };
+    const handleRequest =
+        (userId: string, groupId: string, foo: "accept" | "decline") => () => {
+            fetch(`/api/groups/${groupId}/${foo}-request`, {
+                method: "POST",
+                body: JSON.stringify({ userId }),
+            });
+            setRequests(
+                requests.filter(
+                    (request) =>
+                        request.groupId !== groupId && request.userId !== userId
+                )
+            );
+        };
 
     useEffect(() => {
         const fetchRequests = async () => {
@@ -124,10 +133,24 @@ function GroupRequests() {
                             {request.groupName}
                         </a>
                     </span>
-                    {/* <button onClick={handleRequest(id, "accept")}>✓</button>
-                        <button onClick={handleRequest(id, "decline")}>
-                            X
-                        </button> */}
+                    <button
+                        onClick={handleRequest(
+                            request.userId,
+                            request.groupId,
+                            "accept"
+                        )}
+                    >
+                        ✓
+                    </button>
+                    <button
+                        onClick={handleRequest(
+                            request.userId,
+                            request.groupId,
+                            "decline"
+                        )}
+                    >
+                        X
+                    </button>
                 </div>
             ))}
         </div>
