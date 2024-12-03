@@ -122,7 +122,7 @@ export default function GroupPage() {
 
                             <ul className="flex flex-col items-center">
                                 <li onClick={handleMemberListClick} className="font-bold cursor-pointer">Members</li>
-                                {showMemberList && <MemberGroupList />}
+                                {showMemberList && <MemberGroupList groupId={group.id} />}
 
 
                                 <li onClick={handleEventListClick} className="font-bold cursor-pointer">Events</li>
