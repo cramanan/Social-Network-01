@@ -223,27 +223,6 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 	return server.Storage.UserJoinGroup(request.Context(), payload.UserId, payload.GroupId, false)
 }
 
-// RequestGroup allows a user to request to join a group.
-func (server *API) RequestGroup(writer http.ResponseWriter, request *http.Request) (err error) {
-	// Retrieve the session for the current user.
-	sess, err := server.Sessions.GetSession(request)
-	if err != nil {
-		// Return error if session retrieval fails.
-		return err
-	}
-
-	// Retrieve the group ID from the request path.
-	groupid := request.PathValue("groupid")
-	// Add the user to the group as a request (pending approval).
-	err = server.Storage.UserJoinGroup(request.Context(), sess.User.Id, groupid, true)
-	if err != nil {
-		return err
-	}
-
-	// Return a success response with HTTP Status OK.
-	return writeJSON(writer, http.StatusOK, "OK")
-}
-
 func (server *API) GetGroupInvites(writer http.ResponseWriter, request *http.Request) error {
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
@@ -281,6 +260,27 @@ func (server *API) DeclineGroupInvite(writer http.ResponseWriter, request *http.
 	err = server.Storage.DeclineGroupInvite(request.Context(), sess.User.Id, request.PathValue("groupid"))
 	if err != nil {
 		// Return error if joining the group fails.
+		return err
+	}
+
+	// Return a success response with HTTP Status OK.
+	return writeJSON(writer, http.StatusOK, "OK")
+}
+
+// RequestGroup allows a user to request to join a group.
+func (server *API) RequestGroup(writer http.ResponseWriter, request *http.Request) (err error) {
+	// Retrieve the session for the current user.
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		// Return error if session retrieval fails.
+		return err
+	}
+
+	// Retrieve the group ID from the request path.
+	groupid := request.PathValue("groupid")
+	// Add the user to the group as a request (pending approval).
+	err = server.Storage.UserJoinGroup(request.Context(), sess.User.Id, groupid, true)
+	if err != nil {
 		return err
 	}
 

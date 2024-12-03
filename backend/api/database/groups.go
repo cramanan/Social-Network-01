@@ -418,11 +418,11 @@ func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId stri
 	err = tx.QueryRowContext(ctx, `
 	SELECT EXISTS (
 		SELECT 1 FROM groups
-		WHERE owner = ?
+		WHERE id = ? AND owner = ? 
 	) OR EXISTS (
 		SELECT 1 FROM groups_record
 		WHERE group_id = ? AND user_id = ? AND accepted = TRUE
-	);`, userId, groupId, userId).Scan(&inGroup)
+	);`, groupId, userId, groupId, userId).Scan(&inGroup)
 	if err != nil {
 		return false, err
 	}
