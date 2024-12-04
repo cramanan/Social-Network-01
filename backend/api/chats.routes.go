@@ -27,7 +27,7 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	// Range over every online users
-	for _, userConn := range server.WebSocket.Users.Entries() {
+	for _, userConn := range server.WebSocket.Users.Range {
 		// instantiate a socket message
 		ping := types.SocketMessage[types.OnlineUser]{
 			Type: "ping",
@@ -44,7 +44,7 @@ func (server *API) Socket(writer http.ResponseWriter, request *http.Request) {
 		server.WebSocket.Users.Remove(sess.User.Id) // Safely set user as offline
 
 		// instantiate a socket message
-		for _, userConn := range server.WebSocket.Users.Entries() {
+		for _, userConn := range server.WebSocket.Users.Range {
 			ping := types.SocketMessage[types.OnlineUser]{
 				Type: "ping",
 				Data: types.OnlineUser{User: &types.User{Id: sess.User.Id}, Online: false},
@@ -155,14 +155,14 @@ func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Reque
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return if there is an error fetching the session (user not logged in or session expired).
-		return 
+		return
 	}
 
 	// Upgrade the HTTP request to a WebSocket connection.
 	conn, err := server.WebSocket.Upgrade(writer, request, nil)
 	if err != nil {
 		// Log the error if upgrading to WebSocket fails.
-		log.Println(err) 
+		log.Println(err)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Reque
 	// Add the current user connection to the chatroom.
 	chatroom.Add(sess.User.Id, conn)
 	// Ensure the user's connection is removed when the function exits.
-	defer chatroom.Remove(sess.User.Id) 
+	defer chatroom.Remove(sess.User.Id)
 
 	// Define a variable to hold the incoming chat message.
 	var message types.ServerChat
@@ -192,24 +192,24 @@ func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Reque
 		err = conn.ReadJSON(&message)
 		if err != nil || message.Content == "" {
 			// Exit if there's an error reading the message or if the message is empty.
-			return 
+			return
 		}
 
 		// Set the sender ID and recipient ID for the message.
 		message.SenderId = sess.User.Id
 		// Use the group ID as the recipient for storage.
-		message.RecipientId = groupid 
+		message.RecipientId = groupid
 		// Set the current timestamp for the message.
-		message.Timestamp = time.Now() 
+		message.Timestamp = time.Now()
 
 		// Store the message in the group chat in the database.
 		server.Storage.StoreGroupChat(request.Context(), message)
 
 		// Broadcast the message to all users in the chatroom, except the sender.
-		for message.RecipientId, userConn = range chatroom.Entries() {
+		for message.RecipientId, userConn = range chatroom.Range {
 			if message.RecipientId != message.SenderId {
 				// Send the message to each user in the chatroom.
-				userConn.WriteJSON(message) 
+				userConn.WriteJSON(message)
 			}
 		}
 
@@ -217,4 +217,3 @@ func (server *API) JoinGroupChat(writer http.ResponseWriter, request *http.Reque
 		message.Content = ""
 	}
 }
-
