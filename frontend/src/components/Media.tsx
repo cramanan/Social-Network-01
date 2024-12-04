@@ -5,16 +5,19 @@ import Link from "next/link";
 import { Post } from "@/types/post";
 import Image from "next/image";
 import formatDate from "@/utils/formatDate";
+import { useAuth } from "@/hooks/useAuth";
 
-const Media = ({ userId, username, images, timestamp, pfp }: Post) => {
+const Media = ({ userId, username, images, timestamp, userImage }: Post) => {
+    const { user } = useAuth()
     return (
         <>
             <div className="flex flex-col items-center w-[277px] h-[305px] bg-white rounded-[30px]">
                 <Link
-                    href={`/user/${userId}`}
+                    href={`${user?.id === userId ? `/profile` : `/user/${userId}`}`}
                     className="w-[226px] inline-flex items-center gap-3 py-1"
                 >
-                    <Image src={`${pfp ? ("/") : ("/Default_pfp.jpg")}`}
+                    <Image
+                        src={`${userImage}`}
                         alt=""
                         width={48}
                         height={48}
@@ -23,9 +26,9 @@ const Media = ({ userId, username, images, timestamp, pfp }: Post) => {
                         {username}
                     </div>
                 </Link>
-                {/* {images.map((image, idx) => (
-                    <> */}
-                <div className="flex justify-center items-center min-w-[226px] min-h-[206px]">
+                <Link
+                    href={`${user?.id === userId ? `/profile` : `/user/${userId}`}`}
+                    className="flex justify-center items-center min-w-[226px] min-h-[206px]">
                     <Image
                         src={images[0]}
                         width={250}
@@ -33,16 +36,20 @@ const Media = ({ userId, username, images, timestamp, pfp }: Post) => {
                         alt=""
                         className="object-contain max-w-[226px] max-h-[206px]"
                     />
-                </div>
-                {/* </> */}
-                {/* ))} */}
-                {/* <Image src={images[1]} width={236} height={206} alt="" className=' relative bg-[#373333]'></Image> */}
-                <div className="w-[226px] flex justify-between gap-5 py-1">
-                    <div className="text-black/50 text-base font-extralight font-['Inter']">
+                </Link>
+                <div className="w-[226px] flex justify-between items-center gap-5 py-1">
+                    <div className="text-black/50 text-sm font-extralight font-['Inter']">
                         {formatDate(timestamp)}
                     </div>
-                    <LikeIcon />
-                    <CommentIcon />
+                    <div className="flex gap-1">
+                        <LikeIcon />
+                        0
+                    </div>
+                    <div className="flex gap-1">
+                        <CommentIcon />
+                        0 {/* TODO: change to dynamic  */}
+                    </div>
+
                 </div>
             </div>
         </>

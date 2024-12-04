@@ -31,12 +31,12 @@ const Actualite = () => {
     return (
         <>
             <div className="flex flex-col items-center w-screen h-[calc(100vh-185px)] xl:bg-white/25 xl:mt-3 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-70px)]">
-                <div className="shadow-xl w-full mb-5 ">
+                <div className="shadow-xl w-full mb-5">
                     <nav
                         className="flex flex-wrap items-center justify-center sm:flex-row sm:justify-between"
                         aria-label="post filter"
                     >
-                        <ul className="flex flex-row gap-10 m-4 mt-3 ">
+                        <ul className="flex flex-row gap-10 m-4 mt-3">
                             {["All", "Publication", "Media"].map((filter) => (
                                 <li
                                     key={filter}

@@ -186,23 +186,32 @@ function GroupRequests() {
 export default function Inbox() {
     const [windows, setWindows] = useState([true, false, false]);
     const changeWindow = (i: number) => () =>
-        setWindows((prev) => prev.map(({}, idx) => idx === i));
+        setWindows((prev) => prev.map(({ }, idx) => idx === i));
     const headers = ["Follow Request", "Group Invite", "Group Request"];
     const content = [FollowRequests, GroupInvites, GroupRequests];
+
+    const navStyle =
+        "text-black/50 text-xl font-extralight font-['Inter'] tracking-wide";
 
     return (
         <>
             <HomeProfileLayout>
-                <nav className="flex gap-3">
-                    {headers.map((name, idx) => (
-                        <button onClick={changeWindow(idx)} key={idx}>
-                            {name}
-                        </button>
-                    ))}
-                </nav>
-                {content.map(
-                    (Component, idx) => windows[idx] && <Component key={idx} />
-                )}
+                <div className="flex flex-col items-center w-screen h-[calc(100vh-185px)] xl:bg-white/25 xl:mt-3 xl:w-[900px] lg:rounded-t-[25px] xl:h-[calc(100vh-70px)]">
+                    <div className="shadow-xl w-full mb-5">
+                        <nav className="flex flex-wrap items-center justify-center sm:flex-row sm:justify-evenly">
+                            <ul className="flex flex-row gap-10 m-4 mt-3">
+                                {headers.map((name, idx) => (
+                                    <li className={`${navStyle} cursor-pointer`} onClick={changeWindow(idx)} key={idx}>
+                                        {name}
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    </div>
+                    {content.map(
+                        (Component, idx) => windows[idx] && <Component key={idx} />
+                    )}
+                </div>
             </HomeProfileLayout>
         </>
     );

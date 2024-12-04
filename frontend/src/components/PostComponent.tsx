@@ -1,8 +1,6 @@
 "use client";
 
 import React, {
-    ChangeEvent,
-    FormEvent,
     useEffect,
     useRef,
     useState,
@@ -14,52 +12,17 @@ import Link from "next/link";
 import formatDate from "@/utils/formatDate";
 import { LikeIcon } from "./icons/LikeIcon";
 import Comment from "./Comment";
-
-type CommentFields = Pick<CommentType, "content" | "image">;
-
-const defaultComment = {
-    content: "",
-    image: "",
-};
+import { NewComment } from "./NewComment";
+import { useAuth } from "@/hooks/useAuth";
 
 const PostComponent = ({ post }: { post: Post }) => {
+    const { user } = useAuth()
     const [isExpanded, setIsExpanded] = useState(false);
     const [ShowAllComment, setShowAllComment] = useState(false);
     const [isOverflowing, setIsOverflowing] = useState(false);
-    const contentRef = useRef<HTMLAnchorElement>(null);
+    const contentRef = useRef<HTMLDivElement | null>(null);
     const handleSeeMore = () => setIsExpanded(!isExpanded);
     const handleShowAllComment = () => setShowAllComment(!ShowAllComment);
-
-    const [newComment, setComment] = useState<CommentFields>(defaultComment);
-
-    const changeCommentContent = (e: ChangeEvent<HTMLInputElement>) =>
-        setComment({ ...newComment, content: e.target.value });
-    const changeCommentImages = (e: ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files) return;
-        setComment({
-            ...newComment,
-            image: URL.createObjectURL(e.target.files[0]),
-        });
-    };
-
-    const submitComment = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formdata = new FormData(e.currentTarget);
-        formdata.append(
-            "data",
-            JSON.stringify({ content: newComment.content })
-        );
-        console.log(formdata);
-        try {
-            const response = await fetch(`/api/posts/${post.id}/comments/`, {
-                method: "POST",
-                body: formdata,
-            });
-            if (response.ok) setComment(defaultComment);
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     const [allComments, setAllComments] = useState<CommentType[]>([]);
 
@@ -96,7 +59,7 @@ const PostComponent = ({ post }: { post: Post }) => {
             <div className="flex flex-col relative w-full bg-white/95 xl:rounded-[30px]">
                 <div className="flex flex-row justify-between items-center pr-5 mb-3">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-3">
-                        <Link href={`/users/${post.userId}`}>
+                        <Link href={`${user?.id === post.userId ? `/profile` : `/user/${post.userId}`}`}>
                             <Image
                                 src={post.userImage}
                                 width={48}
@@ -108,7 +71,7 @@ const PostComponent = ({ post }: { post: Post }) => {
 
                         <div className="flex flex-col">
                             <Link
-                                href={`/user/${post.userId}`}
+                                href={`${user?.id === post.userId ? `/profile` : `/user/${post.userId}`}`}
                                 className="text-black text-xl font-semibold font-['Inter']"
                             >
                                 {post.username}
@@ -141,16 +104,15 @@ const PostComponent = ({ post }: { post: Post }) => {
                     </p>
                 )}
 
-                <Link
+                <p
                     ref={contentRef}
-                    href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
-                            ? ""
-                            : "h-[110px] line-clamp-5 overflow-hidden"
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] text-justify m-5 mr-10 whitespace-pre-wrap ${isExpanded
+                        ? ""
+                        : "h-[110px] line-clamp-5 overflow-hidden"
                         }`}
                 >
                     {post.content}
-                </Link>
+                </p>
 
                 {isOverflowing && (
                     <button
@@ -162,10 +124,14 @@ const PostComponent = ({ post }: { post: Post }) => {
                 )}
 
                 <div className="flex flex-row gap-10 ml-5">
-                    <button>
+                    <button className="flex gap-2">
                         <LikeIcon />
+                        0
                     </button>
-                    <CommentIcon />
+                    <div className="flex gap-2">
+                        <CommentIcon />
+                        {allComments.length}
+                    </div>
                 </div>
 
                 <div
@@ -177,63 +143,18 @@ const PostComponent = ({ post }: { post: Post }) => {
                     ))}
                 </div>
 
-                <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
-                    <button
-                        onClick={handleShowAllComment}
-                        className="cursor-pointer"
-                    >
-                        {ShowAllComment ? "Less comments" : "More comments"}
-                    </button>
-                </div>
-
-                <form
-                    onSubmit={submitComment}
-                    className="px-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2"
-                >
-                    <div className="w-full flex flex-row items-center gap-2">
-                        <label
-                            htmlFor="images"
-                            className="w-fit text-center cursor-pointer"
-                        >
-                            Send image
-                        </label>
-                        <input
-                            name="images"
-                            id="images"
-                            type="file"
-                            className="hidden"
-                            accept="image/jpeg,image/png,image/gif"
-                            onChange={changeCommentImages}
-                        />
-                        <div className="w-full h-[30px] text-black text-xl font-extralight font-['Inter'] bg-white/0">
-                            <div>
-                                {newComment.image && (
-                                    <Image
-                                        src={newComment.image}
-                                        alt=""
-                                        width={40}
-                                        height={40}
-                                    />
-                                )}
-                            </div>
-                            <input
-                                value={newComment.content}
-                                type="text"
-                                placeholder="Enter your newComment"
-                                className="w-full"
-                                onChange={changeCommentContent}
-                            />
-                        </div>
-                    </div>
-                    <div className="self-stretch pl-[11px] pr-3 pt-[5px] bg-gradient-to-t from-[#e1d3eb] via-[#6f46c0] to-[#e0d3ea] rounded-[30px] justify-center items-center inline-flex">
+                {allComments.length > 2 && (
+                    <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
                         <button
-                            type="submit"
-                            className="h-[25px] text-center text-black text-[15px] font-medium font-['Inter']"
+                            onClick={handleShowAllComment}
+                            className="cursor-pointer"
                         >
-                            Send
+                            {ShowAllComment ? "Less comments" : "More comments"}
                         </button>
                     </div>
-                </form>
+                )}
+
+                <NewComment {...post} />
             </div>
         </>
     );

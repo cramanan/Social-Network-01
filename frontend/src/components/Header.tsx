@@ -39,7 +39,7 @@ export default function Header() {
                                 alt=""
                                 width={45}
                                 height={45}
-                                className="rounded-full"
+                                className="rounded-full w-auto h-auto"
                             ></Image>
                         </div>
                         <div className=" min-w-36 relative justify-end bg-white rounded-3xl bg-opacity-40">

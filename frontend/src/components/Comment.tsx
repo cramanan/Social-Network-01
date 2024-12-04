@@ -2,28 +2,33 @@ import React from "react";
 import { LikeIcon } from "./icons/LikeIcon";
 import { Comment as CommentType } from "@/types/post";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 
-const Comment = ({ content, username, userImage }: CommentType) => {
+const Comment = ({ userId, content, username, userImage }: CommentType) => {
+    const { user } = useAuth()
     return (
         <div
-            className="flex items-center justify-between relative w-full h-[54px] bg-[#f6f6f6]/0"
+            className="flex items-center justify-between relative w-full h-[54px] bg-[#f6f6f6]/0 px-2"
             aria-label="Comment"
         >
             <div className="flex flex-row items-center">
                 <div className="m-2">
                     <Image
                         src={userImage}
-                        width={41}
-                        height={10}
+                        width={38}
+                        height={38}
                         alt=""
-                        className="w-[41px] h-10 bg-[#b53695] rounded-[100px]"
+                        className="w-38 h-auto bg-[#b53695] rounded-[100px]"
                     />
                 </div>
                 <div className="flex flex-col">
-                    <span className="h-[21px] text-black text-[15px] font-semibold font-['Inter']">
+                    <Link
+                        href={`${user?.id === userId ? `/profile` : `/user/${userId}`}`}
+                        className="h-[21px] text-black text-[15px] font-semibold font-['Inter']">
                         {username}
-                    </span>
-                    {}
+                    </Link>
+                    { }
                     <span className=" text-black text-[13px] font-normal font-['Inter']">
                         {content}
                     </span>

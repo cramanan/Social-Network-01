@@ -1,12 +1,12 @@
 "use client";
 
 import { HomeIcon } from "./icons/HomeIcon";
-import { FindUserIcon } from "./icons/FindUserIcon";
 import { UserListIcon } from "./icons/UserListIcon";
 import ChatIcon from "./icons/ChatIcon";
 import ChatList from "./ChatList";
 import { useState } from "react";
 import UserList from "./UserList";
+import { NotificationsIcon } from "./icons/NotificationsIcon";
 
 const MobileBottomNav = () => {
     const [showChatList, setShowChatList] = useState(false);
@@ -36,17 +36,18 @@ const MobileBottomNav = () => {
                             </a>
                         </li>
 
+
+                        <li>
+                            <a href="/inbox">
+                                <span className="sr-only">Inbox</span>
+                                <NotificationsIcon />
+                            </a>
+                        </li>
+
                         <li>
                             <button onClick={handleFollowListClick}>
                                 <span className="sr-only">FollowList</span>
                                 <UserListIcon />
-                            </button>
-                        </li>
-
-                        <li>
-                            <button>
-                                <span className="sr-only">FindUser</span>
-                                <FindUserIcon />
                             </button>
                         </li>
 
