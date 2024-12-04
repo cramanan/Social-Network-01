@@ -511,11 +511,16 @@ func (store *SQLite3Store) GetUserGroups(ctx context.Context, userId string) (gr
 	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
+	SELECT * 
+	FROM groups 
+	WHERE owner = ?
+
+	UNION ALL
+
 	SELECT groups.*
 	FROM groups_record JOIN groups 
 	ON groups_record.group_id = groups.id
-	WHERE (groups_record.user_id = ? AND groups_record.accepted = TRUE) 
-	OR groups.owner = ?;`, userId, userId)
+	WHERE groups_record.user_id = ? AND groups_record.accepted = TRUE;`, userId, userId)
 	if err != nil {
 		return nil, err
 	}
