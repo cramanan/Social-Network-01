@@ -5,16 +5,19 @@ import Link from "next/link";
 import { Post } from "@/types/post";
 import Image from "next/image";
 import formatDate from "@/utils/formatDate";
+import { useAuth } from "@/hooks/useAuth";
 
 const Media = ({ userId, username, images, timestamp, userImage }: Post) => {
+    const { user } = useAuth()
     return (
         <>
             <div className="flex flex-col items-center w-[277px] h-[305px] bg-white rounded-[30px]">
                 <Link
-                    href={`/user/${userId}`}
+                    href={`${user?.id === userId ? `/profile` : `/user/${userId}`}`}
                     className="w-[226px] inline-flex items-center gap-3 py-1"
                 >
-                    <Image src={`${userImage}`}
+                    <Image
+                        src={`${userImage}`}
                         alt=""
                         width={48}
                         height={48}
@@ -23,7 +26,9 @@ const Media = ({ userId, username, images, timestamp, userImage }: Post) => {
                         {username}
                     </div>
                 </Link>
-                <div className="flex justify-center items-center min-w-[226px] min-h-[206px]">
+                <Link
+                    href={`${user?.id === userId ? `/profile` : `/user/${userId}`}`}
+                    className="flex justify-center items-center min-w-[226px] min-h-[206px]">
                     <Image
                         src={images[0]}
                         width={250}
@@ -31,7 +36,7 @@ const Media = ({ userId, username, images, timestamp, userImage }: Post) => {
                         alt=""
                         className="object-contain max-w-[226px] max-h-[206px]"
                     />
-                </div>
+                </Link>
                 <div className="w-[226px] flex justify-between items-center gap-5 py-1">
                     <div className="text-black/50 text-sm font-extralight font-['Inter']">
                         {formatDate(timestamp)}

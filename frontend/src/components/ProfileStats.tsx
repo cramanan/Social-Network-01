@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 
 const ProfileStats = ({ userId }: { userId: string }) => {

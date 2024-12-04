@@ -7,8 +7,10 @@ import Link from "next/link";
 import formatDate from "@/utils/formatDate";
 import { Comment as CommentType, Post } from "@/types/post";
 import { NewComment } from "./NewComment";
+import { useAuth } from "@/hooks/useAuth";
 
 export const PostMedia = ({ post }: { post: Post }) => {
+    const { user } = useAuth()
     const [isLiked, setIsLiked] = useState(false);
     const handleLikeCLick = () => setIsLiked(!isLiked);
     const [allComments, setAllComments] = useState<CommentType[]>([]);
@@ -59,7 +61,7 @@ export const PostMedia = ({ post }: { post: Post }) => {
                 <div className="flex flex-col w-full pl-2">
                     <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-row justify-center items-center gap-2">
-                            <Link href={`/user/${post.userId}`}>
+                            <Link href={`${user?.id === post.userId ? `/profile` : `/user/${post.userId}`}`}>
                                 <Image
                                     src={post.userImage}
                                     width={48}
@@ -71,7 +73,7 @@ export const PostMedia = ({ post }: { post: Post }) => {
 
                             <div className="flex flex-col">
                                 <Link
-                                    href={`/user/${post.userId}`}
+                                    href={`${user?.id === post.userId ? `/profile` : `/user/${post.userId}`}`}
                                     className="text-black text-xl font-semibold font-['Inter']"
                                 >
                                     {post.username}

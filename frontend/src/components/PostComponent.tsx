@@ -13,8 +13,10 @@ import formatDate from "@/utils/formatDate";
 import { LikeIcon } from "./icons/LikeIcon";
 import Comment from "./Comment";
 import { NewComment } from "./NewComment";
+import { useAuth } from "@/hooks/useAuth";
 
 const PostComponent = ({ post }: { post: Post }) => {
+    const { user } = useAuth()
     const [isExpanded, setIsExpanded] = useState(false);
     const [ShowAllComment, setShowAllComment] = useState(false);
     const [isOverflowing, setIsOverflowing] = useState(false);
@@ -57,7 +59,7 @@ const PostComponent = ({ post }: { post: Post }) => {
             <div className="flex flex-col relative w-full bg-white/95 xl:rounded-[30px]">
                 <div className="flex flex-row justify-between items-center pr-5 mb-3">
                     <div className="flex flex-row items-center ml-2 mt-2 gap-3">
-                        <Link href={`/users/${post.userId}`}>
+                        <Link href={`${user?.id === post.userId ? `/profile` : `/user/${post.userId}`}`}>
                             <Image
                                 src={post.userImage}
                                 width={48}
@@ -69,7 +71,7 @@ const PostComponent = ({ post }: { post: Post }) => {
 
                         <div className="flex flex-col">
                             <Link
-                                href={`/user/${post.userId}`}
+                                href={`${user?.id === post.userId ? `/profile` : `/user/${post.userId}`}`}
                                 className="text-black text-xl font-semibold font-['Inter']"
                             >
                                 {post.username}
