@@ -23,8 +23,10 @@ export default function GroupPage() {
 
     const [showMemberList, setShowMemberList] = useState(false);
     const [showEventList, setShowEventList] = useState(true);
-
     const [unauthorized, setUnauthorized] = useState(false)
+
+    const [showAddPeople, setShowAddPeople] = useState(false)
+    const handleAddPeople = () => setShowAddPeople(!showAddPeople)
 
     useEffect(() => {
         const fetchInfos = async () => {
@@ -99,7 +101,7 @@ export default function GroupPage() {
                         {!unauthorized &&
                             <>
                                 <Link href={`/group/${group.id}/chatroom`}>Chat</Link>
-                                <input type="button" value="+" className="font-bold" />
+                                <input type="button" onClick={handleAddPeople} value="+" className="font-bold" />
                             </>
                         }
                     </div>
@@ -143,7 +145,7 @@ export default function GroupPage() {
                                 </ul>
                             </div>
                             {posts && (
-                                <div className="flex flex-col w-full p-3 gap-3 overflow-scroll no-scrollbar">
+                                <div className="flex flex-col w-full h-[calc(100vh-185px)] p-3 gap-3 overflow-scroll no-scrollbar xl:h-[calc(100vh-135px)]">
                                     {posts.map((post, idx) => (
                                         <PostComponent key={idx} post={post} />
                                     ))}
@@ -151,9 +153,11 @@ export default function GroupPage() {
                             )}
                         </div>
 
-                        <span className="absolute top-0 right-0 translate-x-full translate-y-40">
-                            <FollowersList groupId={group.id} />
-                        </span>
+                        {showAddPeople &&
+                            <span className="absolute top-0 right-0 translate-x-full translate-y-40">
+                                <FollowersList groupId={group.id} />
+                            </span>
+                        }
                     </>
                 }
             </div>
