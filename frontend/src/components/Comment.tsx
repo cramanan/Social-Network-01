@@ -13,10 +13,10 @@ const Comment = ({ content, username, userImage }: CommentType) => {
                 <div className="m-2">
                     <Image
                         src={userImage}
-                        width={41}
-                        height={10}
+                        width={38}
+                        height={38}
                         alt=""
-                        className="w-[41px] h-10 bg-[#b53695] rounded-[100px]"
+                        className="w-38 h-auto bg-[#b53695] rounded-[100px]"
                     />
                 </div>
                 <div className="flex flex-col">

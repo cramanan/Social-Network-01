@@ -14,6 +14,7 @@ import Link from "next/link";
 import formatDate from "@/utils/formatDate";
 import { LikeIcon } from "./icons/LikeIcon";
 import Comment from "./Comment";
+import { ImageIcon } from "./icons/ImageIcon";
 
 type CommentFields = Pick<CommentType, "content" | "image">;
 
@@ -161,10 +162,14 @@ const PostComponent = ({ post }: { post: Post }) => {
                 )}
 
                 <div className="flex flex-row gap-10 ml-5">
-                    <button>
+                    <button className="flex gap-2">
                         <LikeIcon />
+                        0
                     </button>
-                    <CommentIcon />
+                    <div className="flex gap-2">
+                        <CommentIcon />
+                        {allComments.length}
+                    </div>
                 </div>
 
                 <div
@@ -197,7 +202,7 @@ const PostComponent = ({ post }: { post: Post }) => {
                             htmlFor="images"
                             className="w-fit text-center cursor-pointer"
                         >
-                            Send image
+                            <ImageIcon />
                         </label>
                         <input
                             name="images"

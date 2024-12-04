@@ -6,6 +6,7 @@ import Comment from "./Comment";
 import Link from "next/link";
 import formatDate from "@/utils/formatDate";
 import { Comment as CommentType, Post } from "@/types/post";
+import { ImageIcon } from "./icons/ImageIcon";
 
 type CommentFields = Pick<CommentType, "content" | "image">;
 
@@ -79,14 +80,19 @@ export const PostMedia = ({ post }: { post: Post }) => {
                                 height={500}
                                 alt=""
                                 className="max-h-[300px] w-auto h-auto object-contain"
+                                priority
                             ></Image>
                         </a>
                     </div>
                     <div className=" flex flex-row gap-10">
-                        <div onClick={handleLikeCLick}>
+                        <div onClick={handleLikeCLick} className="flex gap-2">
                             <LikeIcon isLiked={isLiked} />
+                            0
                         </div>
-                        <CommentIcon />
+                        <div className="flex gap-2">
+                            <CommentIcon />
+                            {allComments.length}
+                        </div>
                     </div>
                 </div>
 
@@ -117,11 +123,11 @@ export const PostMedia = ({ post }: { post: Post }) => {
                         </div>
                     </div>
 
-                    <p className="w-full max-h-[150px] overflow-scroll no-scrollbar my-1 whitespace-pre-wrap md:h-[150px]">
+                    <p className="w-full max-h-[150px] my-1 overflow-y-auto whitespace-pre-wrap md:h-[150px]">
                         {post.content}
                     </p>
 
-                    <div className="max-h-[108px] overflow-scroll no-scrollbar bg-black/10 my-2">
+                    <div className="max-h-[108px] overflow-y-auto bg-black/10 my-2">
                         {allComments.map((comment, idx) => (
                             <Comment key={idx} {...comment} />
                         ))}
@@ -136,7 +142,7 @@ export const PostMedia = ({ post }: { post: Post }) => {
                                 htmlFor="images"
                                 className="w-fit text-center cursor-pointer"
                             >
-                                Send image
+                                <ImageIcon />
                             </label>
                             <input
                                 name="images"
@@ -154,6 +160,7 @@ export const PostMedia = ({ post }: { post: Post }) => {
                                             alt=""
                                             width={40}
                                             height={40}
+                                            className="w-auto h-auto"
                                         />
                                     )}
                                 </div>

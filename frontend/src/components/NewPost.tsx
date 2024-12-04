@@ -7,10 +7,12 @@ import { CloseIcon } from "./icons/CloseIcon";
 import { ImageIcon } from "./icons/ImageIcon";
 import { Post } from "@/types/post";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
 
 type PostFields = Pick<Post, "groupId" | "content" | "images">;
 
 export const NewPost = ({ groupId }: { groupId: string | null }) => {
+    const { user } = useAuth();
     const [fields, setFields] = useState<PostFields>({
         content: "",
         images: [],
@@ -67,7 +69,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                         <div className="border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg  w-1/2 ">
                             <div className="flex justify-between">
                                 <h2 className="text-xl text-white font-semibold flex justify-center items-center gap-4 ">
-                                    <ProfileCircle />
+                                    <Image src={user?.image ?? "/Default_pfp.jpg"} width={40} height={40} alt="" className="w-auto h-auto rounded-full" />
                                     New Post
                                 </h2>
                                 <button
@@ -77,9 +79,25 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                                     <CloseIcon />
                                 </button>
                             </div>
+                            <div className="mt-5">
+                                <ul className="flex justify-between">
+                                    <li className="flex gap-2">
+                                        <input type="radio" name="post_privacy" id="public_post" value="public" defaultChecked />
+                                        <label htmlFor="public_post" >Public</label>
+                                    </li>
+                                    <li className="flex gap-2">
+                                        <input type="radio" name="post_privacy" id="almost_private_post" value="almost private" />
+                                        <label htmlFor="almost_private_post" >Almost Private</label>
+                                    </li>
+                                    <li className="flex gap-2">
+                                        <input type="radio" name="post_privacy" id="private_post" value="private" />
+                                        <label htmlFor="private_post" >Private</label>
+                                    </li>
+                                </ul>
+                            </div>
                             <textarea
                                 id="content"
-                                className="shadow-lg w-full px-12 py-4 mt-7 rounded-xl  bg-white text-black text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-gray-500 resize-none"
+                                className="shadow-lg w-full px-12 py-4 mt-5 rounded-xl  bg-white text-black text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-gray-500 resize-none"
                                 value={fields.content}
                                 onChange={handleTextChange}
                                 placeholder="What's on your mind?"
