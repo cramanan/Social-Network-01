@@ -26,7 +26,7 @@ const PostComponent = ({ post }: { post: Post }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [ShowAllComment, setShowAllComment] = useState(false);
     const [isOverflowing, setIsOverflowing] = useState(false);
-    const contentRef = useRef<HTMLAnchorElement>(null);
+    const contentRef = useRef<HTMLDivElement | null>(null);
     const handleSeeMore = () => setIsExpanded(!isExpanded);
     const handleShowAllComment = () => setShowAllComment(!ShowAllComment);
 
@@ -141,16 +141,15 @@ const PostComponent = ({ post }: { post: Post }) => {
                     </p>
                 )}
 
-                <Link
+                <p
                     ref={contentRef}
-                    href={`/post/${post.id}`}
-                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] m-5 mr-10 ${isExpanded
-                            ? ""
-                            : "h-[110px] line-clamp-5 overflow-hidden"
+                    className={`h-fit text-black text-base font-normal font-['Inter'] leading-[22px] text-justify m-5 mr-10 whitespace-pre-wrap ${isExpanded
+                        ? ""
+                        : "h-[110px] line-clamp-5 overflow-hidden"
                         }`}
                 >
                     {post.content}
-                </Link>
+                </p>
 
                 {isOverflowing && (
                     <button
@@ -177,14 +176,17 @@ const PostComponent = ({ post }: { post: Post }) => {
                     ))}
                 </div>
 
-                <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
-                    <button
-                        onClick={handleShowAllComment}
-                        className="cursor-pointer"
-                    >
-                        {ShowAllComment ? "Less comments" : "More comments"}
-                    </button>
-                </div>
+                {allComments.length > 2 && (
+                    <div className="text-center text-black text-sm font-medium font-['Inter'] mb-2">
+                        <button
+                            onClick={handleShowAllComment}
+                            className="cursor-pointer"
+                        >
+                            {ShowAllComment ? "Less comments" : "More comments"}
+                        </button>
+                    </div>
+                )}
+
 
                 <form
                     onSubmit={submitComment}

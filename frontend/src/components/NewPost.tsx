@@ -12,7 +12,7 @@ type PostFields = Pick<Post, "groupId" | "content" | "images">;
 
 export const NewPost = ({ groupId }: { groupId: string | null }) => {
     const [fields, setFields] = useState<PostFields>({
-        content: JSON.stringify(groupId),
+        content: "",
         images: [],
         groupId,
     });

@@ -117,11 +117,11 @@ export const PostMedia = ({ post }: { post: Post }) => {
                         </div>
                     </div>
 
-                    <p className="w-full max-h-[150px] overflow-scroll no-scrollbar my-1 md:h-[150px]">
+                    <p className="w-full max-h-[150px] overflow-scroll no-scrollbar my-1 whitespace-pre-wrap md:h-[150px]">
                         {post.content}
                     </p>
 
-                    <div className="h-[108px] overflow-scroll no-scrollbar bg-black/10 mt-2 mb-5">
+                    <div className="max-h-[108px] overflow-scroll no-scrollbar bg-black/10 my-2">
                         {allComments.map((comment, idx) => (
                             <Comment key={idx} {...comment} />
                         ))}
@@ -129,7 +129,7 @@ export const PostMedia = ({ post }: { post: Post }) => {
 
                     <form
                         onSubmit={submitComment}
-                        className="px-3 pt-[11px] pb-[7px] bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex mx-5 my-2"
+                        className="p-2 bg-[#f2eeee] rounded-[10px] gap-2 items-center inline-flex"
                     >
                         <div className="w-full flex flex-row items-center gap-2">
                             <label
