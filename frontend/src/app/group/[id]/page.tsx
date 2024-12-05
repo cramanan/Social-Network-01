@@ -189,7 +189,7 @@ export default function GroupPage() {
                         {!unauthorized && (
                             <>
                                 <button onClick={toggleChat}>Chat</button>
-                                <input
+                                <input onClick={handleAddPeople}
                                     type="button"
                                     value="+"
                                     className="font-bold"
