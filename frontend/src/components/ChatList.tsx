@@ -11,7 +11,7 @@ import ChatBox from "./ChatBox";
 const ChatList = () => {
     // Online users
     const [users, setUsers] = useState<OnlineUser[]>([]);
-    const { limit, offset, next, previous } = useQueryParams();
+    const { limit, offset } = useQueryParams();
     const [selectedUser, setSelectedUser] = useState<OnlineUser | null>(null);
     const [ShowUserList, setShowUserList] = useState(true);
 
@@ -79,22 +79,20 @@ const ChatList = () => {
                     </h2>
 
                     <div className="flex flex-col gap-3 mx-5 overflow-scroll no-scrollbar xl:max-h-[65vh]">
-                        {users.map((user, index) => (
-                            <Users
-                                key={index}
-                                user={user}
-                                onUserSelect={handleUserSelect}
-                                showLastMessage={true}
-                            />
-                        ))}
-                    </div>
-                    <div className="w-full h-10 flex flex-row justify-center gap-10 mt-2">
-                        <button className="w-fit" onClick={previous}>
-                            previous
-                        </button>
-                        <button className="w-fit" onClick={next}>
-                            next
-                        </button>
+                        {users.length > 0 ?
+                            users.map((user, index) => (
+                                <Users
+                                    key={index}
+                                    user={user}
+                                    onUserSelect={handleUserSelect}
+                                    showLastMessage={true}
+                                />
+                            ))
+                            :
+                            <p className="text-center font-bold">
+                                No Conversation(s) found.
+                            </p>
+                        }
                     </div>
                 </div>
             )}

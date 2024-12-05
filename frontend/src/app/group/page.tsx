@@ -10,12 +10,13 @@ export default function Page() {
     const [windows, setWindows] = useState([true, false]);
     const [currentFilter, setCurrentFilter] = useState("Joined groups");
 
-    const changeWindow = (i: number) => () => {
+    const changeWindow = (i: number, n: string) => () => {
         setWindows((prev) => prev.map(({ }, idx) => idx === i));
+        setCurrentFilter(n)
     }
 
     const titles = ["Joined groups", "All groups"];
-    const bodies = [() => <JoinedGroupList />, () => <GroupList />];
+    const bodies = [JoinedGroupList, GroupList];
 
     return (
         <>
@@ -27,7 +28,7 @@ export default function Page() {
                             <li
                                 key={idx}
                                 className={`w-full text-xl font-['Inter'] text-center cursor-pointer p-3 ${currentFilter === name && "font-bold"} hover:bg-black/10`}
-                                onClick={() => { changeWindow(idx); setCurrentFilter(name) }}
+                                onClick={changeWindow(idx, name)}
                             >
                                 {name}
                             </li>

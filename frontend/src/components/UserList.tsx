@@ -5,9 +5,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import Users from "./Users";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { SocketMessage } from "@/types/chat";
+import ChatBox from "./ChatBox";
 
-export default function UserList() {
+const UserList = () => {
     const [users, setUsers] = useState<OnlineUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<OnlineUser | null>(null);
+    const [ShowUserList, setShowUserList] = useState(true);
     const { socket } = useWebSocket();
 
     useEffect(() => {
@@ -46,32 +49,58 @@ export default function UserList() {
         return () => socket.removeEventListener("message", callback);
     }, [socket, callback]);
 
+    const handleUserSelect = (user: OnlineUser) => {
+        setSelectedUser(user);
+        setShowUserList(!ShowUserList);
+    };
+
+    const handleCloseChatBox = () => {
+        setSelectedUser(null);
+        setShowUserList(!ShowUserList);
+    };
+
     return (
         <>
-            <div
-                id="userList"
-                className="flex flex-col w-full h-[calc(100vh-130px)] xl:w-72 xl:h-fit xl:bg-white/40 xl:rounded-3xl xl:py-3"
-            >
-                <h2 className="text-4xl text-white text-center py-5 xl:sr-only">
-                    Follow List
-                </h2>
+            {ShowUserList && (
+                <div
+                    id="userList"
+                    className="flex flex-col w-full h-[calc(100vh-130px)] xl:w-72 xl:h-fit xl:bg-white/40 xl:rounded-3xl xl:py-3"
+                >
+                    <h2 className="text-4xl text-white text-center py-5 xl:sr-only">
+                        Follow List
+                    </h2>
 
-                <div className="flex flex-col items-center gap-3 mx-5 overflow-scroll no-scrollbar xl:max-h-[65vh]">
-                    {users.length > 0 ? (
-                        users.map((user, idx) => (
-                            <Users
-                                key={idx}
-                                user={user}
-                                showLastMessage={false}
-                            />
-                        ))
-                    ) : (
-                        <p className="text-center font-bold">
-                            No follow(s) found.
-                        </p>
-                    )}
+                    <div className="flex flex-col items-center gap-3 mx-5 overflow-scroll no-scrollbar xl:max-h-[65vh]">
+                        {users.length > 0 ? (
+                            users.map((user, idx) => (
+                                <div key={idx} className="flex flex-row items-center w-full">
+                                    <Users
+                                        user={user}
+                                        showLastMessage={false}
+                                    />
+                                    <input type="button" className="ml-3" value="chat" onClick={() => handleUserSelect(user)} ></input>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-center font-bold">
+                                No follow(s) found.
+                            </p>
+                        )}
+                    </div>
+                </div >
+            )}
+
+
+            {selectedUser && (
+                <div className="w-full h-full xl:w-fit xl:h-fit xl:absolute xl:right-0">
+                    <ChatBox
+                        recipient={selectedUser}
+                        onClose={handleCloseChatBox}
+                    />
                 </div>
-            </div>
+            )}
         </>
     );
 }
+
+export default UserList;
