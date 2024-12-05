@@ -185,13 +185,16 @@ function GroupRequests() {
 
 export default function Inbox() {
     const [windows, setWindows] = useState([true, false, false]);
-    const changeWindow = (i: number) => () =>
+    const [currentFilter, setCurrentFilter] = useState("Follow Request");
+
+    const changeWindow = (i: number, n: string) => () => {
         setWindows((prev) => prev.map(({ }, idx) => idx === i));
+        setCurrentFilter(n)
+    }
+
+
     const headers = ["Follow Request", "Group Invite", "Group Request"];
     const content = [FollowRequests, GroupInvites, GroupRequests];
-
-    const navStyle =
-        "text-black/50 text-xl font-extralight font-['Inter'] tracking-wide";
 
     return (
         <>
@@ -201,7 +204,11 @@ export default function Inbox() {
                         <nav className="flex flex-wrap items-center justify-center sm:flex-row sm:justify-evenly">
                             <ul className="flex flex-row gap-10 m-4 mt-3">
                                 {headers.map((name, idx) => (
-                                    <li className={`${navStyle} cursor-pointer`} onClick={changeWindow(idx)} key={idx}>
+                                    <li
+                                        className={`text-xl font-['Inter'] tracking-wide ${currentFilter === name ? "font-bold text-black" : "font-extralight text-black/50"} cursor-pointer hover:text-black`}
+                                        onClick={changeWindow(idx, name)}
+                                        key={idx}
+                                    >
                                         {name}
                                     </li>
                                 ))}

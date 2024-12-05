@@ -8,9 +8,11 @@ import { JoinedGroupList } from "@/components/JoinedGroupList";
 
 export default function Page() {
     const [windows, setWindows] = useState([true, false]);
+    const [currentFilter, setCurrentFilter] = useState("Joined groups");
 
-    const changeWindow = (i: number) => () =>
+    const changeWindow = (i: number) => () => {
         setWindows((prev) => prev.map(({ }, idx) => idx === i));
+    }
 
     const titles = ["Joined groups", "All groups"];
     const bodies = [() => <JoinedGroupList />, () => <GroupList />];
@@ -24,8 +26,8 @@ export default function Page() {
                         {titles.map((name, idx) => (
                             <li
                                 key={idx}
-                                className="w-1/3 text-center cursor-pointer p-3 hover:bg-black/10"
-                                onClick={changeWindow(idx)}
+                                className={`w-full text-xl font-['Inter'] text-center cursor-pointer p-3 ${currentFilter === name && "font-bold"} hover:bg-black/10`}
+                                onClick={() => { changeWindow(idx); setCurrentFilter(name) }}
                             >
                                 {name}
                             </li>
