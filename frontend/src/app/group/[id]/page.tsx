@@ -89,10 +89,8 @@ export default function GroupPage() {
     }, [id, limit, offset, unauthorized, showChat]);
 
     useEffect(() => {
-        let ws: WebSocket | null = null;
-
         if (showChat && !unauthorized) {
-            ws = new WebSocket(
+            const ws = new WebSocket(
                 `ws://${process.env.NEXT_PUBLIC_API_URL}/api/groups/${id}/chatroom`
             );
 
@@ -105,9 +103,7 @@ export default function GroupPage() {
         }
 
         return () => {
-            if (ws) {
-                ws.close();
-            }
+            if (socket) socket.close();
             setSocket(null);
         };
     }, [id, unauthorized, showChat]);

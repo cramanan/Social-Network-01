@@ -183,25 +183,12 @@ func (store *SQLite3Store) GetMessagedUsers(ctx context.Context, userId string, 
 	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
-    WITH contacted AS (
-        SELECT DISTINCT m.recipient_id, u.nickname, u.image_path
-        FROM chats m JOIN users u
-        ON m.recipient_id = u.id
-        WHERE m.sender_id = ?
-        GROUP BY u.nickname
-        ORDER BY MAX(m.timestamp) DESC, u.nickname
-    ), not_contacted AS (
-        SELECT u.id, u.nickname, u.image_path
-        FROM users u
-        WHERE u.id NOT IN (SELECT recipient_id FROM contacted)
-        AND u.id != ?
-        ORDER BY u.nickname ASC
-    )
-
-    SELECT * FROM contacted
-    UNION ALL
-    SELECT * FROM not_contacted
-    LIMIT ? OFFSET ?;`,
+	SELECT DISTINCT c.recipient_id, u.nickname, u.image_path
+	FROM chats c JOIN users u
+	ON c.recipient_id = u.id
+	WHERE c.sender_id = ? OR c.recipient_id = ?
+	GROUP BY u.nickname
+	ORDER BY MAX(c.timestamp) DESC, u.nickname`,
 		userId,
 		userId,
 		limit,

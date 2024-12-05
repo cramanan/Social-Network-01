@@ -15,14 +15,14 @@ func (server *API) GetFollowRequests(writer http.ResponseWriter, request *http.R
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Retrieve the list of friend requests from the storage for the current user.
 	users, err := server.Storage.GetFollowRequests(request.Context(), sess.User.Id)
 	if err != nil {
 		// Return error if fetching friend requests fails.
-		return err 
+		return err
 	}
 
 	// Return the friend requests as a JSON response with HTTP Status OK.
@@ -41,7 +41,7 @@ func (server *API) SendFollowRequest(writer http.ResponseWriter, request *http.R
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Prevent the user from following themselves.
@@ -56,7 +56,7 @@ func (server *API) SendFollowRequest(writer http.ResponseWriter, request *http.R
 	follows, err := server.Storage.Follows(request.Context(), userId, sess.User.Id)
 	if err != nil {
 		// Return error if checking follow status fails.
-		return err 
+		return err
 	}
 
 	// Define the method to call based on whether the user is following or not.
@@ -81,7 +81,7 @@ func (server *API) SendFollowRequest(writer http.ResponseWriter, request *http.R
 	err = methodToUse(request.Context(), userId, sess.User.Id)
 	if err != nil {
 		// Return error if the operation fails.
-		return err 
+		return err
 	}
 
 	// Return a success response with "OK".
@@ -94,7 +94,7 @@ func (server *API) AcceptFollowRequest(writer http.ResponseWriter, request *http
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Retrieve the ID of the user whose friend request is being accepted.
@@ -104,7 +104,7 @@ func (server *API) AcceptFollowRequest(writer http.ResponseWriter, request *http
 	err = server.Storage.AcceptFollowRequest(request.Context(), sess.User.Id, followerId)
 	if err != nil {
 		// Return error if accepting the friend request fails.
-		return err 
+		return err
 	}
 
 	// Return a success response with HTTP Status OK.
@@ -117,7 +117,7 @@ func (server *API) DeclineFollowRequest(writer http.ResponseWriter, request *htt
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Retrieve the ID of the user whose friend request is being declined.
@@ -127,7 +127,7 @@ func (server *API) DeclineFollowRequest(writer http.ResponseWriter, request *htt
 	err = server.Storage.UnfollowUser(request.Context(), sess.User.Id, followerId)
 	if err != nil {
 		// Return error if declining the friend request fails.
-		return err 
+		return err
 	}
 
 	// Return a success response with HTTP Status OK.
@@ -145,7 +145,7 @@ func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Parse the limit and offset parameters from the request for pagination.
@@ -155,7 +155,7 @@ func (server *API) GetProfileFollowers(writer http.ResponseWriter, request *http
 	users, err := server.Storage.GetProfileFollowers(request.Context(), sess.User.Id, limit, offset)
 	if err != nil {
 		// Return error if fetching followers fails.
-		return err 
+		return err
 	}
 
 	// Return the list of followers as a JSON response with HTTP Status OK.
@@ -173,7 +173,7 @@ func (server *API) GetProfileFollowing(writer http.ResponseWriter, request *http
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// Return error if session retrieval fails.
-		return err 
+		return err
 	}
 
 	// Parse the limit and offset parameters from the request for pagination.
@@ -183,9 +183,15 @@ func (server *API) GetProfileFollowing(writer http.ResponseWriter, request *http
 	users, err := server.Storage.GetProfileFollowing(request.Context(), sess.User.Id, limit, offset)
 	if err != nil {
 		// Return error if fetching following list fails.
-		return err 
+		return err
+	}
+
+	onlineUsers := make([]types.OnlineUser, len(users))
+	for idx, user := range users {
+		onlineUsers[idx] = types.OnlineUser{User: &user}
+		_, onlineUsers[idx].Online = server.WebSocket.Users.Lookup(user.Id)
 	}
 
 	// Return the list of users the current user is following as a JSON response with HTTP Status OK.
-	return writeJSON(writer, http.StatusOK, users)
+	return writeJSON(writer, http.StatusOK, onlineUsers)
 }
