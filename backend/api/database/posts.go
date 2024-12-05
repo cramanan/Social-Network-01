@@ -334,3 +334,28 @@ func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limi
 
 	return posts, nil
 }
+
+func (store *SQLite3Store) UserIsSelectedForPost(ctx context.Context, userId, postId string) (selected bool) {
+	tx, err := store.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	err = tx.QueryRow(`
+	SELECT EXISTS(
+		SELECT 1 FROM post_visibility
+		WHERE post_id = ? AND user_id = ?
+	);`, postId, userId).Scan(&selected)
+
+	if err != nil {
+		return false
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return false
+	}
+
+	return selected
+}

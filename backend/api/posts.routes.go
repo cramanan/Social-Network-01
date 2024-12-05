@@ -7,16 +7,16 @@ import (
 	"Social-Network-01/api/types"
 )
 
-// Post handles the creation of a new post by the user. 
+// Post handles the creation of a new post by the user.
 // It processes a multipart form request, extracts post data, and stores the post in the database.
 func (server *API) Posts(writer http.ResponseWriter, request *http.Request) (err error) {
-    // Retrieve the session of the user making the request
-    sess, err := server.Sessions.GetSession(request)
-    if err != nil {
+	// Retrieve the session of the user making the request
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
 		// Return an error if session retrieval fails
-        return err 
-    }
-    // Ensure that the HTTP method is POST, as we are creating a new post
+		return err
+	}
+	// Ensure that the HTTP method is POST, as we are creating a new post
 	switch request.Method {
 	case http.MethodGet:
 		limit, offset := parseRequestLimitAndOffset(request)
@@ -24,50 +24,65 @@ func (server *API) Posts(writer http.ResponseWriter, request *http.Request) (err
 		if err != nil {
 			return err
 		}
-		return writeJSON(writer, http.StatusOK, posts)
+		filtered := []types.Post{}
+		var authorized bool
+		for _, post := range posts {
+			switch post.PrivacyLevel {
+			case "private":
+				authorized = server.Storage.Follows(request.Context(), post.UserId, sess.User.Id) || sess.User.Id == post.UserId
+			case "almost_private":
+				authorized = server.Storage.UserIsSelectedForPost(request.Context(), sess.User.Id, post.Id)
+			case "public":
+				authorized = true
+			}
+			if authorized {
+				filtered = append(filtered, post)
+			}
+		}
+		return writeJSON(writer, http.StatusOK, filtered)
 
 	case http.MethodPost:
-    // Parse the multipart form data (max 5MB in size)
-    err = request.ParseMultipartForm(5 * (1 << 20))
-    if err != nil {
-		// Return an error if parsing the form fails
-        return err 
-    }
+		// Parse the multipart form data (max 5MB in size)
+		err = request.ParseMultipartForm(5 * (1 << 20))
+		if err != nil {
+			// Return an error if parsing the form fails
+			return err
+		}
 
-	    post := new(types.Post)
+		post := new(types.Post)
 
-    // Check if the form contains the "data" field with post details
-	    data, ok := request.MultipartForm.Value["data"]
-	    if !ok || len(data) < 1 {
-	        return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "No content in request"))
-	    }
+		// Check if the form contains the "data" field with post details
+		data, ok := request.MultipartForm.Value["data"]
+		if !ok || len(data) < 1 {
+			return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest, "No content in request"))
+		}
 
-    // Unmarshal the "data" field into a Post object
-	    err = json.Unmarshal([]byte(data[0]), post)
-	    if err != nil {
-		// Return an error if unmarshalling fails
-	        return err 
-	    }
+		// Unmarshal the "data" field into a Post object
+		err = json.Unmarshal([]byte(data[0]), post)
+		if err != nil {
+			// Return an error if unmarshalling fails
+			return err
+		}
 
-    // Associate the post with the user making the request
-	    post.UserId = sess.User.Id
+		// Associate the post with the user making the request
+		post.UserId = sess.User.Id
 
-    // Extract any images attached to the post
-	    post.Images, err = MultiPartFiles(request)
-	    if err != nil {
-		// Return an error if there is an issue extracting the files
-	        return err 
-	    }
+		// Extract any images attached to the post
+		post.Images, err = MultiPartFiles(request)
+		if err != nil {
+			// Return an error if there is an issue extracting the files
+			return err
+		}
 
-    // Save the post in the database
-	    err = server.Storage.CreatePost(request.Context(), post)
-	    if err != nil {
-		// Return an error if saving the post fails
-	        return err 
-	    }
+		// Save the post in the database
+		err = server.Storage.CreatePost(request.Context(), post)
+		if err != nil {
+			// Return an error if saving the post fails
+			return err
+		}
 
-    // Respond with a success message and HTTP status code 201 (Created)
-	    return writeJSON(writer, http.StatusCreated, "Created")
+		// Respond with a success message and HTTP status code 201 (Created)
+		return writeJSON(writer, http.StatusCreated, "Created")
 
 	default:
 		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
@@ -76,66 +91,66 @@ func (server *API) Posts(writer http.ResponseWriter, request *http.Request) (err
 
 // GetPostById retrieves a post by its unique ID from the database.
 func (server *API) GetPostById(writer http.ResponseWriter, request *http.Request) (err error) {
-    // Ensure that the HTTP method is GET, as we are retrieving data
-    if request.Method != http.MethodGet {
-        return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
-    }
+	// Ensure that the HTTP method is GET, as we are retrieving data
+	if request.Method != http.MethodGet {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
 
-    // Retrieve the post ID from the request path
-    post, err := server.Storage.GetPost(request.Context(), request.PathValue("postid"))
-    if err != nil {
+	// Retrieve the post ID from the request path
+	post, err := server.Storage.GetPost(request.Context(), request.PathValue("postid"))
+	if err != nil {
 		// Return an error if the post is not found or other issues occur
-        return err 
-    }
+		return err
+	}
 
-    // Respond with the post data
-    return writeJSON(writer, http.StatusOK, post)
+	// Respond with the post data
+	return writeJSON(writer, http.StatusOK, post)
 }
 
 // LikePost allows a user to like a post by its unique ID.
 func (server *API) LikePost(writer http.ResponseWriter, request *http.Request) (err error) {
-    // Ensure that the HTTP method is POST, as we are performing an action (liking a post)
-    if request.Method != http.MethodPost {
-        return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
-    }
+	// Ensure that the HTTP method is POST, as we are performing an action (liking a post)
+	if request.Method != http.MethodPost {
+		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))
+	}
 
-    // Retrieve the session of the user making the request
-    sess, err := server.Sessions.GetSession(request)
-    if err != nil {
+	// Retrieve the session of the user making the request
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
 		// Return an error if session retrieval fails
-        return err 
-    }
+		return err
+	}
 
-    // Like the post by calling the storage layer
-    err = server.Storage.LikePost(request.Context(), sess.User.Id, request.PathValue("postid"))
-    if err != nil {
+	// Like the post by calling the storage layer
+	err = server.Storage.LikePost(request.Context(), sess.User.Id, request.PathValue("postid"))
+	if err != nil {
 		// Return an error if there is an issue with liking the post
-        return err 
-    }
+		return err
+	}
 
-    // Respond with a success message indicating the action was successful
-    return writeJSON(writer, http.StatusOK, "OK")
+	// Respond with a success message indicating the action was successful
+	return writeJSON(writer, http.StatusOK, "OK")
 }
 
 // ProfilePosts retrieves and returns all posts made by the user (profile posts).
 func (server *API) ProfilePosts(writer http.ResponseWriter, request *http.Request) (err error) {
-    // Retrieve the session of the user making the request
-    sess, err := server.Sessions.GetSession(request)
-    if err != nil {
+	// Retrieve the session of the user making the request
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
 		// Return an error if session retrieval fails
-        return err 
-    }
+		return err
+	}
 
-    // Parse the limit and offset parameters for pagination
-    limit, offset := parseRequestLimitAndOffset(request)
+	// Parse the limit and offset parameters for pagination
+	limit, offset := parseRequestLimitAndOffset(request)
 
-    // Retrieve the user's posts from the storage layer, using the provided pagination
-    posts, err := server.Storage.GetUserPosts(request.Context(), sess.User.Id, limit, offset)
-    if err != nil {
+	// Retrieve the user's posts from the storage layer, using the provided pagination
+	posts, err := server.Storage.GetUserPosts(request.Context(), sess.User.Id, limit, offset)
+	if err != nil {
 		// Return an error if there is an issue retrieving the posts
-        return err 
-    }
+		return err
+	}
 
-    // Respond with the retrieved posts data
-    return writeJSON(writer, http.StatusOK, posts)
+	// Respond with the retrieved posts data
+	return writeJSON(writer, http.StatusOK, posts)
 }

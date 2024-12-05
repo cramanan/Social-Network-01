@@ -53,11 +53,7 @@ func (server *API) SendFollowRequest(writer http.ResponseWriter, request *http.R
 	userId := request.PathValue("userid")
 
 	// Check if the current user already follows the target user.
-	follows, err := server.Storage.Follows(request.Context(), userId, sess.User.Id)
-	if err != nil {
-		// Return error if checking follow status fails.
-		return err
-	}
+	follows := server.Storage.Follows(request.Context(), userId, sess.User.Id)
 
 	// Define the method to call based on whether the user is following or not.
 	var methodToUse func(context.Context, string, string) error

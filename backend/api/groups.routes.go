@@ -81,8 +81,27 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 		return err
 	}
 
+	filtered := []types.Post{}
+	var authorized bool
+	for _, post := range posts {
+		switch post.PrivacyLevel {
+		case "private":
+			authorized = server.Storage.Follows(request.Context(), post.UserId, sess.User.Id) || sess.User.Id == post.UserId
+
+		case "almost_private":
+			authorized = server.Storage.UserIsSelectedForPost(request.Context(), sess.User.Id, post.Id)
+
+		case "public":
+			authorized = true
+		}
+
+		if authorized {
+			filtered = append(filtered, post)
+		}
+
+	}
 	// Return the posts as a JSON response with a 200 OK status.
-	return writeJSON(writer, http.StatusOK, posts)
+	return writeJSON(writer, http.StatusOK, filtered)
 }
 
 // Groups handles both creating a new group (POST method) and fetching existing groups (GET method).
