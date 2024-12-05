@@ -6,6 +6,8 @@ export type Post = {
     groupId: string | null;
     content: string;
     images: string[];
+    privacyLevel: "public" | "private" | "almost_private";
+    selectedUserIds: string[];
     timestamp: string;
 };
 

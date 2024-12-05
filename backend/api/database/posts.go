@@ -28,16 +28,19 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, post *types.Post) (er
 		return err
 	}
 
+	post.Id = id.String()
+
 	// TODO: Verify that the group exists, or ensure it can be nil.
 
 	// Insert the post into the database.
 	_, err = tx.ExecContext(ctx, `
-	INSERT INTO posts (id, user_id, group_id, content, timestamp) 
-	VALUES (?, ?, ?, ?, ?);`,
-		id.String(),
+	INSERT INTO posts (id, user_id, group_id, content, privacy_level, timestamp) 
+	VALUES (?, ?, ?, ?, ?, ?);`,
+		post.Id,
 		post.UserId,
 		post.GroupId,
 		post.Content,
+		post.PrivacyLevel,
 		time.Now(),
 	)
 	if err != nil {
@@ -58,6 +61,20 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, post *types.Post) (er
 		_, err = stmt.Exec(id.String(), image)
 		if err != nil {
 			return err
+		}
+	}
+
+	if post.PrivacyLevel == "almost_private" {
+		stmt, err = tx.PrepareContext(ctx, "INSERT INTO post_visibility (post_id, user_id) VALUES (?, ?);")
+		if err != nil {
+			return err
+		}
+
+		for _, ids := range post.SelectedUserIds {
+			_, err = stmt.ExecContext(ctx, post.Id, ids)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -86,6 +103,7 @@ func (store *SQLite3Store) GetPost(ctx context.Context, postId string) (post *ty
 		&post.UserId,
 		&post.GroupId,
 		&post.Content,
+		&post.PrivacyLevel,
 		&post.Timestamp,
 		&post.Username,
 		&post.UserImage,
@@ -161,6 +179,7 @@ func (store *SQLite3Store) GetGroupPosts(ctx context.Context, groupId *string, l
 			&post.UserId,
 			&post.GroupId,
 			&post.Content,
+			&post.PrivacyLevel,
 			&post.Timestamp,
 			&post.Username,
 			&post.UserImage)
@@ -277,6 +296,7 @@ func (store *SQLite3Store) GetUserPosts(ctx context.Context, userId string, limi
 			&post.UserId,
 			&post.GroupId,
 			&post.Content,
+			&post.PrivacyLevel,
 			&post.Timestamp,
 			&post.Username,
 			&post.UserImage)

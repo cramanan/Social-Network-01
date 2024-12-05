@@ -24,6 +24,10 @@ type Post struct {
 	// Images is a list of URLs or paths to images attached to the post.
 	Images []string `json:"images"`
 
+	PrivacyLevel string `json:"privacyLevel"`
+
+	SelectedUserIds []string `json:"selectedUserIds"`
+
 	// Timestamp is the time when the post was created.
 	Timestamp time.Time `json:"timestamp"`
 }

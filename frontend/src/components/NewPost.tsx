@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ProfileCircle } from "./icons/ProfileCircle";
 import { SendPostIcon } from "./icons/sendPostIcon";
 import { CloseIcon } from "./icons/CloseIcon";
@@ -8,8 +8,18 @@ import { ImageIcon } from "./icons/ImageIcon";
 import { Post } from "@/types/post";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
+import { User } from "@/types/user";
 
-type PostFields = Pick<Post, "groupId" | "content" | "images">;
+type PostFields = Pick<
+    Post,
+    "groupId" | "content" | "images" | "privacyLevel" | "selectedUserIds"
+>;
+
+const privacyLevels: Post["privacyLevel"][] = [
+    "public",
+    "private",
+    "almost_private",
+];
 
 export const NewPost = ({ groupId }: { groupId: string | null }) => {
     const { user } = useAuth();
@@ -17,7 +27,11 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
         content: "",
         images: [],
         groupId,
+        privacyLevel: "public",
+        selectedUserIds: [],
     });
+    const [userIds, setUserIds] = useState<User[]>([]);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
@@ -42,6 +56,16 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
 
         if (response.ok) toggleModal();
     };
+
+    useEffect(() => {
+        if (fields.privacyLevel !== "almost_private") return;
+        (async () => {
+            const response = await fetch("api/profile/followers");
+            const data: User[] = await response.json();
+
+            setUserIds(data);
+        })();
+    }, [fields.privacyLevel]);
 
     return (
         <>
@@ -86,43 +110,54 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                                 </button>
                             </div>
                             <div className="mt-5">
-                                <ul className="flex justify-between">
-                                    <li className="flex gap-2">
+                                {privacyLevels.map((level) => (
+                                    <div key={level}>
                                         <input
+                                            key={level}
                                             type="radio"
-                                            name="post_privacy"
-                                            id="public_post"
-                                            value="public"
-                                            defaultChecked
+                                            id={level}
+                                            name="privacyLevel"
+                                            value={level}
+                                            checked={
+                                                fields.privacyLevel === level
+                                            }
+                                            onChange={() =>
+                                                setFields({
+                                                    ...fields,
+                                                    privacyLevel: level,
+                                                })
+                                            }
                                         />
-                                        <label htmlFor="public_post">
-                                            Public
-                                        </label>
-                                    </li>
-                                    <li className="flex gap-2">
-                                        <input
-                                            type="radio"
-                                            name="post_privacy"
-                                            id="almost_private_post"
-                                            value="almost private"
-                                        />
-                                        <label htmlFor="almost_private_post">
-                                            Almost Private
-                                        </label>
-                                    </li>
-                                    <li className="flex gap-2">
-                                        <input
-                                            type="radio"
-                                            name="post_privacy"
-                                            id="private_post"
-                                            value="private"
-                                        />
-                                        <label htmlFor="private_post">
-                                            Private
-                                        </label>
-                                    </li>
-                                </ul>
+
+                                        <label htmlFor={level}>{level}</label>
+                                    </div>
+                                ))}
                             </div>
+                            {fields.privacyLevel === "almost_private" &&
+                                userIds.map((user, idx) => (
+                                    <div key={idx}>
+                                        <input
+                                            type="checkbox"
+                                            value={user.id}
+                                            onChange={(e) => {
+                                                const update = e.target.checked
+                                                    ? [
+                                                          ...fields.selectedUserIds,
+                                                          user.id,
+                                                      ]
+                                                    : fields.selectedUserIds.filter(
+                                                          (id) => id != user.id
+                                                      );
+
+                                                setFields({
+                                                    ...fields,
+                                                    selectedUserIds: update,
+                                                });
+                                            }}
+                                        />
+                                        <label>{user.nickname}</label>
+                                    </div>
+                                ))}
                             <textarea
                                 id="content"
                                 className="shadow-lg w-full px-12 py-4 mt-5 rounded-xl  bg-white text-black text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-gray-500 resize-none"
