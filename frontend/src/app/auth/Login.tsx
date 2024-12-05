@@ -38,7 +38,7 @@ export const Login = () => {
         try {
             await login(email, password);
             router.push("/");
-        } catch (error) {
+        } catch {
             setError("root", { message: "An error occurred during login" });
         }
     };

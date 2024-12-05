@@ -1,7 +1,7 @@
 "use client";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { ServerChat, SocketMessage, SocketMessageType } from "@/types/chat";
+import { SocketMessage, SocketMessageType } from "@/types/chat";
 import React, { PropsWithChildren, useState } from "react";
 
 type Toast = {
@@ -15,28 +15,13 @@ export default function NotificationLayout({ children }: PropsWithChildren) {
 
     const handleMessages = (msg: MessageEvent) => {
         try {
-            const message = JSON.parse(msg.data) as SocketMessage<ServerChat>;
+            const message = JSON.parse(msg.data) as SocketMessage<string>;
 
             const toast: Toast = {
                 type: message.type,
-                message: "",
+                message: message.data,
             };
 
-            switch (message.type) {
-                case "message":
-                    toast.message = "New Message";
-                    break;
-
-                case "ping":
-                    return;
-
-                case "follow-request":
-                    toast.message = "New Follow";
-                    break;
-
-                default:
-                    break;
-            }
             setToasts((prevToasts) => [...prevToasts, toast]);
             setTimeout(
                 () => setToasts((prev) => prev.filter((t) => t !== toast)),

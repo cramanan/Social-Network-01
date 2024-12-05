@@ -1,6 +1,6 @@
 "use client";
 
-import { OnlineUser, User } from "@/types/user";
+import { OnlineUser } from "@/types/user";
 import React, { useCallback, useEffect, useState } from "react";
 import Users from "./Users";
 import { useWebSocket } from "@/hooks/useWebSocket";

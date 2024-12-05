@@ -58,7 +58,7 @@ export const Register = () => {
                 dateOfBirth
             );
             router.push("/");
-        } catch (error) {}
+        } catch {}
     };
 
     return (

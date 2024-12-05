@@ -1,4 +1,9 @@
-export type SocketMessageType = "message" | "ping" | "follow-request";
+export type SocketMessageType =
+    | "message"
+    | "ping"
+    | "follow-request"
+    | "group-request"
+    | "group-invite";
 
 export type SocketMessage<T = unknown> = {
     type: SocketMessageType;

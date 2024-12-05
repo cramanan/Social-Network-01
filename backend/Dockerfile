@@ -4,8 +4,6 @@ COPY . .
 RUN go mod download
 RUN go build -o backend
 
-FROM builder AS development
-CMD ["go", "run", "main.go"]
 
 FROM debian:bookworm-slim AS runner
 WORKDIR /app

@@ -1,5 +1,4 @@
 "use client";
-import { useAuth } from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 
 const ProfileStats = ({ userId }: { userId: string }) => {
@@ -33,11 +32,17 @@ const ProfileStats = ({ userId }: { userId: string }) => {
                 <div className="font-bold">Likes</div>
                 <div className="text-black/50">{stats.numLikes}</div>
             </div>
-            <a href="/profile/following" className="flex flex-col items-center w-[86px]">
+            <a
+                href="/profile/following"
+                className="flex flex-col items-center w-[86px]"
+            >
                 <div className="font-bold">Follow(s)</div>
                 <div className="text-black/50">{stats.numFollowing}</div>
             </a>
-            <a href="/profile/followers" className="flex flex-col items-center w-[86px]">
+            <a
+                href="/profile/followers"
+                className="flex flex-col items-center w-[86px]"
+            >
                 <div className="font-bold">Follower(s)</div>
                 <div className="text-black/50">{stats.numFollowers}</div>
             </a>

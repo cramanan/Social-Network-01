@@ -89,21 +89,21 @@ export default function GroupPage() {
     }, [id, limit, offset, unauthorized, showChat]);
 
     useEffect(() => {
-        if (showChat && !unauthorized) {
-            const ws = new WebSocket(
-                `ws://${process.env.NEXT_PUBLIC_API_URL}/api/groups/${id}/chatroom`
-            );
+        if (!showChat && unauthorized) return;
 
-            ws.addEventListener("message", (msg) => {
-                const message = JSON.parse(msg.data) as ServerChat;
-                setMessages((prev) => [...prev, message]);
-            });
+        const ws = new WebSocket(
+            `ws://${process.env.NEXT_PUBLIC_API_URL}/api/groups/${id}/chatroom`
+        );
 
-            setSocket(ws);
-        }
+        ws.addEventListener("message", (msg) => {
+            const message = JSON.parse(msg.data) as ServerChat;
+            setMessages((prev) => [...prev, message]);
+        });
+
+        setSocket(ws);
 
         return () => {
-            if (socket) socket.close();
+            ws.close();
             setSocket(null);
         };
     }, [id, unauthorized, showChat]);
