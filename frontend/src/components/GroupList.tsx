@@ -17,8 +17,8 @@ export const GroupList = () => {
     return (
         <>
             <div className="w-full overflow-scroll no-scrollbar">
-                <div className="w-full grid grid-cols-4 gap-5 mt-5">
-                    {groups.map((group, idx) => (
+                <div className={`w-full ${groups.length > 0 && "grid grid-cols-4 gap-5"} mt-5`}>
+                    {groups.length > 0 ? (groups.map((group, idx) => (
                         <Link
                             key={idx}
                             href={`/group/${group.id}`}
@@ -32,7 +32,12 @@ export const GroupList = () => {
                             />
                             <span>{group.name}</span>
                         </Link>
-                    ))}
+                    )))
+                        :
+                        <p className=" text-center font-bold">
+                            No group(s) found.
+                        </p>
+                    }
                 </div>
             </div>
         </>
