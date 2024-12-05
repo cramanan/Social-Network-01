@@ -238,6 +238,16 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 		return writeJSON(writer, http.StatusConflict, HTTPerror(http.StatusConflict))
 	}
 
+	if conn, ok := server.WebSocket.Users.Lookup(payload.UserId); ok {
+		group, err := server.Storage.GetGroup(request.Context(), payload.GroupId)
+		if err == nil {
+			conn.WriteJSON(types.SocketMessage[string]{
+				Type: "group-invite",
+				Data: fmt.Sprintf("%s invited you to %s", sess.User.Nickname, group.Name),
+			})
+		}
+	}
+
 	// Add the user to the group (invited user).
 	return server.Storage.UserJoinGroup(request.Context(), payload.UserId, payload.GroupId, false)
 }
@@ -301,6 +311,15 @@ func (server *API) RequestGroup(writer http.ResponseWriter, request *http.Reques
 	err = server.Storage.UserJoinGroup(request.Context(), sess.User.Id, groupid, true)
 	if err != nil {
 		return err
+	}
+	group, err := server.Storage.GetGroup(request.Context(), groupid)
+	if err == nil {
+		if conn, ok := server.WebSocket.Users.Lookup(group.Owner); ok {
+			conn.WriteJSON(types.SocketMessage[string]{
+				Type: "group-request",
+				Data: fmt.Sprintf("%s wants to join %s", sess.User.Nickname, group.Name),
+			})
+		}
 	}
 
 	// Return a success response with HTTP Status OK.
