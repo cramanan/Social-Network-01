@@ -261,16 +261,18 @@ export default function GroupPage() {
                                                     return (
                                                         <li
                                                             key={idx}
-                                                            className={`flex flex-col ${isCurrentUser
-                                                                ? "self-end items-end"
-                                                                : "self-start"
-                                                                } mb-3`}
+                                                            className={`flex flex-col ${
+                                                                isCurrentUser
+                                                                    ? "self-end items-end"
+                                                                    : "self-start"
+                                                            } mb-3`}
                                                         >
                                                             <p
-                                                                className={`p-3 rounded-2xl w-fit max-w-[80%] break-words ${isCurrentUser
-                                                                    ? "bg-[#b88ee5] text-black"
-                                                                    : "bg-[#4174e2] text-white"
-                                                                    }`}
+                                                                className={`p-3 rounded-2xl w-fit max-w-[80%] break-words ${
+                                                                    isCurrentUser
+                                                                        ? "bg-[#b88ee5] text-black"
+                                                                        : "bg-[#4174e2] text-white"
+                                                                }`}
                                                             >
                                                                 {content}
                                                             </p>
