@@ -3,8 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { string, z, ZodType } from "zod";
-import { useState } from 'react';
-import {useRouter} from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 type LoginFields = {
     email: string;
@@ -18,30 +17,29 @@ const LoginSchema: ZodType<LoginFields> = z.object({
         .max(100, "Email is too long"),
     password: string()
         .min(6, "Password must be at least 6 characters")
-        .max(50, "Password is too long")
+        .max(50, "Password is too long"),
 });
 
 export const Login = () => {
     const router = useRouter();
-    const [submitError, setSubmitError] = useState<string>("");
     const {
         register,
         handleSubmit,
+        setError,
         formState: { errors, isSubmitting },
-    } = useForm<LoginFields>({ 
+    } = useForm<LoginFields>({
         resolver: zodResolver(LoginSchema),
-        mode: "onChange"
+        mode: "onChange",
     });
 
     const { login } = useAuth();
 
     const onSubmit = async ({ email, password }: LoginFields) => {
-        setSubmitError("");
         try {
             await login(email, password);
-            router.push('/')
+            router.push("/");
         } catch (error) {
-            setSubmitError(error.message || "An error occurred during login");
+            setError("root", { message: "An error occurred during login" });
         }
     };
 
@@ -90,14 +88,9 @@ export const Login = () => {
                         disabled={isSubmitting}
                         className="w-2/4 bg-white mb-3 hover:bg-violet-100 text-black border-r border-l border-black font-bold py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isSubmitting ? 'Logging in...' : 'Log in'}
+                        {isSubmitting ? "Logging in..." : "Log in"}
                     </button>
-                    
-                    {submitError && (
-                        <div className="text-red-500 text-sm mt-2">
-                            {submitError}
-                        </div>
-                    )}
+
                     {errors.root && (
                         <div className="text-red-500 text-sm mt-2">
                             {errors.root.message}

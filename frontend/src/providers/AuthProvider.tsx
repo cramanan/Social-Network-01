@@ -10,20 +10,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password: string) => {
         setLoading(true);
-        try {
-            const response = await fetch("/api/login", {
-                headers: { "Content-Type": "application/json" },
-                method: "POST",
-                body: JSON.stringify({ email, password }),
-            });
-            if (!response.ok) throw new Error("Signup failed");
-            const data: User = await response.json();
-            setUser(data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
+        const response = await fetch("/api/login", {
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+        });
+        if (!response.ok) throw new Error("Signup failed");
+        const data: User = await response.json();
+        setUser(data);
+        setLoading(false);
     };
 
     const signup = async (
@@ -35,39 +30,30 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         dateOfBirth: string
     ) => {
         setLoading(true);
-        try {
-            const response = await fetch("/api/register", {
-                headers: { "Content-Type": "application/json" },
-                method: "POST",
-                body: JSON.stringify({
-                    nickname,
-                    email,
-                    password,
-                    firstName,
-                    lastName,
-                    dateOfBirth,
-                }),
-            });
-            if (!response.ok) throw new Error("Signup failed");
-            const data: User = await response.json();
-            setUser(data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
+        const response = await fetch("/api/register", {
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
+            body: JSON.stringify({
+                nickname,
+                email,
+                password,
+                firstName,
+                lastName,
+                dateOfBirth,
+            }),
+        });
+        if (!response.ok) throw new Error("Signup failed");
+        const data: User = await response.json();
+        setUser(data);
+
+        setLoading(false);
     };
 
     const logout = async () => {
         setLoading(true);
-        try {
-            await fetch("/api/logout");
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setUser(null);
-            setLoading(false);
-        }
+        await fetch("/api/logout");
+        setUser(null);
+        setLoading(false);
     };
 
     useEffect(() => {

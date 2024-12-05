@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 
@@ -25,24 +26,40 @@ const RegisterSchema: ZodType<RegisterFields> = z.object({
     nickname: z.string(),
     firstName: z.string(),
     lastName: z.string(),
-    dateOfBirth: z.string().date("invalid date"),
+    dateOfBirth: z.string().date("Invalid Date"),
 });
 
 export const Register = () => {
-    const { register, handleSubmit } = useForm<RegisterFields>({
+    const router = useRouter();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<RegisterFields>({
         resolver: zodResolver(RegisterSchema),
     });
     const { signup } = useAuth();
 
-    const onSubmit = ({
+    const onSubmit = async ({
         nickname,
         email,
         password,
         firstName,
         lastName,
         dateOfBirth,
-    }: RegisterFields) =>
-        signup(nickname, email, password, firstName, lastName, dateOfBirth);
+    }: RegisterFields) => {
+        try {
+            await signup(
+                nickname,
+                email,
+                password,
+                firstName,
+                lastName,
+                dateOfBirth
+            );
+            router.push("/");
+        } catch (error) {}
+    };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -65,6 +82,11 @@ export const Register = () => {
                         placeholder="Email"
                         aria-label="Email"
                     />
+                    {errors.email && (
+                        <span className="text-red-500 text-sm mb-2">
+                            {errors.email.message}
+                        </span>
+                    )}
                     <input
                         type="password"
                         {...register("password")}
@@ -72,6 +94,11 @@ export const Register = () => {
                         placeholder="Password"
                         aria-label="Password"
                     />
+                    {errors.password && (
+                        <span className="text-red-500 text-sm mb-2">
+                            {errors.password.message}
+                        </span>
+                    )}
                     <input
                         type="text"
                         {...register("firstName")}
@@ -95,10 +122,19 @@ export const Register = () => {
                         placeholder="Date of birth"
                         aria-label="Date of birth"
                     />
+                    {errors.dateOfBirth && (
+                        <span className="text-red-500 text-sm mb-2">
+                            {errors.dateOfBirth.message}
+                        </span>
+                    )}
                 </div>
                 <div className="flex justify-center w-full">
-                    <button type="submit" className="w-2/4 bg-white mb-4 hover:bg-violet-100 text-black border-r border-l border-black font-bold py-2 px-4 rounded-md">
-                        Sign in
+                    <button
+                        disabled={isSubmitting}
+                        type="submit"
+                        className="w-2/4 bg-white mb-4 hover:bg-violet-100 text-black border-r border-l border-black font-bold py-2 px-4 rounded-md"
+                    >
+                        {isSubmitting ? "Signing in..." : "Sign in"}
                     </button>
                 </div>
             </div>

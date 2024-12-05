@@ -11,15 +11,15 @@ type ContextType = {
         firstName: string,
         lastName: string,
         dateOfBirth: string
-    ) => void;
-    login: (email: string, password: string) => void;
-    logout: () => void;
+    ) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    logout: () => Promise<void>;
 };
 
 export const authContext = createContext<ContextType>({
     user: null,
     loading: false,
-    signup: () => {},
-    login: () => {},
-    logout: () => {},
+    signup: async () => {},
+    login: async () => {},
+    logout: async () => {},
 });
