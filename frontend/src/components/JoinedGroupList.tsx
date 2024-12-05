@@ -16,29 +16,30 @@ export const JoinedGroupList = () => {
     }, [limit, offset]);
     return (
         <>
-            <ul>
-                {groups.length > 0 ? (groups.map((group, idx) => (
-                    <Link
-                        key={idx}
-                        href={`/group/${group.id}`}
-                        className="flex flex-col justify-center items-center"
-                    >
-                        <Image
-                            src={group.image}
-                            alt=""
-                            width={56}
-                            height={56}
-                        />
-                        <span>{group.name}</span>
-                    </Link>
-                )))
-                    :
-                    <p className="text-center font-bold">
-                        No joined group(s) found.
-                    </p>
-                }
-
-            </ul>
+            <div className="w-full overflow-scroll no-scrollbar">
+                <div className={`w-full ${groups.length > 0 && "grid grid-cols-4 gap-5"} mt-5`}>
+                    {groups.length > 0 ? (groups.map((group, idx) => (
+                        <Link
+                            key={idx}
+                            href={`/group/${group.id}`}
+                            className="flex flex-col justify-center items-center"
+                        >
+                            <Image
+                                src={group.image}
+                                alt=""
+                                width={56}
+                                height={56}
+                            />
+                            <span>{group.name}</span>
+                        </Link>
+                    )))
+                        :
+                        <p className=" text-center font-bold">
+                            No joined group(s) found.
+                        </p>
+                    }
+                </div>
+            </div>
         </>
     )
 }

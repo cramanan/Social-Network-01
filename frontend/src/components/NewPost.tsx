@@ -69,7 +69,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                         <div className="border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg  w-1/2 ">
                             <div className="flex justify-between">
                                 <h2 className="text-xl text-white font-semibold flex justify-center items-center gap-4 ">
-                                    <Image src={user?.image ?? "/Default_pfp.jpg"} width={40} height={40} alt="" className="w-auto h-auto rounded-full" />
+                                    <Image src={user?.image ?? "/Default_pfp.jpg"} width={40} height={40} alt="" className="w-10 h-10 rounded-full" />
                                     New Post
                                 </h2>
                                 <button

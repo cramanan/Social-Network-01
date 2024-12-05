@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 
 export const GroupList = () => {
     const [groups, setGroups] = useState<Group[]>([]);
-    const { limit, offset, next, previous } = useQueryParams();
+    const { limit, offset } = useQueryParams();
 
     useEffect(() => {
         fetch(`/api/groups?limit=${limit}&offset=${offset}`)
@@ -17,7 +17,7 @@ export const GroupList = () => {
     return (
         <>
             <div className="w-full overflow-scroll no-scrollbar">
-                <div className="w-full grid grid-cols-4 gap-5">
+                <div className="w-full grid grid-cols-4 gap-5 mt-5">
                     {groups.map((group, idx) => (
                         <Link
                             key={idx}
@@ -34,12 +34,6 @@ export const GroupList = () => {
                         </Link>
                     ))}
                 </div>
-                <button className="block" onClick={next}>
-                    next
-                </button>
-                <button className="block" onClick={previous}>
-                    previous
-                </button>
             </div>
         </>
     );
