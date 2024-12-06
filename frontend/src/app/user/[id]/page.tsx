@@ -12,17 +12,17 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-    const [user, setUser] = useState<User | null>();
+    const [user, setUser] = useState<(User & { followed: boolean }) | null>();
     const { id } = useParams<{ id: string }>();
     const [posts, setPosts] = useState<Post[]>([]);
-    const [isNotFollowing, setIsNotFollowing] = useState(false)
+    const [isNotFollowing, setIsNotFollowing] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
             const response = await fetch(`/api/users/${id}`);
             setIsNotFollowing(() => {
-                return response.status === 401
-            })
+                return response.status === 401;
+            });
 
             const user = await response.json();
             setUser(user);
@@ -53,8 +53,8 @@ export default function Page() {
 
                     <FollowButton {...user} />
 
-                    {!user.isPrivate || !isNotFollowing ?
-                        (<div className="flex flex-col h-[calc(100vh-360px)] overflow-scroll no-scrollbar gap-2 pb-2 xl:w-[1000px] xl:h-[calc(100vh-300px)]">
+                    {!user.isPrivate || !isNotFollowing ? (
+                        <div className="flex flex-col h-[calc(100vh-360px)] overflow-scroll no-scrollbar gap-2 pb-2 xl:w-[1000px] xl:h-[calc(100vh-300px)]">
                             {posts.length > 0 ? (
                                 posts.map((post, idx) =>
                                     post.images.length > 0 ? (
@@ -64,12 +64,16 @@ export default function Page() {
                                     )
                                 )
                             ) : (
-                                <p className="text-3xl font-bold text-center mt-10">No posts found</p>
+                                <p className="text-3xl font-bold text-center mt-10">
+                                    No posts found
+                                </p>
                             )}
-                        </div>)
-                        :
-                        (<h2 className="font-bold text-5xl">Account is in private</h2>)
-                    }
+                        </div>
+                    ) : (
+                        <h2 className="font-bold text-5xl">
+                            Account is in private
+                        </h2>
+                    )}
                 </div>
             </HomeProfileLayout>
         </>
