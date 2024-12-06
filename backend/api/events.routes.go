@@ -4,6 +4,8 @@ import (
 	"Social-Network-01/api/types"
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -14,7 +16,7 @@ func (server *API) RegisterUserToEvent(writer http.ResponseWriter, request *http
 	sess, err := server.Sessions.GetSession(request)
 	if err != nil {
 		// If session retrieval fails, return the error.
-		return err 
+		return err
 	}
 
 	// Switch based on the HTTP method for the request.
@@ -32,8 +34,18 @@ func (server *API) RegisterUserToEvent(writer http.ResponseWriter, request *http
 // Events handles the creation and retrieval of events in a group.
 // It supports POST (to create an event) and GET (to retrieve events).
 func (server *API) Events(writer http.ResponseWriter, request *http.Request) (err error) {
+	sess, err := server.Sessions.GetSession(request)
+	if err != nil {
+		return err
+	}
+
 	// Retrieve the group ID from the URL path.
 	groupId := request.PathValue("groupid")
+
+	allowed := server.Storage.UserInGroup(request.Context(), groupId, sess.User.Id)
+	if !allowed {
+		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
+	}
 
 	// Switch based on the HTTP method for the request.
 	switch request.Method {
@@ -43,7 +55,7 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 		err = json.NewDecoder(request.Body).Decode(&event)
 		if err != nil {
 			// If decoding fails, return the error.
-			return err 
+			return err
 		}
 
 		// Set the group ID for the event.
@@ -57,14 +69,35 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 		}
 
 		// Store the event in the database.
-		return server.Storage.CreateEvent(context.TODO(), event)
+		err = server.Storage.CreateEvent(context.TODO(), event)
+		if err != nil {
+			return err
+		}
+
+		var members []types.User
+		members, err = server.Storage.GetGroupMembers(request.Context(), groupId, -1, 0)
+		if err != nil {
+			return err
+		}
+
+		for _, member := range members {
+			log.Println(member)
+			if conn, ok := server.WebSocket.Users.Lookup(member.Id); ok {
+				conn.WriteJSON(types.SocketMessage[string]{
+					Type: "event",
+					Data: fmt.Sprintf("%s created a new event: %s", sess.User.Nickname, event.Title),
+				})
+			}
+		}
+
+		return
 
 	case http.MethodGet:
 		// If the method is GET, retrieve the session for the current user.
 		sess, err := server.Sessions.GetSession(request)
 		if err != nil {
 			// If session retrieval fails, return the error.
-			return err 
+			return err
 		}
 
 		// Parse the limit and offset parameters from the request.
@@ -74,7 +107,7 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 		events, err := server.Storage.GetEvents(context.TODO(), sess.User.Id, groupId, limit, offset)
 		if err != nil {
 			// If event retrieval fails, return the error.
-			return err 
+			return err
 		}
 
 		// Write the events to the response in JSON format with HTTP status OK.
@@ -85,4 +118,3 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 		return writeJSON(writer, http.StatusMethodNotAllowed, "Method not allowed")
 	}
 }
-

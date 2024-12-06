@@ -1,7 +1,7 @@
 "use client";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { SocketMessage, SocketMessageType } from "@/types/chat";
+import { ServerChat, SocketMessage, SocketMessageType } from "@/types/chat";
 import React, { PropsWithChildren, useState } from "react";
 
 type Toast = {
@@ -15,12 +15,24 @@ export default function NotificationLayout({ children }: PropsWithChildren) {
 
     const handleMessages = (msg: MessageEvent) => {
         try {
-            const message = JSON.parse(msg.data) as SocketMessage<string>;
+            const message = JSON.parse(msg.data) as SocketMessage;
 
             const toast: Toast = {
                 type: message.type,
-                message: message.data,
+                message: "",
             };
+
+            switch (message.type) {
+                case "event":
+                case "group-request":
+                case "group-invite":
+                case "follow-request":
+                    toast.message = message.data as string;
+                    break;
+
+                default:
+                    return;
+            }
 
             setToasts((prevToasts) => [...prevToasts, toast]);
             setTimeout(

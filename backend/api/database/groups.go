@@ -388,11 +388,11 @@ func (store *SQLite3Store) DeclineGroupInvite(ctx context.Context, userId, group
 // - `guestId`: The ID of the user being invited.
 // - `groupId`: The ID of the group.
 // Returns a boolean indicating if the invitation is allowed and/or an SQL error.
-func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId string) (inGroup bool, err error) {
+func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId string) (inGroup bool) {
 	// Start a transaction.
 	tx, err := store.BeginTx(ctx, nil)
 	if err != nil {
-		return false, err
+		return false
 	}
 	// Ensure transaction rollback on error.
 	defer tx.Rollback()
@@ -408,10 +408,10 @@ func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId stri
 		WHERE id = ?
 	);`, groupId, userId).Scan(&exists)
 	if err != nil {
-		return false, err
+		return false
 	}
 	if !exists {
-		return false, fmt.Errorf("error: group or user does not exists")
+		return false
 	}
 
 	// Query to check if the user is neither a member nor the group owner.
@@ -424,9 +424,15 @@ func (store *SQLite3Store) UserInGroup(ctx context.Context, groupId, userId stri
 		WHERE group_id = ? AND user_id = ? AND accepted = TRUE
 	);`, groupId, userId, groupId, userId).Scan(&inGroup)
 	if err != nil {
-		return false, err
+		return false
 	}
-	return inGroup, tx.Commit()
+
+	err = tx.Commit()
+	if err != nil {
+		return false
+	}
+
+	return inGroup
 }
 
 func (store *SQLite3Store) GetGroupMembers(ctx context.Context, groupId string, limit, offset int) (users []types.User, err error) {
@@ -438,14 +444,14 @@ func (store *SQLite3Store) GetGroupMembers(ctx context.Context, groupId string, 
 	defer tx.Rollback()
 
 	rows, err := tx.QueryContext(ctx, `
-	SELECT u.nickname
+	SELECT u.id, u.nickname
 	FROM groups g JOIN users u
 	ON g.owner = u.id
 	WHERE g.id = ?
 
 	UNION
 
-	SELECT u.nickname
+	SELECT u.id, u.nickname
 	FROM groups_record gr JOIN users u
 	ON gr.user_id = u.id
 	WHERE gr.group_id = ? AND gr.accepted = TRUE
@@ -458,6 +464,7 @@ func (store *SQLite3Store) GetGroupMembers(ctx context.Context, groupId string, 
 	for rows.Next() {
 		var user types.User
 		err = rows.Scan(
+			&user.Id,
 			&user.Nickname,
 		)
 		if err != nil {

@@ -37,10 +37,7 @@ func (server *API) Group(writer http.ResponseWriter, request *http.Request) erro
 		return err
 	}
 
-	ok, err := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
-	if err != nil {
-		return err
-	}
+	ok := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
 
 	if !ok {
 		return writeJSON(writer, http.StatusUnauthorized, group)
@@ -63,11 +60,8 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 	}
 
 	groupid := request.PathValue("groupid")
-	inGroup, err := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
-	if err != nil {
-		return err
-	}
 
+	inGroup := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
 	if !inGroup {
 		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
 	}
@@ -219,21 +213,13 @@ func (server *API) InviteUserIntoGroup(writer http.ResponseWriter, request *http
 		return writeJSON(writer, http.StatusBadRequest, HTTPerror(http.StatusBadRequest))
 	}
 
-	hostInGroup, err := server.Storage.UserInGroup(request.Context(), payload.GroupId, sess.User.Id)
-	if err != nil {
-		// Return error if checking permission fails.
-		return err
-	}
-
+	hostInGroup := server.Storage.UserInGroup(request.Context(), payload.GroupId, sess.User.Id)
 	if !hostInGroup {
 		// Return a 401 Unauthorized error if the user is not allowed to invite the other user.
 		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
 	}
 
-	guestInGroup, err := server.Storage.UserInGroup(request.Context(), payload.GroupId, payload.UserId)
-	if err != nil {
-		return err
-	}
+	guestInGroup := server.Storage.UserInGroup(request.Context(), payload.GroupId, payload.UserId)
 	if guestInGroup {
 		return writeJSON(writer, http.StatusConflict, HTTPerror(http.StatusConflict))
 	}
@@ -363,11 +349,7 @@ func (server *API) GetGroupMembers(writer http.ResponseWriter, request *http.Req
 
 	groupid := request.PathValue("groupid")
 
-	ok, err := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
-	if err != nil {
-		return err
-	}
-
+	ok := server.Storage.UserInGroup(request.Context(), groupid, sess.User.Id)
 	if !ok {
 		return writeJSON(writer, http.StatusUnauthorized, HTTPerror(http.StatusUnauthorized))
 	}

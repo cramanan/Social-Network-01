@@ -3,7 +3,8 @@ export type SocketMessageType =
     | "ping"
     | "follow-request"
     | "group-request"
-    | "group-invite";
+    | "group-invite"
+    | "event";
 
 export type SocketMessage<T = unknown> = {
     type: SocketMessageType;
