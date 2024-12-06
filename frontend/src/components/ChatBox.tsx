@@ -43,13 +43,14 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
         };
 
         websocket.socket.addEventListener("message", addMessage);
-        return () => websocket.socket.removeEventListener("message", addMessage);
+        return () =>
+            websocket.socket.removeEventListener("message", addMessage);
     }, [websocket]);
 
     const HandleEmoji = (emojiData: EmojiClickData) => {
-        setChat(prev => ({
+        setChat((prev) => ({
             ...prev,
-            content: prev.content + emojiData.emoji
+            content: prev.content + emojiData.emoji,
         }));
         setEmojiPicker(false);
     };
@@ -81,7 +82,9 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                         <li
                             key={index}
                             className={`flex flex-col ${
-                                isRecipient ? "self-end items-end" : "self-start"
+                                isRecipient
+                                    ? "self-end items-end"
+                                    : "self-start"
                             }`}
                         >
                             <p
@@ -112,13 +115,20 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                 onSubmit={(e) => {
                     e.preventDefault();
                     websocket.sendChat(chat);
-                    setMessages((prev) => [...prev, { senderId: '', timestamp: '', ...chat }]);
+                    setMessages((prev) => [
+                        ...prev,
+                        {
+                            senderId: "",
+                            timestamp: new Date().toString(),
+                            ...chat,
+                        },
+                    ]);
                     setChat({ ...chat, content: "" });
                 }}
                 className="h-[50px] flex flex-row items-center m-5 bg-[#445ab3]/20 rounded-[25px] p-2 gap-2"
             >
-                <button 
-                    type="button" 
+                <button
+                    type="button"
                     onClick={() => setEmojiPicker(!EmojiPick)}
                 >
                     <EmoteIcon />
@@ -126,7 +136,9 @@ const ChatBox = ({ onClose, recipient }: ChatBoxProps) => {
                 <input
                     type="text"
                     placeholder="Enter your message"
-                    onChange={(e) => setChat({ ...chat, content: e.target.value })}
+                    onChange={(e) =>
+                        setChat({ ...chat, content: e.target.value })
+                    }
                     value={chat.content}
                     className="bg-white/0 w-full placeholder:text-black"
                 />

@@ -15,7 +15,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
             method: "POST",
             body: JSON.stringify({ email, password }),
         });
-        if (!response.ok) throw new Error("Signup failed");
+        if (!response.ok) throw await response.json();
         const data: User = await response.json();
         setUser(data);
         setLoading(false);
@@ -42,7 +42,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                 dateOfBirth,
             }),
         });
-        if (!response.ok) throw new Error("Signup failed");
+        if (!response.ok) throw await response.json();
         const data: User = await response.json();
         setUser(data);
 

@@ -34,6 +34,7 @@ export const Register = () => {
     const {
         register,
         handleSubmit,
+        setError,
         formState: { errors, isSubmitting },
     } = useForm<RegisterFields>({
         resolver: zodResolver(RegisterSchema),
@@ -58,7 +59,11 @@ export const Register = () => {
                 dateOfBirth
             );
             router.push("/");
-        } catch {}
+        } catch (error: any) {
+            if (error.message) setError("root", { message: error.message });
+            else
+                setError("root", { message: "An error occurred during login" });
+        }
     };
 
     return (
@@ -126,6 +131,11 @@ export const Register = () => {
                         <span className="text-red-500 text-sm mb-2">
                             {errors.dateOfBirth.message}
                         </span>
+                    )}
+                    {errors.root && (
+                        <div className="text-red-500 text-sm">
+                            {errors.root.message}
+                        </div>
                     )}
                 </div>
                 <div className="flex justify-center w-full">

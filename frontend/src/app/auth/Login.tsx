@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { string, z, ZodType } from "zod";
 import { useRouter } from "next/navigation";
+import { ApiError } from "next/dist/server/api-utils";
 
 type LoginFields = {
     email: string;
@@ -19,6 +20,12 @@ const LoginSchema: ZodType<LoginFields> = z.object({
         .min(6, "Password must be at least 6 characters")
         .max(50, "Password is too long"),
 });
+
+type APIError = {
+    status: number;
+    statusText: string;
+    message: string;
+};
 
 export const Login = () => {
     const router = useRouter();
@@ -38,8 +45,10 @@ export const Login = () => {
         try {
             await login(email, password);
             router.push("/");
-        } catch {
-            setError("root", { message: "An error occurred during login" });
+        } catch (error: any) {
+            if (error.message) setError("root", { message: error.message });
+            else
+                setError("root", { message: "An error occurred during login" });
         }
     };
 
