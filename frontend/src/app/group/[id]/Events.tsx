@@ -8,6 +8,9 @@ export default function Events({ groupId }: { groupId: string }) {
     const { limit, offset } = useQueryParams();
     const [events, setEvents] = useState<Event[]>([]);
 
+    const registerToEvent = (id: string) => async () =>
+        await fetch(`/api/groups/${groupId}/events/${id}`, { method: "POST" });
+
     useEffect(() => {
         const fetchEvents = async () => {
             const response = await fetch(
@@ -23,8 +26,8 @@ export default function Events({ groupId }: { groupId: string }) {
 
     return (
         <>
-            {events.length > 0 ?
-                (<ul className="flex flex-col gap-2">
+            {events.length > 0 ? (
+                <ul className="flex flex-col gap-2">
                     {events.map((event, idx) => (
                         <li key={idx}>
                             <h3>{event.title}</h3>
@@ -35,15 +38,15 @@ export default function Events({ groupId }: { groupId: string }) {
                                 type="checkbox"
                                 name="going"
                                 defaultChecked={event.going}
-                                onChange={console.log}
+                                onChange={registerToEvent(event.id)}
                                 id="going"
                             />
                         </li>
                     ))}
-                </ul>)
-                :
-                (<span>No events</span>)
-            }
+                </ul>
+            ) : (
+                <span>No events</span>
+            )}
         </>
     );
 }
