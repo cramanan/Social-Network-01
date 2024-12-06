@@ -117,23 +117,29 @@ func (server *API) User(writer http.ResponseWriter, request *http.Request) (err 
 			return err
 		}
 
-		// If the user is private and not followed by the current user, hide personal information
-		if !user.IsPrivate || sess.User.Id == userId {
-			return writeJSON(writer, http.StatusOK, user)
+		userWithFollowStatus := struct {
+			*types.User
+			Followed bool `json:"followed"`
+		}{
+			User:     user,
+			Followed: server.Storage.Follows(request.Context(), userId, sess.User.Id),
 		}
 
-		// Check if the current user follows the requested user
-		follows := server.Storage.Follows(request.Context(), userId, sess.User.Id)
-		if !follows {
+		// If the user is private and not followed by the current user, hide personal information
+		if !user.IsPrivate || sess.User.Id == userId {
+			return writeJSON(writer, http.StatusOK, userWithFollowStatus)
+		}
+
+		if !userWithFollowStatus.Followed {
 			// Hide sensitive data if the current user does not follow the user
 			user.Email = ""
 			user.FirstName = ""
 			user.LastName = ""
 			user.AboutMe = nil
-			return writeJSON(writer, http.StatusUnauthorized, user)
+			return writeJSON(writer, http.StatusUnauthorized, userWithFollowStatus)
 		}
 
-		return writeJSON(writer, http.StatusOK, user)
+		return writeJSON(writer, http.StatusOK, userWithFollowStatus)
 
 	default:
 		return writeJSON(writer, http.StatusMethodNotAllowed, HTTPerror(http.StatusMethodNotAllowed))

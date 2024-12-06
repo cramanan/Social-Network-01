@@ -7,6 +7,5 @@ require (
 	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/mattn/go-sqlite3 v1.14.22
 	golang.org/x/crypto v0.27.0
+	github.com/gorilla/websocket v1.5.3 // indirect
 )
-
-require github.com/gorilla/websocket v1.5.3 // indirect

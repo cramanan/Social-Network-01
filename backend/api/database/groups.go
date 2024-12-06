@@ -71,7 +71,7 @@ func (store *SQLite3Store) NewGroup(ctx context.Context, group *types.Group) (er
 	}
 
 	// Generate a unique ID and timestamp for the new group.
-	group.Id = generateB64(groupIdLength)
+	group.Id = generateB62(groupIdLength)
 	group.Timestamp = time.Now().UTC()
 
 	// Insert the new group into the database.
