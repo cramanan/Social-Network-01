@@ -17,8 +17,8 @@ type PostFields = Pick<
 
 const privacyLevels: Post["privacyLevel"][] = [
     "public",
-    "private",
     "almost_private",
+    "private",
 ];
 
 export const NewPost = ({ groupId }: { groupId: string | null }) => {
@@ -58,7 +58,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
     };
 
     useEffect(() => {
-        if (fields.privacyLevel !== "almost_private") return;
+        if (fields.privacyLevel !== "private") return;
         (async () => {
             const response = await fetch("api/profile/followers");
             const data: User[] = await response.json();
@@ -90,7 +90,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                         onSubmit={handleSubmit}
                         className="fixed top-0 inset-0 flex items-center justify-center z-50"
                     >
-                        <div className="border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg  w-1/2 ">
+                        <div className="w-4/5 border border-white bg-gradient-to-tr from-[#9ac0fa] to-[#efc0f0d7] p-6 rounded-lg shadow-lg xl:w-1/2 ">
                             <div className="flex justify-between">
                                 <h2 className="text-xl text-white font-semibold flex justify-center items-center gap-4 ">
                                     <Image
@@ -109,9 +109,9 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                                     <CloseIcon />
                                 </button>
                             </div>
-                            <div className="mt-5">
+                            <ul className="flex justify-evenly mt-5">
                                 {privacyLevels.map((level) => (
-                                    <div key={level}>
+                                    <li key={level} className="flex gap-2">
                                         <input
                                             key={level}
                                             type="radio"
@@ -130,34 +130,47 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                                         />
 
                                         <label htmlFor={level}>{level}</label>
-                                    </div>
+                                    </li>
                                 ))}
-                            </div>
-                            {fields.privacyLevel === "almost_private" &&
-                                userIds.map((user, idx) => (
-                                    <div key={idx}>
-                                        <input
-                                            type="checkbox"
-                                            value={user.id}
-                                            onChange={(e) => {
-                                                const update = e.target.checked
-                                                    ? [
-                                                          ...fields.selectedUserIds,
-                                                          user.id,
-                                                      ]
-                                                    : fields.selectedUserIds.filter(
-                                                          (id) => id != user.id
-                                                      );
+                            </ul>
+                            {fields.privacyLevel === "private" &&
+                                (<ul>
+                                    {userIds.length > 0 ?
+                                        (userIds.map((user, idx) => (
+                                            <li key={idx}>
+                                                <input
+                                                    type="checkbox"
+                                                    value={user.id}
+                                                    onChange={(e) => {
+                                                        const update = e.target.checked
+                                                            ? [
+                                                                ...fields.selectedUserIds,
+                                                                user.id,
+                                                            ]
+                                                            : fields.selectedUserIds.filter(
+                                                                (id) => id != user.id
+                                                            );
 
-                                                setFields({
-                                                    ...fields,
-                                                    selectedUserIds: update,
-                                                });
-                                            }}
-                                        />
-                                        <label>{user.nickname}</label>
-                                    </div>
-                                ))}
+                                                        setFields({
+                                                            ...fields,
+                                                            selectedUserIds: update,
+                                                        });
+                                                    }}
+                                                />
+                                                <label>{user.nickname}</label>
+                                            </li>
+                                        )))
+                                        :
+                                        (
+                                            <p className="text-center font-bold">
+                                                No follower(s) found.
+                                            </p>
+                                        )
+                                    }
+                                </ul>)
+                            }
+
+
                             <textarea
                                 id="content"
                                 className="shadow-lg w-full px-12 py-4 mt-5 rounded-xl  bg-white text-black text-xl justify-start items-center gap-2.5 inline-flex mb-4 placeholder-gray-500 resize-none"
@@ -165,7 +178,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                                 onChange={handleTextChange}
                                 placeholder="What's on your mind?"
                             />
-                            <ul className="flex">
+                            <ul className="flex gap-1 mb-1">
                                 {fields.images.map((image, idx) => (
                                     <li key={idx}>
                                         <Image
