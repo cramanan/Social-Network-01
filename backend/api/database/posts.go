@@ -64,7 +64,7 @@ func (store *SQLite3Store) CreatePost(ctx context.Context, post *types.Post) (er
 		}
 	}
 
-	if post.PrivacyLevel == "almost_private" {
+	if post.PrivacyLevel == "private" {
 		stmt, err = tx.PrepareContext(ctx, "INSERT INTO post_visibility (post_id, user_id) VALUES (?, ?);")
 		if err != nil {
 			return err

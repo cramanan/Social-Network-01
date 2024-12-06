@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { UserListIcon } from "./icons/UserListIcon";
 import UserList from "./UserList";
 import FindUser from "./FindUser";

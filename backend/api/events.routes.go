@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -81,7 +80,6 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 		}
 
 		for _, member := range members {
-			log.Println(member)
 			if conn, ok := server.WebSocket.Users.Lookup(member.Id); ok {
 				conn.WriteJSON(types.SocketMessage[string]{
 					Type: "event",

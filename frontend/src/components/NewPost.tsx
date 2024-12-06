@@ -17,8 +17,8 @@ type PostFields = Pick<
 
 const privacyLevels: Post["privacyLevel"][] = [
     "public",
-    "private",
     "almost_private",
+    "private",
 ];
 
 export const NewPost = ({ groupId }: { groupId: string | null }) => {
@@ -133,7 +133,7 @@ export const NewPost = ({ groupId }: { groupId: string | null }) => {
                                     </div>
                                 ))}
                             </div>
-                            {fields.privacyLevel === "almost_private" &&
+                            {fields.privacyLevel === "private" &&
                                 userIds.map((user, idx) => (
                                     <div key={idx}>
                                         <input

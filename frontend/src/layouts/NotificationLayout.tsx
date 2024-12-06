@@ -1,7 +1,7 @@
 "use client";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { ServerChat, SocketMessage, SocketMessageType } from "@/types/chat";
+import { SocketMessage, SocketMessageType } from "@/types/chat";
 import React, { PropsWithChildren, useState } from "react";
 
 type Toast = {

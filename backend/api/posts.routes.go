@@ -24,14 +24,16 @@ func (server *API) Posts(writer http.ResponseWriter, request *http.Request) (err
 		if err != nil {
 			return err
 		}
+
 		filtered := []types.Post{}
 		var authorized bool
 		for _, post := range posts {
 			switch post.PrivacyLevel {
-			case "private":
-				authorized = server.Storage.Follows(request.Context(), post.UserId, sess.User.Id) || sess.User.Id == post.UserId
 			case "almost_private":
-				authorized = server.Storage.UserIsSelectedForPost(request.Context(), sess.User.Id, post.Id)
+				authorized = server.Storage.Follows(request.Context(), post.UserId, sess.User.Id) || sess.User.Id == post.UserId
+
+			case "private":
+				authorized = server.Storage.UserIsSelectedForPost(request.Context(), sess.User.Id, post.Id) || sess.User.Id == post.UserId
 			case "public":
 				authorized = true
 			}

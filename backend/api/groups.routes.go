@@ -79,11 +79,11 @@ func (server *API) GetGroupPosts(writer http.ResponseWriter, request *http.Reque
 	var authorized bool
 	for _, post := range posts {
 		switch post.PrivacyLevel {
-		case "private":
+		case "almost_private":
 			authorized = server.Storage.Follows(request.Context(), post.UserId, sess.User.Id) || sess.User.Id == post.UserId
 
-		case "almost_private":
-			authorized = server.Storage.UserIsSelectedForPost(request.Context(), sess.User.Id, post.Id)
+		case "private":
+			authorized = server.Storage.UserIsSelectedForPost(request.Context(), sess.User.Id, post.Id) || sess.User.Id == post.UserId
 
 		case "public":
 			authorized = true
