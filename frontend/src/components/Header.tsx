@@ -52,7 +52,17 @@ export default function Header() {
                         </div>
                     </Link>
 
-                    <MobileNav />
+                    <div className="flex items-center gap-10 xl:hidden">
+                        <a href="/profile">
+                            <Image
+                                src={user?.image ?? "/Default_pfp.jpg"}
+                                alt=""
+                                width={45}
+                                height={45}
+                                className="rounded-full w-45 h-45" />
+                        </a>
+                        <MobileNav />
+                    </div>
                 </div>
             </header>
         </>

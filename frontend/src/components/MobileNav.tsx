@@ -19,25 +19,22 @@ const MobileNav = () => {
                 onClick={handleClick}
             >
                 <div
-                    className={`${menuLine} ${
-                        isOpen ? "rotate-45 translate-y-4" : ""
-                    }`}
+                    className={`${menuLine} ${isOpen ? "rotate-45 translate-y-4" : ""
+                        }`}
                 />
                 <div className={`${menuLine} ${isOpen ? "opacity-0" : ""}`} />
                 <div
-                    className={`${menuLine} ${
-                        isOpen ? "-rotate-45 -translate-y-4" : ""
-                    }`}
+                    className={`${menuLine} ${isOpen ? "-rotate-45 -translate-y-4" : ""
+                        }`}
                 />
             </button>
 
             <nav
                 className={`fixed top-0 right-0 w-4/5 h-full border-gradient-test duration-300 ease-in-out z-40
-            ${
-                isOpen
-                    ? "opacity-100 -translate-x-0 pointer-events-auto"
-                    : "translate-x-1/2 opacity-0 pointer-events-none"
-            }
+            ${isOpen
+                        ? "opacity-100 -translate-x-0 pointer-events-auto"
+                        : "translate-x-1/2 opacity-0 pointer-events-none"
+                    }
             `}
             >
                 <ul className="flex flex-col relative w-full h-full mt-14">
