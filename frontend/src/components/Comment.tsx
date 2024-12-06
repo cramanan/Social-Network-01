@@ -9,7 +9,7 @@ const Comment = ({ userId, content, username, userImage, image }: CommentType) =
     const { user } = useAuth()
     return (
         <div
-            className="flex items-center justify-between relative w-full h-[54px] bg-[#f6f6f6]/0 px-2"
+            className="flex items-center justify-between relative w-full min-h-[54px] bg-[#f6f6f6]/0 px-2"
             aria-label="Comment"
         >
             <div className="flex flex-row items-center">
@@ -19,7 +19,7 @@ const Comment = ({ userId, content, username, userImage, image }: CommentType) =
                         width={38}
                         height={38}
                         alt=""
-                        className="w-38 h-auto bg-[#b53695] rounded-[100px]"
+                        className="min-w-9 min-h-auto bg-[#b53695] rounded-[100px]"
                     />
                 </div>
                 <div className="flex flex-col">
@@ -29,15 +29,15 @@ const Comment = ({ userId, content, username, userImage, image }: CommentType) =
                         {username}
                     </Link>
                     { }
-                    <span className="flex items-center gap-2 text-black text-[13px] font-normal font-['Inter']">
+                    <span className="flex max-h-14 overflow-auto items-center gap-2 text-black text-[13px] font-normal font-['Inter']">
                         {image &&
                             <a href={image}>
                                 <Image
                                     src={image}
-                                    width={28}
-                                    height={28}
+                                    width={25}
+                                    height={25}
                                     alt=""
-                                    className="object-contain w-7 h-7"
+                                    className="object-contain min-w-7 h-7"
                                 />
                             </a>
                         }
@@ -45,7 +45,11 @@ const Comment = ({ userId, content, username, userImage, image }: CommentType) =
                     </span>
                 </div>
             </div>
-            <LikeIcon />
+
+            <div>
+                <LikeIcon />
+            </div>
+
         </div>
     );
 };
