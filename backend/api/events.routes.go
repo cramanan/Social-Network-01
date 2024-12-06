@@ -68,9 +68,14 @@ func (server *API) Events(writer http.ResponseWriter, request *http.Request) (er
 		}
 
 		// Store the event in the database.
-		err = server.Storage.CreateEvent(context.TODO(), event)
+		var created *types.Event
+		created, err = server.Storage.CreateEvent(context.TODO(), event)
 		if err != nil {
 			return err
+		}
+
+		if event.Going {
+			server.Storage.RegisterUserToEvent(request.Context(), sess.User.Id, created.Id)
 		}
 
 		var members []types.User

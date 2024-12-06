@@ -51,7 +51,7 @@ export default function Page() {
                         <ProfileStats userId={user.id} />
                     </div>
 
-                    <FollowButton {...user} />
+                    <FollowButton id={user.id} followed={user.followed} />
 
                     {!user.isPrivate || !isNotFollowing ? (
                         <div className="flex flex-col h-[calc(100vh-360px)] overflow-scroll no-scrollbar gap-2 pb-2 xl:w-[1000px] xl:h-[calc(100vh-300px)]">

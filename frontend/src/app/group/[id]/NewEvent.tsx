@@ -4,11 +4,15 @@ import { Event } from "@/types/group";
 import { StrictOmit } from "@/utils/types";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 
-type EventFields = StrictOmit<Event, "id" | "groupId" | "going">;
+type EventFields = StrictOmit<Event, "id" | "groupId">;
+const defaultState: EventFields = {
+    title: "",
+    description: "",
+    date: "",
+    going: false,
+};
 
 export default function NewEvent({ groupId }: { groupId: string }) {
-    const defaultState = { title: "", description: "", date: "" };
-
     const [state, setState] = useState<EventFields>(defaultState);
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -53,6 +57,16 @@ export default function NewEvent({ groupId }: { groupId: string }) {
                     id="date"
                     value={state.date}
                     onChange={onChange("date")}
+                />
+                <label htmlFor="going">Going</label>
+                <input
+                    type="checkbox"
+                    name="going"
+                    id="going"
+                    checked={state.going}
+                    onChange={(e) =>
+                        setState({ ...state, going: e.target.checked })
+                    }
                 />
                 <button type="submit">Create Event</button>
             </form>
