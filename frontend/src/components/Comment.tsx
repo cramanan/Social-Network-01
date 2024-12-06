@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 
-const Comment = ({ userId, content, username, userImage }: CommentType) => {
+const Comment = ({ userId, content, username, userImage, image }: CommentType) => {
     const { user } = useAuth()
     return (
         <div
@@ -29,7 +29,18 @@ const Comment = ({ userId, content, username, userImage }: CommentType) => {
                         {username}
                     </Link>
                     { }
-                    <span className=" text-black text-[13px] font-normal font-['Inter']">
+                    <span className="flex items-center gap-2 text-black text-[13px] font-normal font-['Inter']">
+                        {image &&
+                            <a href={image}>
+                                <Image
+                                    src={image}
+                                    width={28}
+                                    height={28}
+                                    alt=""
+                                    className="object-contain w-7 h-7"
+                                />
+                            </a>
+                        }
                         {content}
                     </span>
                 </div>
